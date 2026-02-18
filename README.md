@@ -5,7 +5,7 @@ A comprehensive web-based platform for managing projects, teams, and client-free
 ## 🚀 Tech Stack
 
 ### Backend
-- **Framework**: Laravel 11 (PHP 8.2+)
+- **Framework**: Laravel 12 (PHP 8.2+)
 - **Database**: MySQL/MariaDB
 - **Authentication**: Laravel Sanctum + Socialite (Google OAuth)
 - **Queue System**: Redis + Laravel Queues
@@ -13,19 +13,25 @@ A comprehensive web-based platform for managing projects, teams, and client-free
 - **API**: RESTful API with Inertia.js
 
 ### Frontend
-- **Framework**: React 18 with Inertia.js
-- **Build Tool**: Vite
-- **UI Components**: Tailwind CSS + shadcn/ui
-- **State Management**: React Context API
-- **Icons**: Lucide React
+- **Framework**: React 19.2.4 with Inertia.js 2.3.13
+- **Build Tool**: Vite 7.0.7
+- **UI Components**: Tailwind CSS 4.0.0 + shadcn/ui (Radix UI)
+- **State Management**: React Context API + Zustand 5.0.10
+- **Icons**: Lucide React 0.563.0 + Tabler Icons 3.36.1
+- **Drag & Drop**: @dnd-kit 6.3.1 + React DnD 16.0.1
+- **Rich Text**: Tiptap 3.18.0
+- **Forms**: Laravel Precognition React Inertia 0.8.0
 - **Real-time**: WebSocket Ready
 
 ### Key Libraries
-- **Permissions**: Spatie Laravel Permission
+- **Permissions**: Spatie Laravel Permission v6.24
 - **File Upload**: Laravel File Upload
 - **Notifications**: Laravel Notifications
 - **Validation**: Laravel Form Request Validation
 - **Email**: Laravel Mailer
+- **Auditing**: Owen It Laravel Auditing v14.0
+- **Invoices**: Laravel Daily Invoices v4.1
+- **Archivable**: Joelbutcher Laravel Archivable v1.12
 
 ## ✨ Features
 
@@ -128,6 +134,7 @@ Marketplace
 - Node.js 18+
 - Composer
 - Redis (optional)
+- Vite 7.0+
 
 ### Setup Steps
 ```bash
