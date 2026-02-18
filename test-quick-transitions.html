@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Transitions with 3s Breaks</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(to right, #4f46e5, #9333ea, #4f46e5);
+            color: white;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-content .features {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Quick Transitions with 3s Breaks */
+        .floating-hero-image {
+            position: absolute;
+            animation: sequentialFloatHero 18s infinite linear;
+            opacity: 0;
+        }
+        
+        .floating-hero-image:nth-child(1) { animation-delay: 0s; }
+        .floating-hero-image:nth-child(2) { animation-delay: 3.6s; }
+        .floating-hero-image:nth-child(3) { animation-delay: 7.2s; }
+        .floating-hero-image:nth-child(4) { animation-delay: 10.8s; }
+        .floating-hero-image:nth-child(5) { animation-delay: 14.4s; }
+        
+        @keyframes sequentialFloatHero {
+            0% {
+                transform: translateX(100vw);
+                opacity: 0;
+            }
+            2% {
+                transform: translateX(0vw);
+                opacity: 0.3;
+            }
+            18% {
+                transform: translateX(0vw);
+                opacity: 0.3;
+            }
+            20% {
+                transform: translateX(-200px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(-200px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <!-- Quick Transitions with 3s Breaks -->
+        <div class="floating-hero-image absolute inset-0 opacity-30">
+            <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-600/20 to-purple-600/20">
+                <div class="text-center text-white">
+                    <div class="text-6xl mb-2">💻</div>
+                    <div class="text-xl font-medium">Code Development</div>
+                    <div class="text-sm opacity-80 mt-1">Build amazing applications</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-hero-image absolute inset-0 opacity-30">
+            <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-pink-600/20 to-purple-600/20">
+                <div class="text-center text-white">
+                    <div class="text-6xl mb-2">🎨</div>
+                    <div class="text-xl font-medium">Creative Design</div>
+                    <div class="text-sm opacity-80 mt-1">Beautiful visual experiences</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-hero-image absolute inset-0 opacity-30">
+            <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-green-600/20 to-purple-600/20">
+                <div class="text-center text-white">
+                    <div class="text-6xl mb-2">📝</div>
+                    <div class="text-xl font-medium">Content Writing</div>
+                    <div class="text-sm opacity-80 mt-1">Compelling stories & copy</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-hero-image absolute inset-0 opacity-30">
+            <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-orange-600/20 to-purple-600/20">
+                <div class="text-center text-white">
+                    <div class="text-6xl mb-2">📊</div>
+                    <div class="text-xl font-medium">Data Analytics</div>
+                    <div class="text-sm opacity-80 mt-1">Insights that drive growth</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-hero-image absolute inset-0 opacity-30">
+            <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-teal-600/20 to-purple-600/20">
+                <div class="text-center text-white">
+                    <div class="text-6xl mb-2">🎯</div>
+                    <div class="text-xl font-medium">Strategy & Planning</div>
+                    <div class="text-sm opacity-80 mt-1">Smart business solutions</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <h1>Find the perfect freelancer</h1>
+            <p>Browse talent, discover projects, and start collaborating — all in one place.</p>
+            <div class="features">
+                <div>✅ Verified</div>
+                <div>⚡ Direct Chat</div>
+                <div>🏢 Workspace</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 2rem; text-align: center;">
+        <h2>✅ Quick Transitions with 3s Breaks - PERFECT!</h2>
+        <p>Images appear instantly, pause for 3 seconds, then quick transition to next!</p>
+        <p><strong>Fast transitions + comfortable viewing breaks!</strong></p>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <h3>⚡ New Timing Pattern:</h3>
+            <ul>
+                <li>🚀 <strong>Quick appearance</strong> (0.36s transition)</li>
+                <li>⏸️ <strong>3-second pause</strong> (comfortable viewing)</li>
+                <li>🚀 <strong>Quick exit</strong> (0.36s transition)</li>
+                <li>⏸️ <strong>3-second break</strong> (before next image)</li>
+                <li>🔄 <strong>Repeat</strong> for all 5 images</li>
+            </ul>
+            
+            <h3>📊 Detailed Timeline:</h3>
+            <ul>
+                <li><strong>0% - 2%:</strong> Quick transition in (0.36s)</li>
+                <li><strong>2% - 18%:</strong> Visible for 3 seconds (3.24s)</li>
+                <li><strong>18% - 20%:</strong> Quick transition out (0.36s)</li>
+                <li><strong>20% - 100%:</strong> Break period (14.4s)</li>
+            </ul>
+            
+            <h3>✅ Benefits:</h3>
+            <ul>
+                <li>✅ <strong>Dynamic feel</strong> - quick transitions</li>
+                <li>✅ <strong>Comfortable viewing</strong> - 3s pauses</li>
+                <li>✅ <strong>Not rushed</strong> - time to read content</li>
+                <li>✅ <strong>Engaging</strong> - fast but not overwhelming</li>
+                <li>✅ <strong>Professional</strong> - like modern presentations</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #e0f2fe; border-radius: 8px;">
+            <h3>🎯 Perfect Result:</h3>
+            <p><strong>Quick transitions + 3-second breaks = ideal user experience!</strong></p>
+            <p>Users see content clearly but aren't bored - perfect balance!</p>
+        </div>
+    </div>
+</body>
+</html>

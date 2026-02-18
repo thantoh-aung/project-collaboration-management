@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Straight Movement Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(to right, #4f46e5, #9333ea, #4f46e5);
+            color: white;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-content .features {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Simple Straight Movement */
+        .floating-image {
+            position: absolute;
+            animation: floatRightToLeft 25s infinite linear;
+            transform: translateX(100vw);
+        }
+        
+        .floating-image:nth-child(odd) {
+            animation: floatRightToLeft 20s infinite linear;
+        }
+        
+        .floating-image:nth-child(even) {
+            animation: floatWave 25s infinite linear;
+        }
+        
+        @keyframes floatRightToLeft {
+            0% {
+                transform: translateX(100vw);
+            }
+            100% {
+                transform: translateX(-200px);
+            }
+        }
+        
+        @keyframes floatWave {
+            0% {
+                transform: translateX(100vw);
+            }
+            100% {
+                transform: translateX(-200px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .floating-image {
+                transform: scale(0.8);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .floating-image {
+                transform: scale(0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <!-- Simple Straight Floating Images -->
+        <div class="floating-image absolute top-8 opacity-40" style="animation-delay: '0s', animation-duration: '25s'">
+            <div class="w-32 h-24 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 flex items-center justify-center">
+                <div class="text-white/80 text-center">
+                    <div class="text-2xl mb-1">💻</div>
+                    <div class="text-xs">Code</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-image absolute top-20 opacity-35" style="animation-delay: '6s', animation-duration: '30s'">
+            <div class="w-40 h-28 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 flex items-center justify-center">
+                <div class="text-white/80 text-center">
+                    <div class="text-3xl mb-1">🎨</div>
+                    <div class="text-xs">Design</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-image absolute top-16 opacity-45" style="animation-delay: '12s', animation-duration: '27s'">
+            <div class="w-36 h-24 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 flex items-center justify-center">
+                <div class="text-white/80 text-center">
+                    <div class="text-2xl mb-1">📝</div>
+                    <div class="text-xs">Write</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-image absolute top-32 opacity-30" style="animation-delay: '18s', animation-duration: '32s'">
+            <div class="w-44 h-32 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 flex items-center justify-center">
+                <div class="text-white/80 text-center">
+                    <div class="text-3xl mb-1">📊</div>
+                    <div class="text-xs">Analytics</div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-image absolute top-24 opacity-40" style="animation-delay: '9s', animation-duration: '29s'">
+            <div class="w-32 h-28 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 flex items-center justify-center">
+                <div class="text-white/80 text-center">
+                    <div class="text-2xl mb-1">🎯</div>
+                    <div class="text-xs">Strategy</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <h1>Find the perfect freelancer</h1>
+            <p>Browse talent, discover projects, and start collaborating — all in one place.</p>
+            <div class="features">
+                <div>✅ Verified</div>
+                <div>⚡ Direct Chat</div>
+                <div>🏢 Workspace</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 2rem; text-align: center;">
+        <h2>✅ Simple Straight Movement - COMPLETE!</h2>
+        <p>You should see 5 floating cards moving smoothly from right to left.</p>
+        <p><strong>NO complex motion - just clean, straight movement!</strong></p>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <h3>🎯 What's Removed:</h3>
+            <ul>
+                <li>❌ Wave motion (up/down movement)</li>
+                <li>❌ Rotation effects</li>
+                <li>❌ Breathing scale animation</li>
+                <li>❌ Complex transforms</li>
+            </ul>
+            
+            <h3>✅ What's Left:</h3>
+            <ul>
+                <li>✅ Clean straight movement (right to left)</li>
+                <li>✅ Different speeds for variety</li>
+                <li>✅ Large floating cards</li>
+                <li>✅ Glass-morphism effect</li>
+                <li>✅ Professional appearance</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #e0f2fe; border-radius: 8px;">
+            <h3>🚀 Result:</h3>
+            <p><strong>Simple, clean, professional movement that won't distract users!</strong></p>
+            <p>Perfect for modern UI that's impressive but not overwhelming.</p>
+        </div>
+    </div>
+</body>
+</html>
