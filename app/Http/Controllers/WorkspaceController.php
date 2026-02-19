@@ -247,7 +247,8 @@ class WorkspaceController extends Controller
 
         $workspace->removeUser($user);
 
-        return response()->json(['message' => 'User removed from workspace successfully.']);
+        // Return back with success message for Inertia
+        return redirect()->back()->with('success', 'User removed from workspace successfully.');
     }
 
     /**

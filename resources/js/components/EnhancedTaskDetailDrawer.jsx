@@ -35,6 +35,17 @@ export default function EnhancedTaskDetailDrawer({
     const finalCurrentUser = currentUser || workspaceUser.user;
     const [localTask, setLocalTask] = useState(task);
     
+    // Sync localTask with task prop when it changes
+    useEffect(() => {
+        console.log('🔍 Task prop changed, syncing localTask:', {
+            oldTaskId: localTask?.id,
+            newTaskId: task?.id,
+            newTaskName: task?.name,
+            newAssignedTo: task?.assigned_to_user_id
+        });
+        setLocalTask(task);
+    }, [task]);
+    
     // Get current user ID from page props as fallback
     const currentUserId = finalCurrentUser?.id || props.auth?.user?.id;
     
@@ -154,13 +165,19 @@ export default function EnhancedTaskDetailDrawer({
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
             try {
-                const url = `/workspaces/${currentWorkspace?.id}/tasks/${localTask.id}`;
+                const url = `/tasks/${localTask.id}`;
                 console.log('🔍 Task Update URL:', url);
                 console.log('🔍 Task Update Data:', updates);
-                await axios.patch(url, updates, {
+                const response = await axios.patch(url, updates, {
                     headers: { 'Accept': 'application/json' }
                 });
                 console.log('✅ Task updated successfully');
+                
+                // Update local task with server response if available
+                if (response.data?.task) {
+                    setLocalTask(prev => ({ ...prev, ...response.data.task }));
+                    onTaskUpdate?.(response.data.task);
+                }
             } catch (error) {
                 console.error('❌ Failed to update task:', error.response?.data || error.message);
                 setLocalTask(task); // revert
@@ -172,44 +189,47 @@ export default function EnhancedTaskDetailDrawer({
     const handleStatusChange = useCallback(async (groupId) => {
         if (!canUpdateStatus || !localTask) return;
         const gid = parseInt(groupId);
-        const group = taskGroups.find(g => g.id === gid);
-        const isComplete = group?.name === 'Complete';
-        const isInProgress = group?.name === 'In Progress';
-        const requiresAttachment = isInProgress || isComplete;
 
-        // Attachment validation
-        if (requiresAttachment && (!localTask.attachments || localTask.attachments.length === 0)) {
-            // Show error and prevent status change
-            const errorMessage = `Attachment required to change task status to "${group?.name}". Please add at least one file first.`;
-            
-            // Create a temporary error message element
+        console.log('🔍 Status change attempt:', {
+            currentTaskId: localTask?.id,
+            currentTaskName: localTask?.name,
+            currentAssignedTo: localTask?.assigned_to_user_id,
+            currentUserId: currentUserId,
+            isAssignedMember: localTask?.assigned_to_user_id === currentUserId,
+            newGroupId: gid,
+            workspaceId: currentWorkspace?.id || workspaceUser.currentWorkspace?.id
+        });
+
+        const group = taskGroups.find(g => g.id === parseInt(gid));
+        if (!group) {
+            console.error('❌ Group not found:', gid);
+            return;
+        }
+
+        const isComplete = group.name === 'Complete';
+        const requiresAttachment = (group.name === 'In Progress' || isComplete);
+        const hasAttachments = localTask.attachments && localTask.attachments.length > 0;
+
+        // Attachment validation for status changes
+        if (requiresAttachment && !hasAttachments) {
             const errorDiv = document.createElement('div');
-            errorDiv.className = 'fixed top-4 right-4 z-50 bg-red-100 border border-red-300 rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right';
+            errorDiv.className = 'fixed top-4 right-4 z-50 border rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right bg-amber-100 border-amber-300';
             errorDiv.innerHTML = `
                 <div class="flex items-start gap-2">
-                    <div class="w-5 h-5 bg-red-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg class="h-3 w-3 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <div class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm font-semibold text-red-900">Status Change Blocked</p>
-                        <p class="text-sm text-red-800 mt-0.5">${errorMessage}</p>
+                        <p class="text-sm font-medium text-amber-800">Attachment required</p>
+                        <p class="text-xs text-amber-700 mt-1">Please add at least one file before moving to "${group.name}".</p>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-600 hover:text-red-800 transition-colors">
-                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
                 </div>
             `;
             document.body.appendChild(errorDiv);
-            
-            // Auto-remove after 4 seconds
             setTimeout(() => {
-                if (errorDiv.parentElement) {
-                    errorDiv.remove();
-                }
+                errorDiv.remove();
             }, 4000);
             
             return;
@@ -220,12 +240,32 @@ export default function EnhancedTaskDetailDrawer({
         onTaskUpdate?.(updated);
 
         try {
-            await axios.patch(`/tasks/${localTask.id}`, {
+            console.log('🔍 Making API call:', {
+                url: `/api/workspaces/${currentWorkspace?.id || workspaceUser.currentWorkspace?.id}/tasks/${localTask.id}`,
+                taskId: localTask.id,
+                payload: { group_id: gid, completed: isComplete }
+            });
+
+            const response = await axios.patch(`/api/workspaces/${currentWorkspace?.id || workspaceUser.currentWorkspace?.id}/tasks/${localTask.id}`, {
                 group_id: gid,
                 completed: isComplete,
             }, { headers: { 'Accept': 'application/json' } });
+            
+            console.log('✅ Status change successful:', response.data);
+            
+            // Update local state with server response if available
+            if (response.data?.task) {
+                const updatedTask = { ...updated, ...response.data.task };
+                setLocalTask(updatedTask);
+                onTaskUpdate?.(updatedTask);
+            }
+            
         } catch (error) {
             console.error('❌ Failed to change status:', error.response?.data || error.message);
+            
+            // Revert local state on error
+            setLocalTask(task);
+            onTaskUpdate?.(task);
             
             // Check for backend validation errors
             const errorMessage = error.response?.data?.message || 
@@ -278,8 +318,6 @@ export default function EnhancedTaskDetailDrawer({
                     errorDiv.remove();
                 }
             }, 4000);
-            
-            setLocalTask(task);
         }
     }, [localTask, task, taskGroups, isReadOnly, onTaskUpdate]);
 
@@ -385,14 +423,20 @@ export default function EnhancedTaskDetailDrawer({
     // ─── Delete task ────────────────────────────────────────────
     const handleDeleteTask = useCallback(async () => {
         if (!localTask || !confirm('Are you sure you want to delete this task?')) return;
+        
+        // Optimistic: remove task from local state immediately
+        onTaskUpdate?.({ ...localTask, archived_at: new Date().toISOString() });
+        
         try {
             await axios.delete(`/tasks/${localTask.id}`, { headers: { 'Accept': 'application/json' } });
+            console.log('✅ Task deleted successfully');
             onClose();
-            router.reload();
         } catch (error) {
             console.error('Failed to delete task:', error);
+            // Revert the optimistic update on error
+            onTaskUpdate?.({ ...localTask, archived_at: null });
         }
-    }, [localTask, onClose]);
+    }, [localTask, onClose, onTaskUpdate]);
 
     // ─── @mentions ──────────────────────────────────────────────
     const handleCommentChange = (e) => {
@@ -559,20 +603,64 @@ export default function EnhancedTaskDetailDrawer({
                                                 </Avatar>
                                                 <span className="text-sm">{localTask.assigned_to_user.name}</span>
                                             </div>
-                                        ) : <span className="text-sm text-gray-400">Unassigned</span>
+                                        ) : (
+                                            <span className="text-sm text-gray-400">Not assigned</span>
+                                        )
                                     ) : (
                                         <Select
-                                            value={localTask.assigned_to_user_id?.toString() || 'unassigned'}
-                                            onValueChange={(v) => {
-                                                const uid = v === 'unassigned' ? null : parseInt(v);
+                                            value={localTask.assigned_to_user_id?.toString()}
+                                            onValueChange={async (v) => {
+                                                const uid = parseInt(v);
                                                 const member = teamMembers.find(m => m.id === uid);
-                                                updateTask({ assigned_to_user_id: uid });
-                                                if (member) setLocalTask(prev => ({ ...prev, assigned_to_user: member }));
+                                                
+                                                if (!member) return;
+                                                
+                                                // Optimistic update
+                                                setLocalTask(prev => ({ 
+                                                    ...prev, 
+                                                    assigned_to_user_id: uid,
+                                                    assigned_to_user: member,
+                                                    assignedToUser: member
+                                                }));
+                                                
+                                                // Make API call to update backend
+                                                try {
+                                                    const url = `/tasks/${localTask.id}`;
+                                                    console.log('🔍 Assignee Update URL:', url);
+                                                    console.log('🔍 Assignee Update Data:', { assigned_to_user_id: uid });
+                                                    const response = await axios.patch(url, { 
+                                                        assigned_to_user_id: uid 
+                                                    }, {
+                                                        headers: { 'Accept': 'application/json' }
+                                                    });
+                                                    
+                                                    console.log('✅ Assignee updated successfully:', response.data);
+                                                    
+                                                    // Update with server response to ensure consistency
+                                                    if (response.data?.task) {
+                                                        setLocalTask(prev => ({ ...prev, ...response.data.task }));
+                                                        onTaskUpdate?.(response.data.task);
+                                                    }
+                                                } catch (error) {
+                                                    console.error('❌ Failed to update assignee:', error.response?.data || error.message);
+                                                    
+                                                    // Revert optimistic update on error
+                                                    setLocalTask(task);
+                                                    
+                                                    if (error.response?.status === 403) {
+                                                        alert(error.response?.data?.message || 'You do not have permission to reassign this task.');
+                                                    } else if (error.response?.status === 404) {
+                                                        alert('Task not found. Please refresh the page.');
+                                                    } else {
+                                                        alert('Failed to update assignee. Please try again.');
+                                                    }
+                                                }
                                             }}
                                         >
-                                            <SelectTrigger className="h-9"><SelectValue placeholder="Select assignee" /></SelectTrigger>
+                                            <SelectTrigger className="h-9">
+                                                <SelectValue placeholder="Select team member to assign" />
+                                            </SelectTrigger>
                                             <SelectContent className="bg-white border-gray-300 shadow-xl">
-                                                <SelectItem value="unassigned">Unassigned</SelectItem>
                                                 {teamMembers.map(m => (
                                                     <SelectItem key={m.id} value={m.id.toString()}>{m.name}</SelectItem>
                                                 ))}

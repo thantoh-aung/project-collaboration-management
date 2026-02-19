@@ -398,6 +398,7 @@ export default function ClickUpTaskList({
     onAssigneeChange,
     onDueDateChange,
     onPriorityChange,
+    projectId,
 }) {
     const handleStatusChange = async (taskId, newGroupId) => {
         // Use parent handler if available, otherwise use internal logic
@@ -409,7 +410,7 @@ export default function ClickUpTaskList({
         const isComplete = group?.name === 'Complete';
         onUpdateTask?.({ id: taskId, group_id: newGroupId, completed: isComplete });
         try {
-            await axios.patch(`/tasks/${taskId}`, { group_id: newGroupId, completed: isComplete }, { headers: { 'Accept': 'application/json' } });
+            await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { group_id: newGroupId, completed: isComplete }, { headers: { 'Accept': 'application/json' } });
         } catch (e) { console.error('Failed to update status:', e); }
     };
 
@@ -420,10 +421,32 @@ export default function ClickUpTaskList({
         }
         
         const member = (teamMembers || []).find(m => m.id === userId);
-        onUpdateTask?.({ id: taskId, assigned_to_user_id: userId, assigned_to_user: member || null, assignedToUser: member || null });
+        
+        // Optimistic update
+        onUpdateTask?.({ 
+            id: taskId, 
+            assigned_to_user_id: userId, 
+            assigned_to_user: member || null, 
+            assignedToUser: member || null 
+        });
+        
         try {
-            await axios.patch(`/tasks/${taskId}`, { assigned_to_user_id: userId }, { headers: { 'Accept': 'application/json' } });
-        } catch (e) { console.error('Failed to update assignee:', e); }
+            const response = await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { 
+                assigned_to_user_id: userId 
+            }, { 
+                headers: { 'Accept': 'application/json' } 
+            });
+            
+            // Update with server response if available
+            if (response.data?.task) {
+                onUpdateTask?.(response.data.task);
+            }
+        } catch (e) { 
+            console.error('Failed to update assignee:', e.response?.data || e.message);
+            if (e.response?.status === 403) {
+                alert(e.response?.data?.message || 'You do not have permission to reassign this task.');
+            }
+        }
     };
 
     const handleDueDateChange = async (taskId, date) => {
@@ -434,7 +457,7 @@ export default function ClickUpTaskList({
         
         onUpdateTask?.({ id: taskId, due_on: date });
         try {
-            await axios.patch(`/tasks/${taskId}`, { due_on: date }, { headers: { 'Accept': 'application/json' } });
+            await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { due_on: date }, { headers: { 'Accept': 'application/json' } });
         } catch (e) { console.error('Failed to update due date:', e); }
     };
 
@@ -446,7 +469,7 @@ export default function ClickUpTaskList({
         
         onUpdateTask?.({ id: taskId, priority });
         try {
-            await axios.patch(`/tasks/${taskId}`, { priority }, { headers: { 'Accept': 'application/json' } });
+            await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { priority }, { headers: { 'Accept': 'application/json' } });
         } catch (e) { console.error('Failed to update priority:', e); }
     };
 

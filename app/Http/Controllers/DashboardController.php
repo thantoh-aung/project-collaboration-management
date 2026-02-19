@@ -84,13 +84,30 @@ class DashboardController extends Controller
                     // Clients can see all tasks in the workspace
                     \Log::info('Showing all tasks for client', ['user_id' => $user->id]);
                 } elseif ($userRole === 'member') {
-                    // Team members can only see tasks from projects they're assigned to
+                    // Members can only see tasks from projects they're assigned to
                     $q->whereHas('teamMembers', function ($q2) use ($user) {
                         $q2->where('user_id', $user->id);
                     });
                     \Log::info('Filtering tasks for team member - only from assigned projects', ['user_id' => $user->id]);
                 }
             });
+
+        // Apply strict task-level permissions for members
+        if ($userRole === 'member') {
+            // Members can see:
+            // 1. Unassigned tasks (assigned_to_user_id is null) in projects they're team members of
+            // 2. Tasks assigned to them
+            // 3. Tasks they created
+            $tasksQuery->where(function ($q) use ($user) {
+                $q->whereNull('assigned_to_user_id') // Unassigned tasks
+                    ->whereHas('project.teamMembers', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                  ->orWhere('assigned_to_user_id', $user->id) // Assigned to them
+                  ->orWhere('created_by_user_id', $user->id); // Created by them
+            });
+            \Log::info('Applied strict task-level filtering for member', ['user_id' => $user->id]);
+        }
 
         $allTasksCount = Task::whereNull('archived_at')
             ->whereHas('project', function ($q) use ($workspace) {
@@ -149,6 +166,91 @@ class DashboardController extends Controller
             'comments' => $recentComments->pluck('content', 'id')->toArray()
         ]);
 
+        // Get overdue tasks
+        $overdueTasksQuery = Task::query()
+            ->whereNull('archived_at')
+            ->whereNotNull('due_on')
+            ->where('due_on', '<', now()->format('Y-m-d'))
+            ->whereNull('completed_at')
+            ->whereHas('project', function ($q) use ($workspace, $userRole, $user) {
+                $q->where('workspace_id', $workspace->id)
+                  ->whereNull('archived_at');
+
+                if ($userRole === 'admin') {
+                    // Admins can see all overdue tasks in workspace
+                    \Log::info('Showing all overdue tasks for admin', ['user_id' => $user->id]);
+                } elseif ($userRole === 'client') {
+                    // Clients can see all overdue tasks in the workspace
+                    \Log::info('Showing all overdue tasks for client', ['user_id' => $user->id]);
+                } elseif ($userRole === 'member') {
+                    // Members can only see overdue tasks from projects they're assigned to
+                    $q->whereHas('teamMembers', function ($q2) use ($user) {
+                        $q2->where('user_id', $user->id);
+                    });
+                    \Log::info('Filtering overdue tasks for team member - only from assigned projects', ['user_id' => $user->id]);
+                }
+            });
+
+        // Apply strict task-level permissions for members
+        if ($userRole === 'member') {
+            // Members can see:
+            // 1. Unassigned overdue tasks (assigned_to_user_id is null) in projects they're team members of
+            // 2. Overdue tasks assigned to them
+            // 3. Overdue tasks they created
+            $overdueTasksQuery->where(function ($q) use ($user) {
+                $q->whereNull('assigned_to_user_id') // Unassigned tasks
+                    ->whereHas('project.teamMembers', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                  ->orWhere('assigned_to_user_id', $user->id) // Assigned to them
+                  ->orWhere('created_by_user_id', $user->id); // Created by them
+            });
+            \Log::info('Applied strict overdue task-level filtering for member', ['user_id' => $user->id]);
+        }
+
+        $overdueTasks = (clone $overdueTasksQuery)
+            ->with(['project:id,name'])
+            ->orderBy('due_on', 'asc')
+            ->get();
+
+        \Log::info('Overdue tasks', [
+            'count' => $overdueTasks->count(),
+            'tasks' => $overdueTasks->pluck('name', 'id')->toArray()
+        ]);
+
+        // Get overdue projects
+        $overdueProjectsQuery = Project::query()
+            ->where('workspace_id', $workspace->id)
+            ->whereNull('archived_at')
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now()->format('Y-m-d'))
+            ->where('status', '!=', 'completed');
+
+        // Filter projects based on user role in workspace
+        if ($userRole === 'admin') {
+            // Admins can see all overdue projects in workspace
+            \Log::info('Showing all overdue projects for admin', ['user_id' => $user->id]);
+        } elseif ($userRole === 'client') {
+            // Clients can see all overdue projects in the workspace
+            \Log::info('Showing all overdue projects for client', ['user_id' => $user->id]);
+        } elseif ($userRole === 'member') {
+            // Team members can only see overdue projects they're assigned to
+            $overdueProjectsQuery->whereHas('teamMembers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+            \Log::info('Filtering overdue projects for team member - only assigned projects', ['user_id' => $user->id]);
+        }
+
+        $overdueProjects = (clone $overdueProjectsQuery)
+            ->with(['clientCompany'])
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        \Log::info('Overdue projects', [
+            'count' => $overdueProjects->count(),
+            'projects' => $overdueProjects->pluck('name', 'id')->toArray()
+        ]);
+
         $totalTasks = (clone $tasksQuery)->count();
         $completedTasks = (clone $tasksQuery)->whereNotNull('completed_at')->count();
 
@@ -162,7 +264,7 @@ class DashboardController extends Controller
         ];
 
         // Get workspace members for admin and client views
-        $workspaceMembers = [];
+        $workspaceMembers = collect([]);
         if (in_array($userRole, ['admin', 'client'])) {
             $workspaceMembers = $workspace->users()
                 ->withPivot('role', 'joined_at')
@@ -191,6 +293,8 @@ class DashboardController extends Controller
             'recentTasks' => $recentTasks,
             'recentComments' => $recentComments,
             'statistics' => $statistics,
+            'overdueTasks' => $overdueTasks,
+            'overdueProjects' => $overdueProjects,
             'workspaceMembers' => $workspaceMembers,
             'userPermissions' => $userPermissions,
             'auth' => [

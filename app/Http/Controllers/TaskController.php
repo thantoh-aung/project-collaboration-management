@@ -33,9 +33,25 @@ class TaskController extends Controller
             ->whereNull('archived_at');
 
         // Apply role-based filtering
-        if ($userRole === 'client' || $userRole === 'member') {
+        if ($userRole === 'admin') {
+            // Admin can see all tasks - no filtering needed
+        } elseif ($userRole === 'client') {
+            // Clients can see all tasks in projects they have access to
             $query->whereHas('project.teamMembers', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
+            });
+        } elseif ($userRole === 'member') {
+            // Members can see:
+            // 1. Unassigned tasks (assigned_to_user_id is null) in projects they're team members of
+            // 2. Tasks assigned to them
+            // 3. Tasks they created
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('assigned_to_user_id') // Unassigned tasks
+                    ->whereHas('project.teamMembers', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                  ->orWhere('assigned_to_user_id', $user->id) // Assigned to them
+                  ->orWhere('created_by_user_id', $user->id); // Created by them
             });
         }
 
@@ -244,6 +260,23 @@ class TaskController extends Controller
             ->withCount(['comments', 'attachments'])
             ->orderBy('order_column');
 
+        // Apply strict task-level permissions for members
+        if ($userRole === 'member') {
+            // Members can see:
+            // 1. Unassigned tasks (assigned_to_user_id is null) in projects they're team members of
+            // 2. Tasks assigned to them
+            // 3. Tasks they created
+            $query->where(function ($q) use ($user, $project) {
+                $q->whereNull('assigned_to_user_id') // Unassigned tasks
+                    ->whereHas('project.teamMembers', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                  ->orWhere('assigned_to_user_id', $user->id) // Assigned to them
+                  ->orWhere('created_by_user_id', $user->id); // Created by them
+            });
+        }
+        // Admin and client can see all tasks (no filtering needed)
+
         $tasks = $query->get();
         
         // Get team members for assignment dropdown
@@ -298,6 +331,17 @@ class TaskController extends Controller
             'billable' => ['nullable', 'boolean'],
             'hidden_from_clients' => ['nullable', 'boolean'],
         ]);
+
+        if (!empty($data['due_on'])) {
+            $projectDueDate = $project->due_date ? \Carbon\Carbon::parse($project->due_date) : null;
+            $taskDueDate = \Carbon\Carbon::parse($data['due_on']);
+
+            if ($projectDueDate && $taskDueDate->gt($projectDueDate)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'due_on' => "Task due date cannot be after project due date ({$projectDueDate->format('Y-m-d')})."
+                ]);
+            }
+        }
 
         // Validate that assigned user is a team member of the project
         if (!empty($data['assigned_to_user_id'])) {
@@ -398,18 +442,49 @@ class TaskController extends Controller
             unset($data['completed']);
         }
 
-        // Detect changes for notifications
-        $oldAssignee = $task->getOriginal('assigned_to_user_id');
-        $oldGroupId = $task->getOriginal('group_id');
+        // Check if user is trying to reassign the task
+        if (isset($data['assigned_to_user_id']) && $data['assigned_to_user_id'] != $task->assigned_to_user_id) {
+            // Only admins can reassign tasks
+            $workspace = $task->project->workspace;
+            $workspaceRole = $workspace ? $workspace->getUserRole($user) : null;
+            
+            \Log::info('Task reassignment attempt', [
+                'user_id' => $user->id,
+                'workspace_role' => $workspaceRole,
+                'task_id' => $task->id,
+                'old_assignee' => $task->assigned_to_user_id,
+                'new_assignee' => $data['assigned_to_user_id'],
+            ]);
+            
+            if ($workspaceRole !== 'admin' && !$user->hasRole('admin')) {
+                abort(403, 'Only admins can reassign tasks.');
+            }
+        }
 
+        // Detect changes for notifications (before updating)
+        $oldAssignee = $task->assigned_to_user_id;
+        $oldGroupId = $task->group_id;
+
+        // Update the task
         $task->fill($data);
         $task->save();
 
+        // Refresh the task to get latest data
+        $task->refresh();
+        
+        \Log::info('Task updated successfully', [
+            'task_id' => $task->id,
+            'assigned_to_user_id' => $task->assigned_to_user_id,
+            'created_by_user_id' => $task->created_by_user_id,
+            'priority' => $task->priority,
+            'updated_by' => $user->id,
+        ]);
+
         // Trigger notifications
-        if (isset($data['assigned_to_user_id']) && $data['assigned_to_user_id'] !== $oldAssignee) {
+        if (isset($data['assigned_to_user_id']) && $data['assigned_to_user_id'] != $oldAssignee) {
             NotificationService::taskAssigned($task, $user);
         }
-        if (isset($data['group_id']) && $data['group_id'] !== $oldGroupId) {
+        if (isset($data['group_id']) && $data['group_id'] != $oldGroupId) {
             $newGroup = TaskGroup::find($data['group_id']);
             if ($newGroup) {
                 NotificationService::statusChanged($task, $user, $newGroup->name);
@@ -419,8 +494,15 @@ class TaskController extends Controller
         // Dispatch event for real-time report updates
         broadcast(new \App\Events\TaskUpdated($task))->toOthers();
 
+        // Return fresh task with all relationships
+        $freshTask = $task->fresh()->load([
+            'assignedToUser:id,name,avatar',
+            'createdByUser:id,name,avatar',
+            'taskGroup:id,name,project_id'
+        ]);
+
         return response()->json([
-            'task' => $task->fresh()->load(['assignedToUser:id,name,avatar', 'createdByUser:id,name,avatar', 'taskGroup:id,name,project_id']),
+            'task' => $freshTask,
             'event' => 'taskUpdated'
         ]);
     }

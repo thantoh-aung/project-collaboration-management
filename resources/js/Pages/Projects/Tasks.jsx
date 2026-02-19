@@ -168,6 +168,41 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
   
   // Filter team members to exclude clients (only team members can be assigned tasks)
   const assignableMembers = teamMembers?.filter(member => member.pivot?.role !== 'client') || [];
+
+  // Permission check for moving tasks
+  const canMoveTask = useCallback((task) => {
+    // Clients cannot move tasks
+    if (userRole === 'client') return false;
+    
+    // Admins can move any task
+    if (userRole === 'admin') return true;
+    
+    // Members can move tasks if:
+    // 1. Task is unassigned (assigned_to_user_id is null)
+    // 2. Task is assigned to them
+    // 3. Task was created by them
+    if (userRole === 'member') {
+      const assignedUserId = task.assigned_to_user_id;
+      const currentUserId = user?.id;
+      const createdById = task.created_by_user_id;
+      
+      // Unassigned tasks can be moved by all team members
+      if (assignedUserId == null) {
+        console.log('🔍 Unassigned task - allowing move for team member', {
+          taskId: task.id,
+          taskName: task.name,
+          userId: currentUserId,
+          assignedUserId
+        });
+        return true;
+      }
+      
+      // Assigned tasks can only be moved by the assigned user or creator
+      return assignedUserId == currentUserId || createdById == currentUserId;
+    }
+    
+    return false;
+  }, [userRole, user]);
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -287,7 +322,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
         return acc;
       }, {});
 
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = useCallback(async (event) => {
     const { active, over } = event;
     
     if (!over) return;
@@ -308,7 +343,14 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
     const task = localTasks.find(t => t.id === taskId);
     if (!task || task.group_id === newGroupId) return;
     
-    console.log('📝 Moving task:', task.name, 'from group', task.group_id, 'to group', newGroupId);
+    // Authorization check
+    if (!canMoveTask(task)) {
+      console.log('� Drag denied: User cannot move this task');
+      alert('You do not have permission to move this task.');
+      return;
+    }
+    
+    console.log('�� Moving task:', task.name, 'from group', task.group_id, 'to group', newGroupId);
     
     // Optimistic update
     const updatedTasks = localTasks.map(t => 
@@ -318,7 +360,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
     
     // Update backend
     try {
-      const response = await axios.patch(`/tasks/${taskId}`, {
+      const response = await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
         group_id: newGroupId
       });
       console.log('✅ Task updated successfully:', response.data);
@@ -326,8 +368,14 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
       console.error('❌ Failed to update task:', error.response?.data || error.message);
       // Revert on error
       setLocalTasks(tasks);
+      
+      // Show specific error message
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         'Failed to move task. Please try again.';
+      alert(errorMessage);
     }
-  };
+  }, [canMoveTask, localTasks, tasks, taskGroups]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

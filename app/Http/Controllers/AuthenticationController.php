@@ -17,9 +17,33 @@ class AuthenticationController extends Controller
     /**
      * Show the login page.
      */
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render('Auth/Login');
+        // Check if user is coming from invitation
+        $inviteToken = $request->session()->get('invite_token');
+        
+        // Fallback: check if token is in URL parameter
+        if (!$inviteToken && $request->has('invite')) {
+            $inviteToken = $request->get('invite');
+            // Store it in session for future requests
+            if ($inviteToken) {
+                session(['invite_token' => $inviteToken]);
+            }
+        }
+        
+        $invitation = null;
+        
+        if ($inviteToken) {
+            $invitation = \App\Models\WorkspaceInvitation::where('token', $inviteToken)
+                ->where('expires_at', '>', now())
+                ->with(['workspace.owner', 'inviter'])
+                ->first();
+            \Log::info('Login page - invitation found: ' . ($invitation ? 'YES' : 'NO'));
+        }
+
+        return Inertia::render('Auth/Login', [
+            'invitation' => $invitation,
+        ]);
     }
 
     /**
@@ -39,6 +63,36 @@ class AuthenticationController extends Controller
             'user_email' => $user->email,
             'user_role' => $user->role
         ]);
+        
+        // Check if user is logging in via invitation
+        $inviteToken = $request->session()->get('invite_token');
+        if ($inviteToken) {
+            \Log::info('Processing invitation during login', ['token' => $inviteToken]);
+            
+            $invitation = \App\Models\WorkspaceInvitation::where('token', $inviteToken)
+                ->where('expires_at', '>', now())
+                ->first();
+                
+            if ($invitation && $invitation->email === $user->email) {
+                \Log::info('Accepting invitation during login', [
+                    'user_id' => $user->id,
+                    'workspace_id' => $invitation->workspace_id,
+                    'role' => $invitation->role
+                ]);
+                
+                // Accept the invitation
+                $invitation->workspace->addUser($user, $invitation->role);
+                $invitation->delete();
+                
+                // Clear invitation token
+                $request->session()->forget('invite_token');
+                
+                // Set current workspace to the invited workspace
+                session(['current_workspace_id' => $invitation->workspace_id]);
+                
+                return redirect()->route('dashboard')->with('success', 'Welcome! You\'ve joined the workspace successfully.');
+            }
+        }
         
         // Check if user owns any workspace
         $ownedWorkspaces = \App\Models\Workspace::where('owner_id', $user->id)->get();
@@ -176,7 +230,20 @@ class AuthenticationController extends Controller
     {
         // Check if user is registering via invitation
         $inviteToken = $request->session()->get('invite_token');
+        
+        // Fallback: check if token is in URL parameter
+        if (!$inviteToken && $request->has('invite')) {
+            $inviteToken = $request->get('invite');
+            // Store it in session for future requests
+            if ($inviteToken) {
+                session(['invite_token' => $inviteToken]);
+            }
+        }
+        
         \Log::info('Register page - invite_token from session: ' . $inviteToken);
+        \Log::info('Register page - Session ID: ' . $request->session()->getId());
+        \Log::info('Register page - All session data: ' . json_encode($request->session()->all()));
+        \Log::info('Register page - URL invite parameter: ' . $request->get('invite'));
         
         $invitation = null;
         
@@ -186,6 +253,10 @@ class AuthenticationController extends Controller
                 ->with(['workspace.owner', 'inviter'])
                 ->first();
             \Log::info('Register page - invitation found: ' . ($invitation ? 'YES' : 'NO'));
+            if ($invitation) {
+                \Log::info('Register page - invitation email: ' . $invitation->email);
+                \Log::info('Register page - invitation workspace: ' . $invitation->workspace->name);
+            }
         }
 
         return Inertia::render('Auth/Register', [

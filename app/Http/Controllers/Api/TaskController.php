@@ -61,6 +61,18 @@ class TaskController extends Controller
             }
         }
 
+        // Validate task due date against project due date
+        if (!empty($validated['due_on']) && $project->due_date) {
+            $taskDueDate = \Carbon\Carbon::parse($validated['due_on']);
+            $projectDueDate = \Carbon\Carbon::parse($project->due_date);
+            
+            if ($taskDueDate->gt($projectDueDate)) {
+                return response()->json([
+                    'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
+                ], 422);
+            }
+        }
+
         $groupId = $validated['group_id'] ?? null;
 
         // Get the highest order_column in the group
@@ -93,8 +105,18 @@ class TaskController extends Controller
     /**
      * Update the specified task.
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, $taskId)
     {
+        \Log::info('API Task Update Called', [
+            'task_id' => $taskId,
+            'user_id' => $request->user()->id,
+            'user_email' => $request->user()->email,
+            'workspace_id' => $this->getCurrentWorkspace($request)?->id,
+            'user_role' => $request->attributes->get('userRole') ?? $request->attributes->get('user_role'),
+            'request_data' => $request->all(),
+            'headers' => $request->headers->all(),
+        ]);
+
         $user = $request->user();
         $workspace = $this->getCurrentWorkspace($request);
         $userRole = $request->attributes->get('userRole') ?? $request->attributes->get('user_role');
@@ -102,6 +124,33 @@ class TaskController extends Controller
         if ($userRole === 'client') {
             return response()->json(['error' => 'Clients cannot update tasks'], 403);
         }
+
+        // Find the task within the workspace context
+        $task = Task::where('id', $taskId)
+            ->whereHas('project', function ($query) use ($workspace) {
+                $query->where('workspace_id', $workspace->id);
+            })
+            ->first();
+
+        if (!$task) {
+            return response()->json(['error' => 'Task not found'], 404);
+        }
+
+        // Debug logging for permission check
+        \Log::info('API Task Update Permission Check', [
+            'task_id' => $task->id,
+            'task_name' => $task->name,
+            'assigned_to_user_id' => $task->assigned_to_user_id,
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'workspace_id' => $workspace->id,
+            'workspace_role_from_request' => $userRole,
+            'workspace_role_from_attributes' => $request->attributes->get('userRole'),
+            'workspace_role_from_attributes_alt' => $request->attributes->get('user_role'),
+            'all_request_attributes' => $request->attributes->all(),
+            'project_id' => $task->project_id,
+            'workspace_user_relation' => $workspace ? $workspace->workspaceUsers()->where('user_id', $user->id)->first()?->toArray() : null
+        ]);
 
         abort_unless($user && $user->can('update', $task), 403);
 
@@ -118,6 +167,29 @@ class TaskController extends Controller
             'assigned_to_user_id' => 'sometimes|nullable|exists:users,id',
             'due_on' => 'sometimes|nullable|date',
         ]);
+
+        // Validate task due date against project due date
+        if (array_key_exists('due_on', $validated) && !empty($validated['due_on']) && $task->project->due_date) {
+            $taskDueDate = \Carbon\Carbon::parse($validated['due_on']);
+            $projectDueDate = \Carbon\Carbon::parse($task->project->due_date);
+            
+            if ($taskDueDate->gt($projectDueDate)) {
+                return response()->json([
+                    'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
+                ], 422);
+            }
+        }
+
+        // Check if user is trying to reassign the task
+        if (array_key_exists('assigned_to_user_id', $validated) && $validated['assigned_to_user_id'] != $task->assigned_to_user_id) {
+            // Only admins can reassign tasks
+            $workspace = $task->project->workspace;
+            $workspaceRole = $workspace ? $workspace->getUserRole($user) : null;
+            
+            if ($workspaceRole !== 'admin' && !$user->hasRole('admin')) {
+                return response()->json(['error' => 'Only admins can reassign tasks.'], 403);
+            }
+        }
 
         // If updating group_id, verify it belongs to the same project
         if (array_key_exists('group_id', $validated) && $validated['group_id'] !== null) {
@@ -150,6 +222,13 @@ class TaskController extends Controller
         }
 
         $task->update($validated);
+
+        \Log::info('API Task Update Success', [
+            'task_id' => $task->id,
+            'task_name' => $task->name,
+            'updated_fields' => array_keys($validated),
+            'user_id' => $user->id,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -216,14 +295,25 @@ class TaskController extends Controller
     /**
      * Remove the specified task.
      */
-    public function destroy(Task $task)
+    public function destroy(Request $request, $taskId)
     {
-        $user = request()->user();
-        $workspace = $this->getCurrentWorkspace(request());
-        $userRole = request()->attributes->get('userRole') ?? request()->attributes->get('user_role');
+        $user = $request->user();
+        $workspace = $this->getCurrentWorkspace($request);
+        $userRole = $request->attributes->get('userRole') ?? $request->attributes->get('user_role');
 
         if ($userRole === 'client') {
             return response()->json(['error' => 'Clients cannot delete tasks'], 403);
+        }
+
+        // Find the task within the workspace context
+        $task = Task::where('id', $taskId)
+            ->whereHas('project', function ($query) use ($workspace) {
+                $query->where('workspace_id', $workspace->id);
+            })
+            ->first();
+
+        if (!$task) {
+            return response()->json(['error' => 'Task not found'], 404);
         }
 
         abort_unless($user && $user->can('archive', $task), 403);

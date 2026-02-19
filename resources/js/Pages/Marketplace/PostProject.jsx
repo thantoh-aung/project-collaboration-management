@@ -240,7 +240,7 @@ export default function PostProject() {
                             <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                                 <Briefcase className="h-5 w-5 text-white" />
                             </div>
-                            <h1 className="text-2xl font-bold text-gray-900">Post a Project</h1>
+                            <h1 className="text-2xl font-bold text-white">Post a Project</h1>
                         </div>
                         {lastSaved && (
                             <div className="text-xs text-gray-400 flex items-center gap-1">
@@ -249,41 +249,41 @@ export default function PostProject() {
                             </div>
                         )}
                     </div>
-                    <p className="text-gray-500">Describe your project and find the perfect freelancer.</p>
+                    <p className="text-gray-400">Find talented freelancers for your project and bring your ideas to life.</p>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
                     {/* Title */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <Label htmlFor="title" className="text-sm font-semibold text-gray-700">Project Title *</Label>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6 shadow-sm">
+                        <Label htmlFor="title" className="text-sm font-semibold text-gray-300">Project Title *</Label>
                         <Input
                             id="title"
                             value={data.title}
                             onChange={(e) => setData('title', e.target.value)}
                             placeholder="e.g., E-commerce Website Development, Mobile App Design, SEO Optimization"
-                            className="mt-2 h-11"
+                            className="mt-2 h-11 rounded-xl border-slate-600 bg-slate-700 text-white"
                         />
-                        {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+                        {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title}</p>}
                     </div>
 
                     {/* Description */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <Label htmlFor="description" className="text-sm font-semibold text-gray-700">Description *</Label>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6 shadow-sm">
+                        <Label htmlFor="description" className="text-sm font-semibold text-gray-300">Description *</Label>
                         <Textarea
                             id="description"
                             value={data.description}
                             onChange={(e) => setData('description', e.target.value)}
                             placeholder="We need a full-stack developer to build a modern e-commerce platform with user authentication, payment integration, and admin dashboard. The project should be responsive and SEO-friendly. Experience with React, Node.js, and PostgreSQL is required."
-                            className="mt-2 min-h-[150px]"
+                            className="mt-2 min-h-[150px] rounded-xl border-slate-600 bg-slate-700 text-white"
                         />
-                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                        {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
                     </div>
 
                     {/* Budget */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6 shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
-                            <DollarSign className="h-4 w-4 text-emerald-500" />
-                            <Label className="text-sm font-semibold text-gray-700">Budget *</Label>
+                            <DollarSign className="h-4 w-4 text-emerald-400" />
+                            <Label className="text-sm font-semibold text-gray-300">Budget *</Label>
                         </div>
 
                         <div className="mb-4">
@@ -296,8 +296,8 @@ export default function PostProject() {
                                         onClick={() => setData('budget_type', type)}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                                             data.budget_type === type
-                                                ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
-                                                : 'bg-gray-50 text-gray-600 border-2 border-transparent hover:bg-gray-100'
+                                                ? 'bg-emerald-600/20 text-emerald-300 border-emerald-500/30'
+                                                : 'bg-gray-600/20 text-gray-300 border-gray-500/30'
                                         }`}
                                     >
                                         {type === 'fixed' ? 'Fixed Price' : 'Hourly'}
@@ -315,7 +315,7 @@ export default function PostProject() {
                                     value={data.budget_min}
                                     onChange={(e) => setData('budget_min', e.target.value)}
                                     placeholder="1000"
-                                    className="mt-1"
+                                    className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white"
                                     min="5"
                                     max="999999999999"
                                     step="1"
@@ -330,7 +330,7 @@ export default function PostProject() {
                                     value={data.budget_max}
                                     onChange={(e) => setData('budget_max', e.target.value)}
                                     placeholder="5000"
-                                    className="mt-1"
+                                    className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white"
                                     min="10"
                                     max="999999999999"
                                     step="1"
@@ -338,21 +338,21 @@ export default function PostProject() {
                                 />
                             </div>
                         </div>
-                        {errors.budget_min && <p className="text-red-500 text-xs mt-1">{errors.budget_min}</p>}
-                        {errors.budget_max && <p className="text-red-500 text-xs mt-1">{errors.budget_max}</p>}
+                        {errors.budget_min && <p className="text-red-400 text-xs mt-1">{errors.budget_min}</p>}
+                        {errors.budget_max && <p className="text-red-400 text-xs mt-1">{errors.budget_max}</p>}
                     </div>
 
                     {/* Deadline */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <div className="flex items-center gap-2 mb-3">
-                            <Calendar className="h-4 w-4 text-blue-500" />
-                            <Label htmlFor="deadline" className="text-sm font-semibold text-gray-700">Deadline *</Label>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6 shadow-sm">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Calendar className="h-4 w-4 text-blue-400" />
+                            <Label htmlFor="deadline" className="text-sm font-semibold text-gray-300">Deadline *</Label>
                         </div>
                         <select
                             id="deadline"
                             value={data.deadline}
                             onChange={(e) => setData('deadline', e.target.value)}
-                            className="mt-1 max-w-xs h-11 rounded-xl border border-gray-200 bg-white px-3 text-sm"
+                            className="mt-1.5 max-w-xs h-11 rounded-xl border-slate-600 bg-slate-700 text-white px-3 text-sm"
                         >
                             <option value="">Select deadline...</option>
                             <option value="flexible">Flexible</option>
@@ -362,59 +362,59 @@ export default function PostProject() {
                             <option value="3_months">Within 3 months</option>
                             <option value="6_months">Within 6 months</option>
                         </select>
-                        {errors.deadline && <p className="text-red-500 text-xs mt-1">{errors.deadline}</p>}
+                        {errors.deadline && <p className="text-red-400 text-xs mt-1">{errors.deadline}</p>}
                     </div>
 
                     {/* Skills Required */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6 shadow-sm">
                         <div className="flex items-center gap-2 mb-3">
-                            <Code className="h-4 w-4 text-indigo-500" />
-                            <Label className="text-sm font-semibold text-gray-700">Skills Required *</Label>
+                            <Code className="h-4 w-4 text-blue-400" />
+                            <Label className="text-sm font-semibold text-gray-300">Skills Required *</Label>
                         </div>
-
                         <div className="flex gap-2 mb-3">
                             <Input
                                 value={newSkill}
                                 onChange={(e) => setNewSkill(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
                                 placeholder="e.g., React, Laravel, UI/UX Design, Digital Marketing"
-                                className="flex-1"
+                                className="flex-1 h-9 rounded-lg border-slate-600 bg-slate-700 text-white text-sm"
                             />
-                            <Button type="button" variant="outline" onClick={addSkill} className="px-3">
+                            <Button type="button" variant="outline" onClick={addSkill} className="rounded-lg border-slate-600 text-white hover:bg-slate-700">
                                 <Plus className="h-4 w-4" />
+                                Add
                             </Button>
                         </div>
-
                         {data.skills_required.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                                 {data.skills_required.map((skill, i) => (
-                                    <span key={i} className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full">
+                                    <span key={i} className="inline-flex items-center gap-1 bg-blue-600/20 text-blue-300 border-blue-500/30 text-sm font-medium px-3 py-1 rounded-full">
                                         {skill}
-                                        <button type="button" onClick={() => removeSkill(i)} className="hover:text-red-500 transition-colors">
-                                            <X className="h-3.5 w-3.5" />
+                                        <button type="button" onClick={() => removeSkill(i)} className="hover:text-red-400 transition-colors">
+                                            <X className="h-3 w-3.5" />
                                         </button>
                                     </span>
                                 ))}
                             </div>
                         )}
+                        {errors.skills_required && <p className="text-red-400 text-xs mt-1">{errors.skills_required}</p>}
                     </div>
 
                     {/* Submit */}
-                    <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-700">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={clearFormData}
-                            className="text-gray-500 hover:text-gray-700 rounded-xl"
+                            className="text-gray-400 hover:text-gray-300 rounded-xl"
                         >
                             Clear Form
                         </Button>
-                        <div className="flex items-center gap-3">
+                        <div className="flex gap-3">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => window.history.back()}
-                                className="rounded-xl"
+                                className="rounded-xl border-slate-600 text-white hover:bg-slate-700"
                             >
                                 Cancel
                             </Button>

@@ -66,13 +66,13 @@ export default function ProjectCard({ project, onClick }) {
     return (
         <div
             onClick={() => onClick && onClick(project)}
-            className="block bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-200 transition-all duration-200 overflow-hidden cursor-pointer group"
+            className="block bg-slate-800 rounded-xl border border-slate-600 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-500 transition-all duration-200 overflow-hidden cursor-pointer group"
         >
             <div className="p-5">
                 {/* Status Badge */}
                 <div className="flex items-center justify-between mb-3">
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-600/20 text-emerald-300 border border-emerald-500/30">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                         {project.status === 'open' ? 'Open' : project.status === 'in_progress' ? 'In Progress' : 'Closed'}
                     </span>
                     <div className="flex items-center gap-2">
@@ -83,18 +83,18 @@ export default function ProjectCard({ project, onClick }) {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-6 w-6 p-0 hover:bg-gray-100"
+                                        className="h-6 w-6 p-0 hover:bg-slate-700"
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <MoreHorizontal className="h-3 w-3" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-32 bg-white border border-gray-200 shadow-lg rounded-lg">
-                                    <DropdownMenuItem onClick={handleEdit} className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
+                                <DropdownMenuContent align="end" className="w-32 bg-slate-800 border border-slate-600 shadow-lg rounded-lg">
+                                    <DropdownMenuItem onClick={handleEdit} className="cursor-pointer hover:bg-slate-700 focus:bg-slate-700 text-gray-300">
                                         <Edit className="h-3 w-3 mr-2" />
                                         Edit
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleDelete} className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50">
+                                    <DropdownMenuItem onClick={handleDelete} className="cursor-pointer text-red-400 hover:bg-red-600/20 focus:bg-red-600/20">
                                         <Trash2 className="h-3 w-3 mr-2" />
                                         Delete
                                     </DropdownMenuItem>
@@ -105,12 +105,12 @@ export default function ProjectCard({ project, onClick }) {
                 </div>
 
                 {/* Title */}
-                <h3 className="font-semibold text-gray-900 mb-1.5 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                <h3 className="font-semibold text-white mb-1.5 line-clamp-2 group-hover:text-emerald-400 transition-colors">
                     {project.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-gray-600 line-clamp-2 mb-3">{project.description}</p>
+                <p className="text-sm text-gray-400 line-clamp-2 mb-3">{project.description}</p>
 
                 {/* Skills */}
                 {skills.length > 0 && (
@@ -119,15 +119,15 @@ export default function ProjectCard({ project, onClick }) {
                             <SkillBadge key={i} skill={skill} />
                         ))}
                         {skills.length > 4 && (
-                            <span className="text-xs text-gray-400 self-center">+{skills.length - 4}</span>
+                            <span className="text-xs text-gray-500 self-center">+{skills.length - 4}</span>
                         )}
                     </div>
                 )}
 
                 {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-sm font-semibold text-gray-900">
-                        <DollarSign className="h-3.5 w-3.5 inline -mt-0.5 text-emerald-500" />
+                <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                    <span className="text-sm font-semibold text-white">
+                        <DollarSign className="h-3.5 w-3.5 inline -mt-0.5 text-emerald-400" />
                         {budgetDisplay()}
                     </span>
                     {deadline && (
@@ -138,7 +138,7 @@ export default function ProjectCard({ project, onClick }) {
                 </div>
 
                 {/* Client Info */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-700">
                     <div className="h-6 w-6 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                         {user?.avatar_url ? (
                             <img src={user.avatar_url} alt={user.name} className="h-6 w-6 rounded-full object-cover" />
@@ -146,7 +146,7 @@ export default function ProjectCard({ project, onClick }) {
                             user?.name?.charAt(0)?.toUpperCase() || 'C'
                         )}
                     </div>
-                    <span className="text-xs text-gray-500 truncate">{user?.name || 'Client'}</span>
+                    <span className="text-xs text-gray-400 truncate">{user?.name || 'Client'}</span>
                 </div>
             </div>
         </div>

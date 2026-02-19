@@ -270,16 +270,16 @@ export default function MyProfile({ profile }) {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">My Freelancer Profile</h1>
-                        <p className="text-sm text-gray-500 mt-1">
-                            {isPublished ? 'Your profile is live on the marketplace.' : 'Your profile is in draft mode. Publish it to appear in the marketplace.'}
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">My Freelancer Profile</h1>
+                        <p className="text-sm text-gray-400 mt-1">
+                            {isPublished ? 'Your profile is live on marketplace.' : 'Your profile is in draft mode. Publish it to appear in marketplace.'}
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Badge className={isPublished ? 'bg-emerald-100 text-emerald-700 border-0' : 'bg-gray-100 text-gray-600 border-0'}>
+                        <Badge className={isPublished ? 'bg-emerald-600/20 text-emerald-300 border-emerald-500/30' : 'bg-gray-600/20 text-gray-300 border-gray-500/30'}>
                             {isPublished ? 'Published' : 'Draft'}
                         </Badge>
-                        <Button variant="outline" onClick={togglePublish} className="rounded-xl">
+                        <Button variant="outline" onClick={togglePublish} className="rounded-xl border-slate-600 text-white hover:bg-slate-700">
                             {isPublished ? <><EyeOff className="h-4 w-4 mr-1.5" />Unpublish</> : <><Eye className="h-4 w-4 mr-1.5" />Publish</>}
                         </Button>
                     </div>
@@ -287,11 +287,11 @@ export default function MyProfile({ profile }) {
 
                 <form onSubmit={submit} className="space-y-6">
                     {/* Avatar Upload */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-4">Profile Photo</h2>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                        <h2 className="text-sm font-semibold text-white mb-4">Profile Photo</h2>
                         <div className="flex items-center gap-5">
                             <div className="relative group">
-                                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden shadow-lg shadow-indigo-500/20">
+                                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden shadow-lg shadow-blue-500/20">
                                     {avatarPreview ? (
                                         <img src={avatarPreview} alt="Profile" className="h-20 w-20 rounded-full object-cover" />
                                     ) : (
@@ -308,73 +308,73 @@ export default function MyProfile({ profile }) {
                                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp" onChange={handleAvatarChange} className="hidden" />
                             </div>
                             <div>
-                                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-lg">
+                                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-lg border-slate-600 text-white hover:bg-slate-700">
                                     <Camera className="h-3.5 w-3.5 mr-1.5" /> Upload Photo
                                 </Button>
                                 <p className="text-xs text-gray-400 mt-1.5">JPG, PNG or WebP. Max 2MB.</p>
-                                {errors.avatar && <p className="text-red-500 text-xs mt-1">{errors.avatar}</p>}
+                                {errors.avatar && <p className="text-red-400 text-xs mt-1">{errors.avatar}</p>}
                             </div>
                         </div>
                     </div>
 
                     {/* Title */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-4">Basic Info</h2>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                        <h2 className="text-sm font-semibold text-white mb-4">Basic Info</h2>
                         <div className="space-y-4">
                             <div>
-                                <Label className="text-sm font-medium text-gray-700">Professional Title *</Label>
-                                <Input value={data.title} onChange={(e) => setData('title', e.target.value)} placeholder="e.g. Full-Stack Developer" className="mt-1.5 h-11 rounded-xl border-gray-200" />
-                                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+                                <Label className="text-sm font-medium text-gray-300">Professional Title *</Label>
+                                <Input value={data.title} onChange={(e) => setData('title', e.target.value)} placeholder="e.g. Full-Stack Developer" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
+                                {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title}</p>}
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-700">Bio *</Label>
-                                <Textarea value={data.bio} onChange={(e) => setData('bio', e.target.value)} placeholder="Tell clients about yourself, your experience, and what you offer... (minimum 50 characters)" rows={5} className="mt-1.5 rounded-xl border-gray-200" />
-                                {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio}</p>}
-                                <p className="text-xs text-gray-500 mt-1">{data.bio?.length || 0} / 50 characters minimum</p>
+                                <Label className="text-sm font-medium text-gray-300">Bio *</Label>
+                                <Textarea value={data.bio} onChange={(e) => setData('bio', e.target.value)} placeholder="Tell clients about yourself, your experience, and what you offer... (minimum 50 characters)" rows={5} className="mt-1.5 rounded-xl border-slate-600 bg-slate-700 text-white" />
+                                {errors.bio && <p className="text-red-400 text-xs mt-1">{errors.bio}</p>}
+                                <p className="text-xs text-gray-400 mt-1">{data.bio?.length || 0} / 50 characters minimum</p>
                             </div>
                             <CountryTimezoneSelector
-                            value={{ country: data.country, timezone: data.timezone }}
-                            onChange={(value) => {
-                                setData('country', value.country);
-                                setData('timezone', value.timezone);
-                            }}
-                            disabled={processing}
-                        />
+                                value={{ country: data.country, timezone: data.timezone }}
+                                onChange={(value) => {
+                                    setData('country', value.country);
+                                    setData('timezone', value.timezone);
+                                }}
+                                disabled={processing}
+                            />
                         </div>
                     </div>
 
                     {/* Skills */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-4">Skills *</h2>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                        <h2 className="text-sm font-semibold text-white mb-4">Skills *</h2>
                         <div className="flex flex-wrap gap-2 mb-3">
                             {data.skills.map((skill, i) => (
-                                <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-blue-600/20 text-blue-300 border border-blue-500/30">
                                     {skill}
-                                    <button type="button" onClick={() => removeSkill(i)} className="hover:text-red-500 ml-0.5"><X className="h-3 w-3" /></button>
+                                    <button type="button" onClick={() => removeSkill(i)} className="hover:text-red-400 ml-0.5"><X className="h-3 w-3" /></button>
                                 </span>
                             ))}
                         </div>
                         <div className="flex gap-2">
-                            <Input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())} placeholder="Add a skill..." className="h-9 rounded-lg border-gray-200 text-sm" />
-                            <Button type="button" variant="outline" size="sm" onClick={addSkill} className="rounded-lg"><Plus className="h-3.5 w-3.5 mr-1" />Add</Button>
+                            <Input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())} placeholder="Add a skill..." className="h-9 rounded-lg border-slate-600 bg-slate-700 text-white text-sm" />
+                            <Button type="button" variant="outline" size="sm" onClick={addSkill} className="rounded-lg border-slate-600 text-white hover:bg-slate-700"><Plus className="h-3.5 w-3.5 mr-1" />Add</Button>
                         </div>
                     </div>
 
                     {/* Rate */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-4">Rate & Availability</h2>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                        <h2 className="text-sm font-semibold text-white mb-4">Rate & Availability</h2>
                         <div className="grid grid-cols-3 gap-4 mb-4">
                             <div>
-                                <Label className="text-sm font-medium text-gray-700">Min Rate ($/hr)</Label>
-                                <Input type="number" value={data.rate_min} onChange={(e) => setData('rate_min', e.target.value)} placeholder="25" className="mt-1.5 h-11 rounded-xl border-gray-200" />
+                                <Label className="text-sm font-medium text-gray-300">Min Rate ($/hr)</Label>
+                                <Input type="number" value={data.rate_min} onChange={(e) => setData('rate_min', e.target.value)} placeholder="25" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-700">Max Rate ($/hr)</Label>
-                                <Input type="number" value={data.rate_max} onChange={(e) => setData('rate_max', e.target.value)} placeholder="100" className="mt-1.5 h-11 rounded-xl border-gray-200" />
+                                <Label className="text-sm font-medium text-gray-300">Max Rate ($/hr)</Label>
+                                <Input type="number" value={data.rate_max} onChange={(e) => setData('rate_max', e.target.value)} placeholder="100" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-700">Currency</Label>
-                                <select value={data.rate_currency} onChange={(e) => setData('rate_currency', e.target.value)} className="mt-1.5 w-full h-11 rounded-xl border border-gray-200 bg-white px-3 text-sm">
+                                <Label className="text-sm font-medium text-gray-300">Currency</Label>
+                                <select value={data.rate_currency} onChange={(e) => setData('rate_currency', e.target.value)} className="mt-1.5 w-full h-11 rounded-xl border border-slate-600 bg-slate-700 text-white px-3 text-sm">
                                     <option value="USD">USD</option>
                                     <option value="EUR">EUR</option>
                                     <option value="MMK">MMK</option>
@@ -382,8 +382,8 @@ export default function MyProfile({ profile }) {
                             </div>
                         </div>
                         <div>
-                            <Label className="text-sm font-medium text-gray-700">Availability *</Label>
-                            <select value={data.availability} onChange={(e) => setData('availability', e.target.value)} className="mt-1.5 w-full h-11 rounded-xl border border-gray-200 bg-white px-3 text-sm">
+                            <Label className="text-sm font-medium text-gray-300">Availability *</Label>
+                            <select value={data.availability} onChange={(e) => setData('availability', e.target.value)} className="mt-1.5 w-full h-11 rounded-xl border border-slate-600 bg-slate-700 text-white px-3 text-sm">
                                 <option value="available">Available</option>
                                 <option value="limited">Limited</option>
                                 <option value="unavailable">Unavailable</option>
@@ -392,49 +392,49 @@ export default function MyProfile({ profile }) {
                     </div>
 
                     {/* Portfolio */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-4">Portfolio Links <span className="text-gray-400 font-normal">(Optional)</span></h2>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                        <h2 className="text-sm font-semibold text-white mb-4">Portfolio Links <span className="text-gray-400 font-normal">(Optional)</span></h2>
                         <div className="space-y-3 mb-3">
                             {data.portfolio_links.map((link, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <Globe className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                                    <Input value={link.title} onChange={(e) => updatePortfolioLink(i, 'title', e.target.value)} placeholder="Title" className="h-9 rounded-lg border-gray-200 text-sm flex-1" />
-                                    <Input value={link.url} onChange={(e) => updatePortfolioLink(i, 'url', e.target.value)} placeholder="https://..." className="h-9 rounded-lg border-gray-200 text-sm flex-[2]" />
-                                    <button type="button" onClick={() => removePortfolioLink(i)} className="p-1.5 text-gray-400 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                                    <Input value={link.title} onChange={(e) => updatePortfolioLink(i, 'title', e.target.value)} placeholder="Title" className="h-9 rounded-lg border-slate-600 bg-slate-700 text-white text-sm flex-1" />
+                                    <Input value={link.url} onChange={(e) => updatePortfolioLink(i, 'url', e.target.value)} placeholder="https://..." className="h-9 rounded-lg border-slate-600 bg-slate-700 text-white text-sm flex-[2]" />
+                                    <button type="button" onClick={() => removePortfolioLink(i)} className="p-1.5 text-gray-400 hover:text-red-400"><Trash2 className="h-4 w-4" /></button>
                                 </div>
                             ))}
                         </div>
-                        <Button type="button" variant="outline" size="sm" onClick={addPortfolioLink} className="rounded-lg">
+                        <Button type="button" variant="outline" size="sm" onClick={addPortfolioLink} className="rounded-lg border-slate-600 text-white hover:bg-slate-700">
                             <Plus className="h-3.5 w-3.5 mr-1" />Add Link
                         </Button>
                     </div>
 
                     {/* Social Links */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-4">Social Links</h2>
+                    <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                        <h2 className="text-sm font-semibold text-white mb-4">Social Links</h2>
                         <div className="space-y-4">
                             <div>
-                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-1.5"><Github className="h-4 w-4" /> GitHub *</Label>
-                                <Input value={data.github_link} onChange={(e) => setData('github_link', e.target.value)} placeholder="https://github.com/username" className="mt-1.5 h-11 rounded-xl border-gray-200" />
-                                {errors.github_link && <p className="text-red-500 text-xs mt-1">{errors.github_link}</p>}
+                                <Label className="text-sm font-medium text-gray-300 flex items-center gap-1.5"><Github className="h-4 w-4" /> GitHub *</Label>
+                                <Input value={data.github_link} onChange={(e) => setData('github_link', e.target.value)} placeholder="https://github.com/username" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
+                                {errors.github_link && <p className="text-red-400 text-xs mt-1">{errors.github_link}</p>}
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-1.5"><Linkedin className="h-4 w-4" /> LinkedIn *</Label>
-                                <Input value={data.linkedin_link} onChange={(e) => setData('linkedin_link', e.target.value)} placeholder="https://linkedin.com/in/username" className="mt-1.5 h-11 rounded-xl border-gray-200" />
-                                {errors.linkedin_link && <p className="text-red-500 text-xs mt-1">{errors.linkedin_link}</p>}
+                                <Label className="text-sm font-medium text-gray-300 flex items-center gap-1.5"><Linkedin className="h-4 w-4" /> LinkedIn *</Label>
+                                <Input value={data.linkedin_link} onChange={(e) => setData('linkedin_link', e.target.value)} placeholder="https://linkedin.com/in/username" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
+                                {errors.linkedin_link && <p className="text-red-400 text-xs mt-1">{errors.linkedin_link}</p>}
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-1.5"><Globe className="h-4 w-4" /> Portfolio Website <span className="text-gray-400 font-normal">(Optional)</span></Label>
-                                <Input value={data.website_link} onChange={(e) => setData('website_link', e.target.value)} placeholder="https://myportfolio.com" className="mt-1.5 h-11 rounded-xl border-gray-200" />
-                                {errors.website_link && <p className="text-red-500 text-xs mt-1">{errors.website_link}</p>}
+                                <Label className="text-sm font-medium text-gray-300 flex items-center gap-1.5"><Globe className="h-4 w-4" /> Portfolio Website <span className="text-gray-400 font-normal">(Optional)</span></Label>
+                                <Input value={data.website_link} onChange={(e) => setData('website_link', e.target.value)} placeholder="https://myportfolio.com" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
+                                {errors.website_link && <p className="text-red-400 text-xs mt-1">{errors.website_link}</p>}
                             </div>
                         </div>
-                        <p className="text-xs text-gray-500 mt-3">* GitHub and LinkedIn profiles are required for verification</p>
+                        <p className="text-xs text-gray-400 mt-3">* GitHub and LinkedIn profiles are required for verification</p>
                     </div>
 
                     {/* Save */}
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing} className="h-11 px-8 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-indigo-500/30">
+                        <Button type="submit" disabled={processing} className="h-11 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/30">
                             <Save className="h-4 w-4 mr-2" />{processing ? 'Saving...' : 'Save Profile'}
                         </Button>
                     </div>

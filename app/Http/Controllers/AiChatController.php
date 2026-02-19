@@ -728,13 +728,41 @@ PROMPT;
         $workspaceId = $request->get('workspace_id');
         $assignedTo = $request->get('assigned_to', $user->id);
         
-        $tasks = Task::whereHas('project', function($query) use ($workspaceId) {
+        // Get workspace to determine user role
+        $workspace = \App\Models\Workspace::find($workspaceId);
+        $userRole = $workspace ? $workspace->getUserRole($user) : null;
+        
+        $query = Task::whereHas('project', function($query) use ($workspaceId) {
                 $query->where('workspace_id', $workspaceId);
             })
-            ->where('assigned_to_user_id', $assignedTo)
             ->whereIn('status', ['done', 'deployed'])
-            ->with(['project', 'assignedUser'])
-            ->orderBy('updated_at', 'desc')
+            ->with(['project', 'assignedUser']);
+        
+        // Apply strict task-level permissions for members
+        if ($userRole === 'member') {
+            // Members can see:
+            // 1. Unassigned tasks (assigned_to_user_id is null) in projects they're team members of
+            // 2. Tasks assigned to them
+            // 3. Tasks they created
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('assigned_to_user_id') // Unassigned tasks
+                    ->whereHas('project.teamMembers', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                  ->orWhere('assigned_to_user_id', $user->id) // Assigned to them
+                  ->orWhere('created_by_user_id', $user->id); // Created by them
+            });
+        } elseif ($userRole === 'admin') {
+            // Admin can see all tasks, but if assigned_to filter is provided, respect it
+            if ($assignedTo && $assignedTo != $user->id) {
+                $query->where('assigned_to_user_id', $assignedTo);
+            }
+        } else {
+            // For clients or other roles, filter by assigned_to
+            $query->where('assigned_to_user_id', $assignedTo);
+        }
+        
+        $tasks = $query->orderBy('updated_at', 'desc')
             ->limit(50)
             ->get();
             
@@ -756,11 +784,33 @@ PROMPT;
         $user = $request->user();
         $workspaceId = $request->get('workspace_id');
         
-        $tasks = Task::whereHas('project', function($query) use ($workspaceId) {
+        // Get workspace to determine user role
+        $workspace = \App\Models\Workspace::find($workspaceId);
+        $userRole = $workspace ? $workspace->getUserRole($user) : null;
+        
+        $query = Task::whereHas('project', function($query) use ($workspaceId) {
                 $query->where('workspace_id', $workspaceId);
             })
-            ->with(['project', 'assignedUser'])
-            ->orderBy('created_at', 'desc')
+            ->with(['project', 'assignedUser']);
+        
+        // Apply strict task-level permissions for members
+        if ($userRole === 'member') {
+            // Members can see:
+            // 1. Unassigned tasks (assigned_to_user_id is null) in projects they're team members of
+            // 2. Tasks assigned to them
+            // 3. Tasks they created
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('assigned_to_user_id') // Unassigned tasks
+                    ->whereHas('project.teamMembers', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                  ->orWhere('assigned_to_user_id', $user->id) // Assigned to them
+                  ->orWhere('created_by_user_id', $user->id); // Created by them
+            });
+        }
+        // Admin and client can see all tasks (no filtering needed)
+        
+        $tasks = $query->orderBy('created_at', 'desc')
             ->limit(100)
             ->get();
             

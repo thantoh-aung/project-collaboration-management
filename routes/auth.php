@@ -58,9 +58,14 @@ Route::post('/store-invite-token', function (Request $request) {
     if ($token) {
         session(['invite_token' => $token]);
         \Log::info('Token stored in session. Current session token: ' . session('invite_token'));
+        \Log::info('Session ID: ' . session()->getId());
     }
-    return response()->json(['success' => true]);
+    return response()->json(['success' => true, 'token_stored' => $token ? true : false]);
 })->name('store.invite.token');
+
+// Login routes
+Route::get('/login', [AuthenticationController::class, 'create'])->name('login');
+Route::post('/login', [AuthenticationController::class, 'store']);
 
 // Google OAuth routes
 Route::get('/auth/google', [GoogleSocialiteController::class, 'redirectToGoogle'])->name('google.login');
@@ -101,6 +106,36 @@ Route::middleware('auth')->group(function () {
             'workspaceUsers' => $workspaceUsers
         ]);
     })->name('onboarding.wizard')->middleware('workspace.auth');
+    
+    // Invite team members page (admin only)
+    Route::get('/invite-members', function (Request $request) {
+        $user = Auth::user();
+        $workspace = $request->attributes->get('currentWorkspace');
+        
+        // Only workspace admins can access invitation page
+        if (!$workspace || !$workspace->isUserAdmin($user)) {
+            return redirect()->route('dashboard');
+        }
+        
+        // Get current workspace users (excluding the current user and clients)
+        $workspaceUsers = $workspace->users()
+            ->where('users.id', '!=', $user->id)
+            ->wherePivot('role', '!=', 'client')
+            ->get()
+            ->map(function($user) use ($workspace) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar,
+                    'workspace_role' => $user->pivot->role,
+                ];
+            });
+        
+        return Inertia::render('Workspaces/InviteMembers', [
+            'workspaceUsers' => $workspaceUsers
+        ]);
+    })->name('invite.members')->middleware('workspace.auth');
     
     // Workspace endpoints
     Route::get('/workspaces', [WorkspaceController::class, 'index'])->name('workspaces.index');

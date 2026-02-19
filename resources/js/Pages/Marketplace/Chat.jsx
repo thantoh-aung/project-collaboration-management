@@ -323,13 +323,13 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
             <Head title={`Chat with ${otherUser?.name}`} />
 
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 140px)' }}>
+                <div className="bg-slate-800 rounded-2xl border border-slate-700 shadow-sm overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 140px)' }}>
                     {/* Chat Header */}
-                    <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white">
+                    <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700 bg-slate-900">
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => router.visit(route('marketplace.chats.index'))}
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-slate-700 text-gray-400 hover:text-gray-300 transition-colors"
                             >
                                 <ArrowLeft className="h-5 w-5" />
                             </button>
@@ -356,8 +356,8 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                                 })()}
                             </div>
                             <div>
-                                <h2 className="font-semibold text-gray-900 text-sm">{otherUser?.name}</h2>
-                                <p className="text-xs text-gray-500">
+                                <h2 className="font-semibold text-white text-sm">{otherUser?.name}</h2>
+                                <p className="text-xs text-gray-400">
                                     {isFreelancer 
                                         ? (otherUser?.job_title || chat.client?.client_profile?.company_name || 'Client')
                                         : (otherUser?.job_title || chat.freelancer?.freelancer_profile?.title || 'Freelancer')
@@ -405,10 +405,10 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                     )}
                     
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto px-5 py-4 bg-gray-50">
+                    <div className="flex-1 overflow-y-auto px-5 py-4 bg-slate-900">
                         {messages.length === 0 ? (
                             <div className="text-center py-16">
-                                <p className="text-sm text-gray-400">No messages yet. Start the conversation!</p>
+                                <p className="text-sm text-gray-300">No messages yet. Start the conversation!</p>
                             </div>
                         ) : (
                             messages.map((msg) => (
@@ -425,9 +425,9 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
 
                     {/* Input */}
                     {isOpen ? (
-                        <div className="px-5 py-3.5 border-t border-gray-200 bg-white">
+                        <div className="px-5 py-3.5 border-t border-slate-700 bg-slate-800">
                             {selectedImages.length > 0 && (
-                                <div className="mb-3 rounded-xl border border-gray-200 p-3 bg-gray-50">
+                                <div className="mb-3 rounded-xl border border-slate-600 p-3 bg-slate-700">
                                     <div className="grid grid-cols-2 gap-2 mb-3">
                                         {selectedImages.map((img, index) => (
                                             <div key={index} className="relative group">
@@ -553,7 +553,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                                     onChange={(e) => setNewMessage(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
                                     placeholder="Type a message..."
-                                    className="flex-1 h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                                    className="flex-1 h-11 px-4 rounded-xl border border-slate-600 bg-slate-700 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:bg-slate-600 transition-all outline-none text-white placeholder-gray-400"
                                     disabled={sending || isRecording || uploading}
                                 />
                                 <Button
@@ -567,9 +567,9 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                             {uploading && <p className="text-xs text-indigo-500 mt-1.5 ml-12">Uploading file...</p>}
                         </div>
                     ) : (
-                        <div className="px-5 py-4 border-t border-gray-200 bg-gray-50 text-center">
-                            <Lock className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                            <p className="text-sm text-gray-400">This conversation has been closed.</p>
+                        <div className="px-5 py-4 border-t border-slate-700 bg-slate-800 text-center">
+                            <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-300">This conversation has been closed.</p>
                         </div>
                     )}
                 </div>

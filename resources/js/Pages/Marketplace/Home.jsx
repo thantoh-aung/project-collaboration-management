@@ -16,6 +16,13 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
     const [isSearching, setIsSearching] = useState(false);
     const [drawerFreelancer, setDrawerFreelancer] = useState(null);
     const [drawerProject, setDrawerProject] = useState(null);
+    const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
+
+    const openProfileDrawer = (userId) => {
+        setSelectedUserId(userId);
+        setProfileDrawerOpen(true);
+    };
     const debounceRef = useRef(null);
 
     // Debounced search function
@@ -47,19 +54,18 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
         debouncedSearch(value);
     };
 
+    const handleFreelancerClick = (profile) => {
+        setDrawerFreelancer(profile.slug);
+    };
+
+    const handleProjectClick = (project) => {
+        setDrawerProject(project.id);
+    };
+
     const hasFreelancers = freelancers?.data?.length > 0;
     const hasProjects = projects?.data?.length > 0;
     const isClient = auth?.user?.usage_type === 'client';
     const isFreelancer = auth?.user?.usage_type === 'freelancer';
-
-    // Cleanup debounce timer on unmount
-    useEffect(() => {
-        return () => {
-            if (debounceRef.current) {
-                clearTimeout(debounceRef.current);
-            }
-        };
-    }, []);
 
     const switchTab = (newTab) => {
         setTab(newTab);
@@ -82,8 +88,8 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                             href={link.url}
                             className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                                 link.active
-                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30'
-                                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300'
+                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/30'
+                                    : 'bg-slate-700 border border-slate-600 text-gray-300 hover:bg-slate-600 hover:border-blue-500/30'
                             }`}
                             dangerouslySetInnerHTML={{ __html: link.label }}
                         />
@@ -98,16 +104,16 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
             <Head title="Marketplace" />
 
             {/* Hero */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white">
+            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="text-center max-w-2xl mx-auto">
                         <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
                             {isClient ? 'Find the perfect freelancer' : isFreelancer ? 'Discover new projects' : 'Marketplace'}
                         </h1>
-                        <p className="text-indigo-200 mb-6">
+                        <p className="text-blue-100 mb-6">
                             Browse talent, discover projects, and start collaborating — all in one place.
                         </p>
-                        <div className="flex items-center justify-center gap-6 text-sm text-indigo-200">
+                        <div className="flex items-center justify-center gap-6 text-sm text-blue-100">
                             <div className="flex items-center gap-1.5"><Shield className="h-4 w-4" />Verified</div>
                             <div className="flex items-center gap-1.5"><Zap className="h-4 w-4" />Direct Chat</div>
                             <div className="flex items-center gap-1.5"><TrendingUp className="h-4 w-4" />Workspace</div>
@@ -127,16 +133,16 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                                 value={search}
                                 onChange={(e) => handleSearchChange(e.target.value)}
                                 placeholder={tab === 'freelancers' ? 'Search freelancers by name, skill...' : 'Search projects by title, description...'}
-                                className={`pl-11 pr-10 h-11 bg-white border-gray-200 rounded-xl text-sm ${isSearching ? 'border-indigo-300' : ''}`}
+                                className={`pl-11 pr-10 h-11 bg-slate-700 border-slate-600 text-white rounded-xl text-sm placeholder-gray-400 ${isSearching ? 'border-blue-500' : ''}`}
                             />
                             {isSearching && (
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                    <div className="animate-spin h-4 w-4 border-2 border-indigo-600 border-t-transparent rounded-full"></div>
+                                    <div className="animate-spin h-4 w-4 border-2 border-blue-400 border-t-transparent rounded-full"></div>
                                 </div>
                             )}
                         </div>
                     </div>
-                    <Button onClick={handleSearch} className="h-11 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-indigo-500/20">
+                    <Button onClick={handleSearch} className="h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/20">
                         Search
                     </Button>
                     {isClient && (
@@ -149,13 +155,13 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1 mb-8 max-w-xs">
+                <div className="flex items-center gap-1 bg-slate-800 rounded-xl p-1 mb-8 max-w-xs border border-slate-700">
                     <button
                         onClick={() => switchTab('freelancers')}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                             tab === 'freelancers'
-                                ? 'bg-white text-indigo-700 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
+                                ? 'bg-slate-700 text-blue-400 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-300'
                         }`}
                     >
                         <Users className="h-4 w-4" /> Freelancers
@@ -164,8 +170,8 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                         onClick={() => switchTab('projects')}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                             tab === 'projects'
-                                ? 'bg-white text-emerald-700 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
+                                ? 'bg-slate-700 text-emerald-400 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-300'
                         }`}
                     >
                         <Briefcase className="h-4 w-4" /> Projects
@@ -177,8 +183,8 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                     <>
                         <div className="flex items-center justify-between mb-5">
                             <div>
-                                <h2 className="text-lg font-semibold text-gray-900">Freelancers</h2>
-                                <p className="text-sm text-gray-500">{freelancers?.total || 0} freelancer{freelancers?.total !== 1 ? 's' : ''} found</p>
+                                <h2 className="text-lg font-semibold text-white">Freelancers</h2>
+                                <p className="text-sm text-gray-400">{freelancers?.total || 0} freelancer{freelancers?.total !== 1 ? 's' : ''} found</p>
                             </div>
                         </div>
 
@@ -189,7 +195,7 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                                         <FreelancerCard
                                             key={profile.id}
                                             profile={profile}
-                                            onClick={() => setDrawerFreelancer(profile.slug)}
+                                            onClick={handleFreelancerClick}
                                         />
                                     ))}
                                 </div>
@@ -197,9 +203,9 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                             </>
                         ) : (
                             <div className="text-center py-20">
-                                <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No freelancers found</h3>
-                                <p className="text-sm text-gray-500 max-w-md mx-auto">
+                                <Users className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-white mb-2">No freelancers found</h3>
+                                <p className="text-sm text-gray-400 max-w-md mx-auto">
                                     {search ? 'Try adjusting your search to find more results.' : 'No freelancers have published their profiles yet.'}
                                 </p>
                             </div>
@@ -212,8 +218,8 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                     <>
                         <div className="flex items-center justify-between mb-5">
                             <div>
-                                <h2 className="text-lg font-semibold text-gray-900">Open Projects</h2>
-                                <p className="text-sm text-gray-500">{projects?.total || 0} project{projects?.total !== 1 ? 's' : ''} available</p>
+                                <h2 className="text-lg font-semibold text-white">Open Projects</h2>
+                                <p className="text-sm text-gray-400">{projects?.total || 0} project{projects?.total !== 1 ? 's' : ''} available</p>
                             </div>
                         </div>
 
@@ -224,7 +230,7 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                                         <ProjectCard
                                             key={project.id}
                                             project={project}
-                                            onClick={() => setDrawerProject(project.id)}
+                                            onClick={handleProjectClick}
                                         />
                                     ))}
                                 </div>
@@ -232,9 +238,9 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                             </>
                         ) : (
                             <div className="text-center py-20">
-                                <Briefcase className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
-                                <p className="text-sm text-gray-500 max-w-md mx-auto">
+                                <Briefcase className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-white mb-2">No projects yet</h3>
+                                <p className="text-sm text-gray-400 max-w-md mx-auto">
                                     {search ? 'Try adjusting your search.' : 'No projects have been posted yet. Check back soon!'}
                                 </p>
                                 {isClient && (
@@ -250,12 +256,24 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                 )}
             </div>
 
-            {/* Drawers */}
+            {/* Profile Drawers */}
             {drawerFreelancer && (
-                <FreelancerDrawer slug={drawerFreelancer} onClose={() => setDrawerFreelancer(null)} />
+                <FreelancerDrawer 
+                    slug={drawerFreelancer} 
+                    onClose={() => {
+                        setDrawerFreelancer(null);
+                        setSelectedUserId(null);
+                    }}
+                />
             )}
             {drawerProject && (
-                <ProjectDrawer projectId={drawerProject} onClose={() => setDrawerProject(null)} />
+                <ProjectDrawer 
+                    projectId={drawerProject} 
+                    onClose={() => {
+                        setDrawerProject(null);
+                        setSelectedUserId(null);
+                    }}
+                />
             )}
         </MarketplaceLayout>
     );

@@ -143,17 +143,17 @@ export default function ClientProfileEdit({ profile, user }) {
 
             <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">My Client Profile</h1>
-                    <p className="text-sm text-gray-500 mt-1">This information helps freelancers understand who you are.</p>
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">My Client Profile</h1>
+                    <p className="text-sm text-gray-400 mt-1">This information helps freelancers understand who you are.</p>
                 </div>
 
-                <form onSubmit={submit} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 space-y-6">
+                <form onSubmit={submit} className="bg-slate-800 rounded-2xl border border-slate-600 shadow-sm p-8 space-y-6">
                     {/* Avatar Upload */}
                     <div>
-                        <Label className="text-sm font-medium text-gray-700">Profile Photo</Label>
+                        <Label className="text-sm font-medium text-gray-300">Profile Photo</Label>
                         <div className="flex items-center gap-5 mt-2">
                             <div className="relative group">
-                                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden shadow-lg shadow-blue-500/20">
+                                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden shadow-lg shadow-blue-500/20">
                                     {avatarPreview ? (
                                         <img src={avatarPreview} alt="Profile" className="h-20 w-20 rounded-full object-cover" />
                                     ) : (
@@ -170,27 +170,27 @@ export default function ClientProfileEdit({ profile, user }) {
                                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp" onChange={handleAvatarChange} className="hidden" />
                             </div>
                             <div>
-                                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-lg">
+                                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="rounded-lg border-slate-600 text-white hover:bg-slate-700">
                                     <Camera className="h-3.5 w-3.5 mr-1.5" /> Upload Photo
                                 </Button>
                                 <p className="text-xs text-gray-400 mt-1.5">JPG, PNG or WebP. Max 2MB.</p>
-                                {errors.avatar && <p className="text-red-500 text-xs mt-1">{errors.avatar}</p>}
+                                {errors.avatar && <p className="text-red-400 text-xs mt-1">{errors.avatar}</p>}
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <Label className="text-sm font-medium text-gray-700">Company Name *</Label>
+                        <Label className="text-sm font-medium text-gray-300">Company Name *</Label>
                         <div className="relative mt-1.5">
                             <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input value={data.company_name} onChange={(e) => setData('company_name', e.target.value)} placeholder="e.g. Acme Inc." className="pl-10 h-11 rounded-xl border-gray-200" />
+                            <Input value={data.company_name} onChange={(e) => setData('company_name', e.target.value)} placeholder="e.g. Acme Inc." className="pl-10 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
                         </div>
-                        {errors.company_name && <p className="text-red-500 text-xs mt-1">{errors.company_name}</p>}
+                        {errors.company_name && <p className="text-red-400 text-xs mt-1">{errors.company_name}</p>}
                     </div>
 
                     <div>
-                        <Label className="text-sm font-medium text-gray-700">Industry *</Label>
-                        <Input value={data.industry} onChange={(e) => setData('industry', e.target.value)} placeholder="e.g. Technology, Healthcare" className="mt-1.5 h-11 rounded-xl border-gray-200" />
+                        <Label className="text-sm font-medium text-gray-300">Industry *</Label>
+                        <Input value={data.industry} onChange={(e) => setData('industry', e.target.value)} placeholder="e.g. Technology, Healthcare" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
                     </div>
 
                     <CountryTimezoneSelector
@@ -203,16 +203,16 @@ export default function ClientProfileEdit({ profile, user }) {
                     />
 
                     <div>
-                        <Label className="text-sm font-medium text-gray-700">Website (Optional)</Label>
+                        <Label className="text-sm font-medium text-gray-300">Website (Optional)</Label>
                         <div className="relative mt-1.5">
                             <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input value={data.website} onChange={(e) => setData('website', e.target.value)} placeholder="https://yourcompany.com" className="pl-10 h-11 rounded-xl border-gray-200" />
+                            <Input value={data.website} onChange={(e) => setData('website', e.target.value)} placeholder="https://yourcompany.com" className="pl-10 h-11 rounded-xl border-slate-600 bg-slate-700 text-white" />
                         </div>
-                        {errors.website && <p className="text-red-500 text-xs mt-1">{errors.website}</p>}
+                        {errors.website && <p className="text-red-400 text-xs mt-1">{errors.website}</p>}
                     </div>
 
-                    <div className="flex justify-end pt-4 border-t border-gray-100">
-                        <Button type="submit" disabled={processing} className="h-11 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium shadow-lg shadow-blue-500/30">
+                    <div className="flex justify-end pt-4 border-t border-slate-700">
+                        <Button type="submit" disabled={processing} className="h-11 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/30">
                             <Save className="h-4 w-4 mr-2" />{processing ? 'Saving...' : 'Save Profile'}
                         </Button>
                     </div>

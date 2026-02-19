@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 const statusMap = {
-    open: { label: 'Active', color: 'bg-emerald-100 text-emerald-700', icon: MessageSquare },
-    converted_to_workspace: { label: 'Converted', color: 'bg-indigo-100 text-indigo-700', icon: CheckCircle2 },
+    open: { label: 'Active', color: 'bg-emerald-600/20 text-emerald-400 border-emerald-500/30', icon: MessageSquare },
+    converted_to_workspace: { label: 'Converted', color: 'bg-blue-600/20 text-blue-400 border-blue-500/30', icon: CheckCircle2 },
 };
 
 
@@ -107,28 +107,28 @@ export default function ChatList({ chats }) {
         <MarketplaceLayout>
             <Head title="Messages" />
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">
+            <div className="min-h-screen bg-slate-900 text-white">
                 {/* Header Section */}
-                <div className="bg-white border-b border-gray-200/80 backdrop-blur-sm sticky top-0 z-40">
+                <div className="bg-slate-800 border-b border-slate-700/80 backdrop-blur-sm sticky top-0 z-40">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
                                     Messages
                                 </h1>
-                                <p className="text-gray-600 mt-1">Connect with clients and freelancers</p>
+                                <p className="text-gray-400 mt-1">Connect with clients and freelancers</p>
                             </div>
                             
                             {/* Stats Cards */}
                             <div className="hidden lg:flex items-center gap-4">
-                                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/30">
                                     <MessageSquare className="h-4 w-4" />
                                     <div>
                                         <p className="text-xs opacity-90">Total Chats</p>
                                         <p className="text-lg font-bold">{chats?.length || 0}</p>
                                     </div>
                                 </div>
-                                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-500/30">
                                     <Users className="h-4 w-4" />
                                     <div>
                                         <p className="text-xs opacity-90">Active</p>
@@ -136,7 +136,7 @@ export default function ChatList({ chats }) {
                                     </div>
                                 </div>
                                 {totalUnread > 0 && (
-                                    <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg animate-pulse">
+                                    <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-red-500/30 animate-pulse">
                                         <div className="h-2 w-2 bg-white rounded-full"></div>
                                         <div>
                                             <p className="text-xs opacity-90">Unread</p>
@@ -159,12 +159,12 @@ export default function ChatList({ chats }) {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search conversations..."
-                                className="pl-10 h-11 bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                className="pl-10 h-11 bg-slate-800 border-slate-600 text-white placeholder-gray-400 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                             />
                         </div>
 
                         {/* Filter Tabs */}
-                        <div className="flex items-center gap-2 bg-white rounded-xl p-1 border border-gray-200 shadow-sm">
+                        <div className="flex items-center gap-2 bg-slate-800 rounded-xl p-1 border border-slate-600 shadow-sm">
                             {[
                                 { key: 'all', label: 'All', count: chats?.length || 0 },
                                 { key: 'open', label: 'Active', count: activeChats },
@@ -174,8 +174,8 @@ export default function ChatList({ chats }) {
                                     onClick={() => setActiveFilter(filter.key)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                                         activeFilter === filter.key
-                                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
-                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                                            : 'text-gray-400 hover:text-white hover:bg-slate-700'
                                     }`}
                                 >
                                     {filter.label}
@@ -183,7 +183,7 @@ export default function ChatList({ chats }) {
                                         <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
                                             activeFilter === filter.key
                                                 ? 'bg-white/20 text-white'
-                                                : 'bg-gray-100 text-gray-600'
+                                                : 'bg-slate-700 text-gray-400'
                                         }`}>
                                             {filter.count}
                                         </span>
@@ -209,14 +209,14 @@ export default function ChatList({ chats }) {
                                     <Link
                                         key={chat.id}
                                         href={route('marketplace.chats.show', chat.id)}
-                                        className="group bg-white rounded-2xl border border-gray-200/80 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 overflow-hidden"
+                                        className="group bg-slate-800 rounded-2xl border border-slate-700/80 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden"
                                     >
                                         <div className="p-6">
                                             <div className="flex items-start gap-4">
                                                 {/* Avatar Section */}
                                                 <div className="relative">
                                                     <div 
-                                                        className="h-14 w-14 rounded-full bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 cursor-pointer hover:ring-4 hover:ring-indigo-500/20 transition-all group-hover:scale-105 shadow-md shadow-indigo-500/20 overflow-hidden"
+                                                        className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-600 via-purple-600 to-emerald-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 cursor-pointer hover:ring-4 hover:ring-blue-500/20 transition-all group-hover:scale-105 shadow-md shadow-blue-500/20 overflow-hidden"
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             e.stopPropagation();
@@ -239,7 +239,7 @@ export default function ChatList({ chats }) {
                                                         })()}
                                                     </div>
                                                     {chat.unread_count > 0 && (
-                                                        <div className="absolute -top-1 -right-1 h-6 w-6 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg animate-pulse">
+                                                        <div className="absolute -top-1 -right-1 h-6 w-6 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg shadow-red-500/30 animate-pulse">
                                                             {chat.unread_count > 99 ? '99+' : chat.unread_count}
                                                         </div>
                                                     )}
@@ -250,22 +250,22 @@ export default function ChatList({ chats }) {
                                                     <div className="flex items-start justify-between mb-2">
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-2 mb-1">
-                                                                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                                                <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">
                                                                     {otherUser?.name || 'Unknown User'}
                                                                 </h3>
                                                                 {jobTitle && (
-                                                                    <span className="text-sm text-gray-500 font-medium">
+                                                                    <span className="text-sm text-gray-400 font-medium">
                                                                         {jobTitle}
                                                                     </span>
                                                                 )}
                                                             </div>
                                                             <div className="flex items-center gap-3 flex-wrap">
-                                                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.color}`}>
+                                                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${status.color}`}>
                                                                     <StatusIcon className="h-3 w-3" />
                                                                     {status.label}
                                                                 </span>
                                                                 {chat.status === 'converted_to_workspace' && (
-                                                                    <span className="inline-flex items-center gap-1 text-xs text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
+                                                                    <span className="inline-flex items-center gap-1 text-xs text-blue-400 bg-blue-600/20 border border-blue-500/30 px-2.5 py-1 rounded-full">
                                                                         <Briefcase className="h-3 w-3" />
                                                                         Workspace
                                                                     </span>
@@ -288,16 +288,16 @@ export default function ChatList({ chats }) {
                                                     </div>
                                                     
                                                     <div className="mb-3">
-                                                        <p className="text-gray-600 text-sm leading-relaxed">
+                                                        <p className="text-gray-400 text-sm leading-relaxed">
                                                             {lastMessage ? (
-                                                                <span className={chat.unread_count > 0 ? 'font-semibold text-gray-900' : ''}>
+                                                                <span className={chat.unread_count > 0 ? 'font-semibold text-white' : ''}>
                                                                     {lastMessage.body.length > 120 
                                                                         ? `${lastMessage.body.substring(0, 120)}...` 
                                                                         : lastMessage.body
                                                                     }
                                                                 </span>
                                                             ) : (
-                                                                <span className="text-gray-400 italic">No messages yet</span>
+                                                                <span className="text-gray-500 italic">No messages yet</span>
                                                             )}
                                                         </p>
                                                     </div>
@@ -311,21 +311,21 @@ export default function ChatList({ chats }) {
                                                                     e.stopPropagation();
                                                                     openProfileDrawer(otherUser.id);
                                                                 }}
-                                                                className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1 hover:bg-indigo-50 px-2 py-1 rounded-lg transition-colors"
+                                                                className="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 hover:bg-blue-600/20 px-2 py-1 rounded-lg transition-colors"
                                                             >
                                                                 <Users className="h-3 w-3" />
                                                                 View Profile
                                                             </button>
                                                             <button
                                                                 onClick={(e) => deleteChat(chat.id, e)}
-                                                                className="text-xs text-red-600 hover:text-red-700 font-medium flex items-center gap-1 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                                                                className="text-xs text-red-400 hover:text-red-300 font-medium flex items-center gap-1 hover:bg-red-600/20 px-2 py-1 rounded-lg transition-colors"
                                                                 title="Delete chat"
                                                             >
                                                                 <Trash2 className="h-3 w-3" />
                                                                 Delete
                                                             </button>
                                                         </div>
-                                                        <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+                                                        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -333,9 +333,9 @@ export default function ChatList({ chats }) {
                                         
                                         {/* Status Bar */}
                                         {chat.status === 'converted_to_workspace' && (
-                                            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-3 border-t border-indigo-100">
+                                            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 px-6 py-3 border-t border-blue-500/30">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2 text-sm text-indigo-700">
+                                                    <div className="flex items-center gap-2 text-sm text-blue-400">
                                                         <CheckCircle2 className="h-4 w-4" />
                                                         <span className="font-medium">Workspace Created</span>
                                                     </div>
@@ -345,7 +345,7 @@ export default function ChatList({ chats }) {
                                                             e.stopPropagation();
                                                             window.location.href = route('dashboard');
                                                         }}
-                                                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium underline"
+                                                        className="text-xs text-blue-300 hover:text-blue-200 font-medium underline"
                                                     >
                                                         Go to Workspace →
                                                     </button>
@@ -358,14 +358,14 @@ export default function ChatList({ chats }) {
                         </div>
                     ) : (
                         <div className="text-center py-20">
-                            <div className="bg-white rounded-3xl border border-gray-200/80 shadow-sm p-12 max-w-2xl mx-auto">
-                                <div className="h-20 w-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                    <MessageSquare className="h-10 w-10 text-indigo-600" />
+                            <div className="bg-slate-800 rounded-3xl border border-slate-700/80 shadow-sm p-12 max-w-2xl mx-auto">
+                                <div className="h-20 w-20 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-500/30">
+                                    <MessageSquare className="h-10 w-10 text-blue-400" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                                <h3 className="text-2xl font-bold text-white mb-3">
                                     {searchQuery ? 'No conversations found' : 'No conversations yet'}
                                 </h3>
-                                <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                                <p className="text-gray-400 mb-8 max-w-md mx-auto">
                                     {searchQuery 
                                         ? 'Try adjusting your search or filters to find what you\'re looking for.'
                                         : 'Browse the marketplace to find talented freelancers and start meaningful conversations.'
@@ -376,13 +376,13 @@ export default function ChatList({ chats }) {
                                         <Button
                                             onClick={() => setSearchQuery('')}
                                             variant="outline"
-                                            className="rounded-xl"
+                                            className="rounded-xl border-slate-600 text-white hover:bg-slate-700"
                                         >
                                             Clear Search
                                         </Button>
                                     )}
                                     <Link href={route('marketplace.home')}>
-                                        <Button className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                                        <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                                             <Search className="h-4 w-4 mr-2" />
                                             Browse Marketplace
                                         </Button>

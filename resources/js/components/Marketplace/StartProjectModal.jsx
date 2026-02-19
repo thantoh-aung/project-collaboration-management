@@ -20,7 +20,7 @@ export default function StartProjectModal({ chatId, clientName, onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div className="relative bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5 text-white">
                     <div className="flex items-center justify-between">
@@ -33,7 +33,7 @@ export default function StartProjectModal({ chatId, clientName, onClose }) {
                                 <p className="text-sm text-indigo-200">Create a workspace with {clientName}</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
+                        <button onClick={onClose} className="p-1 hover:bg-slate-700 rounded-lg transition-colors">
                             <X className="h-5 w-5" />
                         </button>
                     </div>
@@ -42,53 +42,53 @@ export default function StartProjectModal({ chatId, clientName, onClose }) {
                 {/* Body */}
                 <form onSubmit={submit} className="p-6 space-y-5">
                     <div>
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm text-gray-300 mb-4">
                             This will create a new workspace where you can manage the project. The client will be added automatically.
                         </p>
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Workspace Name</Label>
+                        <Label className="text-sm font-medium text-gray-300">Workspace Name</Label>
                         <Input
                             value={data.workspace_name}
                             onChange={(e) => setData('workspace_name', e.target.value)}
                             placeholder="e.g. Website Redesign Project"
-                            className="h-11 rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                            className="h-11 rounded-xl border-slate-600 bg-slate-700 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                             autoFocus
                         />
                         {errors.workspace_name && <p className="text-red-500 text-xs">{errors.workspace_name}</p>}
                     </div>
 
-                    <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-                        <h4 className="text-sm font-semibold text-indigo-900 mb-2">What happens next:</h4>
-                        <ul className="text-sm text-indigo-700 space-y-1.5">
+                    <div className="bg-slate-700 border border-slate-600 rounded-xl p-4">
+                        <h4 className="text-sm font-semibold text-white mb-2">What happens next:</h4>
+                        <ul className="text-sm text-gray-300 space-y-1.5">
                             <li className="flex items-start gap-2">
-                                <span className="text-indigo-400 mt-0.5">•</span>
+                                <span className="text-blue-400 mt-0.5">•</span>
                                 You become the workspace <strong>Owner</strong>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-indigo-400 mt-0.5">•</span>
+                                <span className="text-blue-400 mt-0.5">•</span>
                                 {clientName} joins as <strong>Client</strong>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-indigo-400 mt-0.5">•</span>
+                                <span className="text-blue-400 mt-0.5">•</span>
                                 This chat <strong>remains active</strong> for continued communication
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-indigo-400 mt-0.5">•</span>
+                                <span className="text-blue-400 mt-0.5">•</span>
                                 You can invite team members later
                             </li>
                         </ul>
                     </div>
 
                     <div className="flex gap-3">
-                        <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-11 rounded-xl">
+                        <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-11 rounded-xl border-slate-600 text-slate-200 hover:bg-slate-700">
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             disabled={processing || !data.workspace_name.trim()}
-                            className="flex-1 h-11 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-indigo-500/30"
+                            className="flex-1 h-11 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-slate-200 font-medium shadow-lg shadow-indigo-500/30"
                         >
                             {processing ? 'Creating...' : 'Create Workspace'}
                         </Button>

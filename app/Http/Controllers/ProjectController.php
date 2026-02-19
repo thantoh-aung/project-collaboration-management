@@ -31,6 +31,9 @@ class ProjectController extends Controller
         }
 
         $query = Project::with(['clientCompany', 'teamMembers'])
+                       ->withCount(['teamMembers' => function($query) {
+                           $query->where('project_user_access.role', '!=', 'client');
+                       }])
                        ->where('workspace_id', $workspace->id);
 
         // Apply role-based filtering within workspace
@@ -312,6 +315,12 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
+        \Log::info('Project update method called!', [
+            'project_id' => $project->id,
+            'timestamp' => now()->toDateTimeString(),
+            'all_request_data' => $request->all()
+        ]);
+        
         $user = Auth::user();
         
         // Get workspace from middleware
@@ -374,41 +383,34 @@ class ProjectController extends Controller
             'due_date' => $validated['due_date'] ?? null,
         ]);
 
-        // Sync team members (exclude creator to prevent duplicate)
-        \Log::info('Project member update debug:', [
-            'project_id' => $project->id,
-            'validated_members' => $validated['members'] ?? null,
-            'user_id' => $user->id,
-            'user_role' => $userRole,
-            'current_team_members' => $project->teamMembers()->pluck('id')->toArray(),
-        ]);
-        
-        if (!empty($validated['members'])) {
-            $memberIds = array_filter($validated['members'], function($memberId) use ($user) {
-                return $memberId != $user->id; // Skip creator
-            });
-            
-            \Log::info('Processing member sync:', [
-                'original_members' => $validated['members'],
-                'filtered_member_ids' => $memberIds,
-                'creator_id' => $user->id,
-                'members_after_filter' => count($memberIds),
-            ]);
-            
-            // Remove existing member roles and re-attach
-            $project->teamMembers()->wherePivot('role', 'member')->detach();
-            foreach ($memberIds as $memberId) {
-                \Log::info('Attaching member to project:', ['member_id' => $memberId, 'project_id' => $project->id]);
-                $project->teamMembers()->attach($memberId, ['role' => 'member']);
+        // Sync team members using pivot roles while keeping creator/admin intact
+        $newMemberIds = $request->input('members', []);
+        $creatorId = $project->created_by;
+
+        $syncData = [];
+        foreach ($newMemberIds as $memberId) {
+            if ($memberId != $creatorId) {
+                $syncData[$memberId] = ['role' => 'member'];
             }
-        } else {
-            \Log::info('No members provided, removing all existing member roles');
-            // If no members provided, remove all existing member roles (except creator)
-            $project->teamMembers()->wherePivot('role', 'member')->detach();
         }
 
+        // ensure creator/admin record always exists
+        $project->teamMembers()->syncWithoutDetaching([
+            $creatorId => ['role' => 'admin']
+        ]);
+
+        // sync member roles without touching admins/clients
+        $project->teamMembers()
+            ->wherePivot('role', 'member')
+            ->sync($syncData);
+
+        \Log::info('Project members synced successfully', [
+            'project_id' => $project->id,
+            'synced_members' => array_keys($syncData),
+        ]);
+
         return redirect()
-            ->route('auth.workspaces.projects.tasks', $project->id)
+            ->route('projects.index')
             ->with('success', 'Project updated successfully.');
     }
 
@@ -587,6 +589,9 @@ class ProjectController extends Controller
         }
 
         $query = Project::with(['clientCompany', 'teamMembers'])
+            ->withCount(['teamMembers' => function($query) {
+                $query->where('project_user_access.role', '!=', 'client');
+            }])
             ->where('workspace_id', $workspace->id);
 
         if ($userRole === 'client' || $userRole === 'member') {

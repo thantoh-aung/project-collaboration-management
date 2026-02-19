@@ -301,9 +301,9 @@ function OnboardingWizardInner() {
         {/* Modal Container */}
         <div className="relative w-full max-w-4xl h-[85vh] max-h-[90vh] flex flex-col">
           {/* Modal Content */}
-          <div className="bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="bg-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-700">
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 px-8 py-6">
+            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -326,7 +326,7 @@ function OnboardingWizardInner() {
             </div>
 
             {/* Progress Bar */}
-            <div className="px-8 py-6 border-b border-gray-200">
+            <div className="px-8 py-6 border-b border-slate-700">
               <div className="flex items-center gap-2 mb-4">
                 {steps.map((s, index) => (
                   <>
@@ -335,8 +335,8 @@ function OnboardingWizardInner() {
                       step > s.id 
                         ? 'bg-emerald-500 text-white' 
                         : step === s.id 
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white ring-4 ring-indigo-100' 
-                        : 'bg-gray-200 text-gray-500'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white ring-4 ring-blue-500/20' 
+                        : 'bg-slate-600 text-gray-400'
                     )}>
                       {step > s.id ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,15 +349,15 @@ function OnboardingWizardInner() {
                     {index < steps.length - 1 && (
                       <div className={cn(
                         'w-12 h-1 transition-all duration-300',
-                        step > s.id ? 'bg-green-500' : 'bg-gray-200'
+                        step > s.id ? 'bg-emerald-500' : 'bg-slate-600'
                       )} />
                     )}
                   </>
                 ))}
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{currentStepData?.title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{currentStepData?.description}</p>
+                <h3 className="text-lg font-semibold text-white">{currentStepData?.title}</h3>
+                <p className="text-sm text-gray-400 mt-1">{currentStepData?.description}</p>
               </div>
             </div>
 
@@ -366,13 +366,13 @@ function OnboardingWizardInner() {
               {step === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Building2 className="h-5 w-5 text-blue-400" />
                       Workspace Details
                     </h3>
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                           Workspace Name
                         </label>
                         <Input
@@ -381,15 +381,16 @@ function OnboardingWizardInner() {
                           value={workspaceData.name}
                           onChange={(e) => setWorkspaceData({ ...workspaceData, name: e.target.value })}
                           placeholder="Enter workspace name"
+                          className="bg-slate-700 border-slate-600 text-white placeholder-gray-400"
                           required
                         />
                         {errors.name && (
-                          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                          <p className="text-red-400 text-sm mt-1">{errors.name}</p>
                         )}
                       </div>
                       
                       <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
                           Description
                         </label>
                         <Textarea
@@ -397,6 +398,7 @@ function OnboardingWizardInner() {
                           value={workspaceData.description}
                           onChange={(e) => setWorkspaceData({ ...workspaceData, description: e.target.value })}
                           rows={4}
+                          className="bg-slate-700 border-slate-600 text-white placeholder-gray-400"
                           placeholder="Describe your workspace purpose and goals..."
                         />
                       </div>
@@ -408,35 +410,35 @@ function OnboardingWizardInner() {
               {step === 2 && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Users className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-400" />
                       Invite Team Members
                     </h3>
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-400 mb-6">
                       Add team members to help you complete projects. Clients are automatically included when you create workspaces in the marketplace, so no need to invite them here.
                     </p>
                     
                     {/* Current Workspace Members */}
                     {workspaceUsers && workspaceUsers.length > 0 && (
                       <div className="mb-6">
-                        <h4 className="text-md font-medium text-gray-800 mb-3">Current Team Members (Admins & Members)</h4>
-                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h4 className="text-md font-medium text-gray-200 mb-3">Current Team Members (Admins & Members)</h4>
+                        <div className="bg-slate-700 rounded-lg p-4 border border-slate-600">
                           <div className="space-y-2">
                             {workspaceUsers.map((member) => (
-                              <div key={member.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                              <div key={member.id} className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-600">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span className="text-blue-600 font-medium text-sm">
+                                  <div className="w-8 h-8 bg-blue-600/20 rounded-full flex items-center justify-center">
+                                    <span className="text-blue-400 font-medium text-sm">
                                       {member.name.charAt(0).toUpperCase()}
                                     </span>
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-900">{member.name}</div>
-                                    <div className="text-sm text-gray-500">{member.email}</div>
+                                    <div className="font-medium text-white">{member.name}</div>
+                                    <div className="text-sm text-gray-400">{member.email}</div>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="outline" className="text-xs border-blue-500/30 text-blue-400 bg-blue-600/20">
                                     {member.workspace_role}
                                   </Badge>
                                   <Button
@@ -444,7 +446,7 @@ function OnboardingWizardInner() {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => removeWorkspaceMember(member.id)}
-                                    className="text-red-600 hover:bg-red-50 border-red-200"
+                                    className="text-red-400 hover:bg-red-600/20 border-red-500/30"
                                   >
                                     <X className="h-3 w-3 mr-1" />
                                     Remove
@@ -459,7 +461,7 @@ function OnboardingWizardInner() {
                     
                     <div className="space-y-4">
                       {invitations.map((invitation, index) => (
-                        <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div key={index} className="bg-slate-700 rounded-lg p-4 border border-slate-600">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2">
                               <Input
@@ -467,13 +469,14 @@ function OnboardingWizardInner() {
                                 value={invitation.email}
                                 onChange={(e) => updateInvitation(index, 'email', e.target.value)}
                                 placeholder="colleague@example.com"
+                                className="bg-slate-800 border-slate-600 text-white placeholder-gray-400"
                               />
                             </div>
                             <div className="flex gap-2">
                               <select
                                 value={invitation.role}
                                 onChange={(e) => updateInvitation(index, 'role', e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-3 py-2 bg-slate-800 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                               >
                                 <option value="member">Member</option>
                               </select>
@@ -483,7 +486,7 @@ function OnboardingWizardInner() {
                                   variant="outline"
                                   size="icon"
                                   onClick={() => removeInvitation(index)}
-                                  className="text-red-600 hover:bg-red-50"
+                                  className="text-red-400 hover:bg-red-600/20 border-red-500/30"
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
@@ -497,7 +500,7 @@ function OnboardingWizardInner() {
                         type="button"
                         variant="outline"
                         onClick={addInvitation}
-                        className="w-full"
+                        className="w-full border-slate-600 text-white hover:bg-slate-700"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Another Invitation
@@ -509,7 +512,7 @@ function OnboardingWizardInner() {
             </div>
 
             {/* Footer */}
-            <div className="px-8 py-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+            <div className="px-8 py-6 border-t border-slate-700 bg-slate-900 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   {step > 1 && (
@@ -517,6 +520,7 @@ function OnboardingWizardInner() {
                       type="button"
                       variant="outline"
                       onClick={prevStep}
+                      className="border-slate-600 text-white hover:bg-slate-800"
                     >
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Previous
@@ -530,6 +534,7 @@ function OnboardingWizardInner() {
                       type="button"
                       variant="outline"
                       onClick={skipOnboarding}
+                      className="border-slate-600 text-white hover:bg-slate-800"
                     >
                       Skip for now
                     </Button>

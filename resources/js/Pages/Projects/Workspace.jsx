@@ -87,9 +87,29 @@ function ProjectWorkspaceContent() {
   const canCreateTasks = hasPermission('create_tasks');
   const canEditTasks = hasPermission('edit_tasks');
   
-  // Check if user can edit a specific task (either has edit_tasks permission or is assigned to the task)
+  // Check if user can edit a specific task
   const canEditTask = (task) => {
-    return canEditTasks || task.assigned_to_user_id === auth?.user?.id;
+    // Admins can edit any task
+    if (auth?.user?.role === 'admin' || canEditTasks) return true;
+    
+    // Clients cannot edit tasks
+    if (auth?.user?.role === 'client') return false;
+    
+    // Members can edit tasks if:
+    // 1. Task is unassigned (assigned_to_user_id is null)
+    // 2. Task is assigned to them
+    // 3. Task was created by them
+    const assignedUserId = task.assigned_to_user_id;
+    const currentUserId = auth?.user?.id;
+    const createdById = task.created_by_user_id;
+    
+    // Unassigned tasks can be edited by all team members
+    if (assignedUserId == null) {
+      return true;
+    }
+    
+    // Assigned tasks can only be edited by the assigned user or creator
+    return assignedUserId == currentUserId || createdById == currentUserId;
   };
   
   // Filter team members to exclude clients (only team members can be assigned tasks)

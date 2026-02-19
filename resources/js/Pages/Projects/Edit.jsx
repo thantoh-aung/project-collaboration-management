@@ -61,6 +61,7 @@ export default function ProjectEdit({ project, workspaceUsers, teamMembers }) {
     console.log('🔍 Selected members:', selectedMembers);
     console.log('🔍 Member IDs being submitted:', memberIds);
     console.log('🔍 Status being submitted:', data.status);
+    console.log('🔍 Form data before submission:', data);
     
     // Create the data object directly to ensure members are included
     const submitData = {
@@ -69,8 +70,22 @@ export default function ProjectEdit({ project, workspaceUsers, teamMembers }) {
     };
     
     console.log('🔍 Final submit data:', submitData);
+    console.log('🔍 Submit data JSON:', JSON.stringify(submitData, null, 2));
     
-    patch(`/projects/${project.id}`, submitData, {
+    // Check if only creator is selected and override the data
+    const currentUserId = props.auth?.user?.id;
+    console.log('🔍 Current user ID:', currentUserId);
+    console.log('🔍 Member IDs check:', memberIds);
+    console.log('🔍 Is only creator selected:', memberIds.length === 1 && memberIds[0] === currentUserId);
+    
+    // If only creator is selected, send empty array to remove all other members
+    const finalSubmitData = (memberIds.length === 1 && memberIds[0] === currentUserId) 
+      ? { ...submitData, members: [] }
+      : submitData;
+    
+    console.log('🔍 Final submit data after creator check:', JSON.stringify(finalSubmitData, null, 2));
+    
+    patch(`/projects/${project.id}`, finalSubmitData, {
       onSuccess: (page) => {
         console.log('🔍 Update successful!');
         console.log('🔍 Updated project data:', page.props.project);

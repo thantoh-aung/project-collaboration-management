@@ -83,15 +83,15 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
     <MarketplaceLayout>
       <Head title="Select Workspace" />
       
-      <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex-1">
+      <div className="bg-slate-900 text-white flex-1">
                 
         <div className="py-4 px-4 sm:px-6 lg:px-8 pb-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Select Your Workspace
             </h2>
-            <p className="mt-2 text-base text-gray-600 max-w-xl mx-auto">
+            <p className="mt-2 text-base text-gray-400 max-w-xl mx-auto">
               Choose your workspace to access your projects and collaborate with your team
             </p>
           </div>
@@ -107,14 +107,14 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
                   key={workspace.id} 
                   className={`group relative overflow-hidden transition-all duration-300 cursor-pointer ${
                     isCurrent 
-                      ? 'border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-xl shadow-indigo-500/20 scale-105' 
-                      : 'border border-gray-200 bg-white hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1'
+                      ? 'border-2 border-blue-500 bg-slate-800 shadow-xl shadow-blue-500/20 scale-105' 
+                      : 'border border-slate-600 bg-slate-800 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1'
                   } ${switching ? 'cursor-not-allowed opacity-60' : ''}`}
                   onClick={() => !switching && handleWorkspaceSelect(workspace)}
                 >
                   {/* Current workspace indicator */}
                   {isCurrent && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-tr from-indigo-500 to-purple-600 text-white text-xs px-3 py-1 rounded-bl-lg">
+                    <div className="absolute top-0 right-0 bg-gradient-to-tr from-blue-500 to-purple-600 text-white text-xs px-3 py-1 rounded-bl-lg">
                       Current
                     </div>
                   )}
@@ -124,36 +124,36 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
                       <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                           isCurrent 
-                            ? 'bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-lg' 
-                            : 'bg-gradient-to-tr from-gray-100 to-gray-200 group-hover:from-indigo-100 group-hover:to-purple-100'
+                            ? 'bg-gradient-to-tr from-blue-500 to-purple-600 shadow-lg' 
+                            : 'bg-gradient-to-tr from-slate-600 to-slate-700 group-hover:from-blue-600 group-hover:to-purple-600'
                         }`}>
                           <Building className={`h-6 w-6 transition-colors duration-300 ${
-                            isCurrent ? 'text-white' : 'text-gray-600 group-hover:text-indigo-600'
+                            isCurrent ? 'text-white' : 'text-gray-300 group-hover:text-white'
                           }`} />
                         </div>
                         <div className="flex-1">
                           <CardTitle className={`text-lg font-semibold transition-colors duration-300 ${
-                            isCurrent ? 'text-indigo-900' : 'text-gray-900 group-hover:text-indigo-700'
+                            isCurrent ? 'text-blue-300' : 'text-white group-hover:text-blue-300'
                           }`}>
                             {workspace.name}
                           </CardTitle>
                           {workspace.description && (
-                            <CardDescription className="text-sm text-gray-600 mt-1 line-clamp-2">
+                            <CardDescription className="text-sm text-gray-400 mt-1 line-clamp-2">
                               {workspace.description}
                             </CardDescription>
                           )}
                         </div>
                       </div>
                       <ChevronRight className={`h-5 w-5 transition-all duration-300 ${
-                        isCurrent ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1'
+                        isCurrent ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1'
                       }`} />
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="space-y-4">
                       {/* Role Badge */}
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700">Your Role:</span>
+                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
+                        <span className="text-sm font-medium text-gray-300">Your Role:</span>
                         <Badge className={`${getRoleColor(userRole)} border-0 px-2 py-1`}>
                           <div className="flex items-center gap-1.5">
                             {getRoleIcon(userRole)}
@@ -163,31 +163,31 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
                       </div>
 
                       {/* Owner Info */}
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700">Owner:</span>
-                        <span className="text-sm font-semibold text-gray-900">
+                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
+                        <span className="text-sm font-medium text-gray-300">Owner:</span>
+                        <span className="text-sm font-semibold text-white">
                           {isOwner ? 'You' : workspace.owner?.name}
                         </span>
                       </div>
 
                       {/* Member Count */}
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700">Members:</span>
+                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
+                        <span className="text-sm font-medium text-gray-300">Members:</span>
                         <div className="flex items-center gap-1.5">
-                          <Users className="h-4 w-4 text-indigo-600" />
-                          <span className="text-sm font-semibold text-gray-900">
+                          <Users className="h-4 w-4 text-blue-400" />
+                          <span className="text-sm font-semibold text-white">
                             {workspace.member_count || 1}
                           </span>
                         </div>
                       </div>
 
                       {/* Status */}
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700">Status:</span>
+                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
+                        <span className="text-sm font-medium text-gray-300">Status:</span>
                         <Badge className={`${
                           workspace.is_active 
                             ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md shadow-emerald-500/30 border-0 px-2 py-1' 
-                            : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white shadow-md shadow-gray-500/30 border-0 px-2 py-1'
+                            : 'bg-gradient-to-r from-gray-500 to-gray-700 text-white shadow-md shadow-gray-500/30 border-0 px-2 py-1'
                         }`}>
                           {workspace.is_active ? 'Active' : 'Inactive'}
                         </Badge>
@@ -195,9 +195,9 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
 
                       {/* Join Date */}
                       {workspace.pivot?.joined_at && (
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm font-medium text-gray-700">Joined:</span>
-                          <span className="text-sm font-semibold text-gray-900">
+                        <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
+                          <span className="text-sm font-medium text-gray-300">Joined:</span>
+                          <span className="text-sm font-semibold text-white">
                             {new Date(workspace.pivot.joined_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -207,8 +207,8 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
                     <Button 
                       className={`w-full mt-6 font-semibold transition-all duration-300 ${
                         isCurrent 
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 border-0' 
-                          : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 hover:from-indigo-100 hover:to-purple-100 hover:text-indigo-700 border border-gray-300 hover:border-indigo-300'
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 border-0' 
+                          : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white hover:from-blue-600 hover:to-purple-600 hover:border-blue-500 border border-slate-600'
                       }`}
                       disabled={switching || isCurrent}
                     >
@@ -231,19 +231,19 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
           </div>
 
           {workspaces.length === 0 && (
-            <Card className="text-center py-16 border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white">
+            <Card className="text-center py-16 border-2 border-dashed border-slate-600 bg-slate-800">
               <CardContent>
-                <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-gray-200 to-gray-300 rounded-2xl flex items-center justify-center mb-6">
-                  <Building className="h-8 w-8 text-gray-500" />
+                <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-slate-600 to-slate-700 rounded-2xl flex items-center justify-center mb-6">
+                  <Building className="h-8 w-8 text-gray-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                <h3 className="text-2xl font-bold text-white mb-3">
                   No Workspaces Available
                 </h3>
-                <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
                   You haven't joined any workspaces yet. Start by browsing the marketplace to find freelancers or clients, then create a workspace together through chat.
                 </p>
                 <div className="flex justify-center">
-                  <Button asChild className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 border-0">
+                  <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 border-0">
                     <a href="/marketplace">
                       <Store className="h-4 w-4 mr-2" />
                       Browse Marketplace

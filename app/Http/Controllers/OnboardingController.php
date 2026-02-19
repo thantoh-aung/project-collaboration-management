@@ -123,6 +123,14 @@ class OnboardingController extends Controller
                 $data['avatar'] = '/storage/' . $path;
                 // Also update user's avatar
                 $user->update(['avatar' => '/storage/' . $path]);
+                
+                \Log::info('Avatar uploaded in client onboarding', [
+                    'user_id' => $user->id,
+                    'path' => $path,
+                    'data_avatar' => $data['avatar'],
+                    'user_avatar_after' => $user->fresh()->avatar,
+                    'user_avatar_url_after' => $user->fresh()->avatar_url
+                ]);
             }
 
             ClientProfile::updateOrCreate(
@@ -133,8 +141,14 @@ class OnboardingController extends Controller
 
         $user->update(['onboarding_completed' => true]);
 
-        // Refresh user session to update auth data with new avatar
-        Auth::user()->refresh();
+        // Refresh user model to get latest avatar data
+        $user->refresh();
+        
+        // Re-authenticate user to ensure session has latest data
+        Auth::login($user);
+        
+        // Clear any cached user data in session
+        session()->forget(['auth.user', 'user']);
 
         return $this->redirectAfterOnboarding($user);
     }

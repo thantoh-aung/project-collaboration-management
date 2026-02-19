@@ -15,20 +15,20 @@ export default function ClientProfile({ profile, projects }) {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+                <div className="bg-slate-800 rounded-xl border border-slate-600 shadow-sm p-6 mb-6">
                     <div className="flex items-start justify-between">
                         <div className="flex items-start gap-4">
-                            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20">
+                            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20">
                                 {user?.name?.charAt(0)?.toUpperCase() || 'C'}
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">
+                                <h1 className="text-2xl font-bold text-white">
                                     {profile.company_name || user.name}
                                 </h1>
                                 {profile.industry && (
-                                    <p className="text-gray-600 mt-1">{profile.industry}</p>
+                                    <p className="text-gray-400 mt-1">{profile.industry}</p>
                                 )}
-                                <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
                                     {profile.country && (
                                         <span className="flex items-center gap-1">
                                             <MapPin className="h-3.5 w-3.5" />
@@ -48,7 +48,7 @@ export default function ClientProfile({ profile, projects }) {
                                             href={profile.website} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                                            className="inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
                                         >
                                             <Globe className="h-3.5 w-3.5" />
                                             {profile.website.replace(/^https?:\/\//, '')}
@@ -59,7 +59,7 @@ export default function ClientProfile({ profile, projects }) {
                         </div>
                         {isOwnProfile && (
                             <Link href={route('marketplace.client-profile.edit')}>
-                                <Button variant="outline" className="rounded-xl">
+                                <Button variant="outline" className="rounded-xl border-slate-600 text-white hover:bg-slate-700">
                                     <Edit className="h-4 w-4 mr-1.5" /> Edit Profile
                                 </Button>
                             </Link>
@@ -70,7 +70,7 @@ export default function ClientProfile({ profile, projects }) {
                 {/* Posted Projects */}
                 <div>
                     <div className="flex items-center justify-between mb-5">
-                        <h2 className="text-lg font-semibold text-gray-900">Posted Projects</h2>
+                        <h2 className="text-lg font-semibold text-white">Posted Projects</h2>
                         {isOwnProfile && (
                             <Link href={route('marketplace.projects.create')}>
                                 <Button className="h-10 px-4 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium shadow-lg shadow-emerald-500/20">
@@ -103,8 +103,8 @@ export default function ClientProfile({ profile, projects }) {
                                                 href={link.url}
                                                 className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                                                     link.active
-                                                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
-                                                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
+                                                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/30'
+                                                        : 'bg-slate-700 border border-slate-600 text-gray-300 hover:bg-blue-600/20 hover:border-blue-500'
                                                 }`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                             />
@@ -114,12 +114,12 @@ export default function ClientProfile({ profile, projects }) {
                             )}
                         </>
                     ) : (
-                        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-                            <Briefcase className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-600">
+                            <Briefcase className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                            <h3 className="text-lg font-medium text-white mb-2">
                                 {isOwnProfile ? "You haven't posted any projects yet" : "No projects posted yet"}
                             </h3>
-                            <p className="text-sm text-gray-500 mb-4">
+                            <p className="text-sm text-gray-400 mb-4">
                                 {isOwnProfile 
                                     ? "Start by posting your first project to find talented freelancers."
                                     : "This client hasn't posted any projects yet."

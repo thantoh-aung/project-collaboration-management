@@ -12,7 +12,9 @@ import {
   Plus,
   MessageSquare,
   Star,
-  Users
+  Users,
+  AlertTriangle,
+  Calendar
 } from 'lucide-react';
 
 // Progress Ring Component
@@ -178,7 +180,7 @@ export default function Dashboard() {
         )}
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="relative overflow-hidden border-0 shadow-lg stat-card-indigo">
             <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-bl-[40px]"></div>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -228,23 +230,109 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="relative overflow-hidden border-0 shadow-lg stat-card-amber">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-500/10 to-yellow-500/10 rounded-bl-[40px]"></div>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
-              <div className="h-9 w-9 bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30">
-                <MessageSquare className="h-4 w-4 text-white" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{statistics.in_progress_tasks || 0}</div>
-              <p className="text-xs text-gray-500 mt-1">
-                {statistics.total_comments || 0} comments
-              </p>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Overdue Items Compact Card */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <CardTitle className="text-base font-semibold">Overdue Items</CardTitle>
+              </div>
+              <Badge variant="destructive" className="text-xs">
+                {(props.overdueTasks?.length || 0) + (props.overdueProjects?.length || 0)}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              {/* Overdue Tasks */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="h-3 w-3 text-red-500" />
+                  <h4 className="text-sm font-medium text-red-700">Tasks</h4>
+                  {props.overdueTasks && props.overdueTasks.length > 0 && (
+                    <Badge variant="destructive" className="text-xs h-5 px-1.5">
+                      {props.overdueTasks.length}
+                    </Badge>
+                  )}
+                </div>
+                {props.overdueTasks && props.overdueTasks.length > 0 ? (
+                  <div className="space-y-1">
+                    {props.overdueTasks.slice(0, 3).map((task) => (
+                      <div key={task.id} className="flex items-center justify-between p-2 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition-colors cursor-pointer text-xs"
+                           onClick={() => router.visit(`/projects/${task.project_id}/tasks`)}>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{task.name}</p>
+                            <p className="text-gray-500 truncate">{task.project?.name}</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="text-red-700 border-red-300 text-xs h-5 px-1.5">
+                          {task.status}
+                        </Badge>
+                      </div>
+                    ))}
+                    {props.overdueTasks.length > 3 && (
+                      <p className="text-xs text-gray-500 text-center">
+                        +{props.overdueTasks.length - 3} more
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-3 bg-green-50 rounded border border-green-200">
+                    <CheckSquare className="h-4 w-4 text-green-600 mx-auto mb-1" />
+                    <p className="text-xs text-green-700 font-medium">None overdue</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Overdue Projects */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FolderOpen className="h-3 w-3 text-red-500" />
+                  <h4 className="text-sm font-medium text-red-700">Projects</h4>
+                  {props.overdueProjects && props.overdueProjects.length > 0 && (
+                    <Badge variant="destructive" className="text-xs h-5 px-1.5">
+                      {props.overdueProjects.length}
+                    </Badge>
+                  )}
+                </div>
+                {props.overdueProjects && props.overdueProjects.length > 0 ? (
+                  <div className="space-y-1">
+                    {props.overdueProjects.slice(0, 2).map((project) => (
+                      <div key={project.id} className="flex items-center justify-between p-2 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition-colors cursor-pointer text-xs"
+                           onClick={() => router.visit(`/projects/${project.id}`)}>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{project.name}</p>
+                            <p className="text-gray-500 truncate">{project.client_company?.name || 'No client'}</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="text-red-700 border-red-300 text-xs h-5 px-1.5">
+                          {project.status}
+                        </Badge>
+                      </div>
+                    ))}
+                    {props.overdueProjects.length > 2 && (
+                      <p className="text-xs text-gray-500 text-center">
+                        +{props.overdueProjects.length - 2} more
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-3 bg-green-50 rounded border border-green-200">
+                    <FolderOpen className="h-4 w-4 text-green-600 mx-auto mb-1" />
+                    <p className="text-xs text-green-700 font-medium">None overdue</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -278,9 +366,6 @@ export default function Dashboard() {
                         <Badge className={getStatusColor(project.status)}>
                           {project.status}
                         </Badge>
-                        {project.priority && (
-                          <Badge variant="outline">{project.priority}</Badge>
-                        )}
                       </div>
                     </div>
                   ))}

@@ -2,10 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\WelcomeController;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::get('/test', function () {
     return view('test');

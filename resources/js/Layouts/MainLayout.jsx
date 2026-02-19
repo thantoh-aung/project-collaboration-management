@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head, usePage, Link } from '@inertiajs/react';
+import { Head, usePage, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Menu,
@@ -23,7 +23,8 @@ import {
   Moon,
   Sun,
   Plus,
-  TrendingUp
+  TrendingUp,
+  UserPlus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/Context/ThemeContext';
@@ -42,8 +43,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 
 const MainLayoutContent = ({ title, children }) => {
   const { props } = usePage();
@@ -153,7 +153,6 @@ const MainLayoutContent = ({ title, children }) => {
       href: '/projects',
       icon: FolderOpen,
       current: window.location.pathname.startsWith('/projects'),
-      badge: currentWorkspace?.project_count || 0,
       permission: 'view_projects',
     },
         {
@@ -206,19 +205,6 @@ const MainLayoutContent = ({ title, children }) => {
                   : "text-gray-400 group-hover:text-indigo-600"
               )} />
               <span className="flex-1">{item.title}</span>
-              {item.badge && item.badge > 0 && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "ml-auto h-5 min-w-[20px] px-1.5 text-xs font-semibold border-0",
-                    item.current
-                      ? "bg-white/20 text-white"
-                      : "bg-indigo-100 text-indigo-700"
-                  )}
-                >
-                  {item.badge}
-                </Badge>
-              )}
             </a>
           );
         })}
@@ -393,9 +379,9 @@ const MainLayoutContent = ({ title, children }) => {
           ))}
           <DropdownMenuSeparator />
           {hasPermission('manage_settings') && (
-            <DropdownMenuItem onClick={() => window.location.href = '/onboarding'}>
-              <Building className="h-4 w-4 mr-2" />
-              Update Workspace
+            <DropdownMenuItem onClick={() => router.visit(route('invite.members'))}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Invite Team Member
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onClick={() => window.location.href = '/workspaces/select'}>

@@ -16,15 +16,27 @@ import {
   Target,
   ArrowRight
 } from 'lucide-react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
+import { useWorkspace } from '@/Context/WorkspaceContext';
 
 export default function ProjectCard({ project }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const { hasPermission, userRole } = useWorkspace();
+  const { props } = usePage();
+  const currentUser = props.auth?.user;
+
+  // Check if current user can manage projects (admin or creator)
+  const canManageProject = hasPermission('manage_projects') || currentUser?.id === project.created_by;
 
   // Debug: Log the project status
   console.log('🔍 ProjectCard - Project status:', project.status);
+  console.log('🔍 ProjectCard - User role:', userRole);
+  console.log('🔍 ProjectCard - Current user ID:', currentUser?.id);
+  console.log('🔍 ProjectCard - Project created by:', project.created_by);
+  console.log('🔍 ProjectCard - Has manage_projects permission:', hasPermission('manage_projects'));
+  console.log('🔍 ProjectCard - Can manage project:', canManageProject);
   console.log('🔍 ProjectCard - Status type:', typeof project.status);
   console.log('🔍 ProjectCard - Status length:', project.status?.length);
   
@@ -256,7 +268,7 @@ export default function ProjectCard({ project }) {
             Open <ArrowRight className="h-3 w-3 ml-1" />
           </Button>
 
-          {/* FIX: Improved Dropdown container */}
+          {/* Dropdown menu - different options based on user permissions */}
           <div 
             ref={menuRef} 
             className="relative"
@@ -280,28 +292,44 @@ export default function ProjectCard({ project }) {
 
             {isMenuOpen && (
               <div className="absolute right-0 bottom-full mb-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-[100] py-1 animate-in fade-in zoom-in duration-200">
-                <button
-                  onClick={handleEdit}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
-                >
-                  <Edit className="h-4 w-4 mr-2 text-blue-500" />
-                  Edit Project
-                </button>
-                <button
-                  onClick={handleOpen}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
-                >
-                  <Eye className="h-4 w-4 mr-2 text-emerald-500" />
-                  View Tasks
-                </button>
-                <div className="my-1 border-t border-gray-100" />
-                <button
-                  onClick={handleDelete}
-                  className="w-full px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center transition-colors"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Project
-                </button>
+                {/* Admins and creators see full menu */}
+                {canManageProject && (
+                  <>
+                    <button
+                      onClick={handleEdit}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
+                    >
+                      <Edit className="h-4 w-4 mr-2 text-blue-500" />
+                      Edit Project
+                    </button>
+                    <button
+                      onClick={handleOpen}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
+                    >
+                      <Eye className="h-4 w-4 mr-2 text-emerald-500" />
+                      View Tasks
+                    </button>
+                    <div className="my-1 border-t border-gray-100" />
+                    <button
+                      onClick={handleDelete}
+                      className="w-full px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Project
+                    </button>
+                  </>
+                )}
+                
+                {/* Team members and clients see only View Tasks */}
+                {!canManageProject && (
+                  <button
+                    onClick={handleOpen}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
+                  >
+                    <Eye className="h-4 w-4 mr-2 text-emerald-500" />
+                    View Tasks
+                  </button>
+                )}
               </div>
             )}
           </div>

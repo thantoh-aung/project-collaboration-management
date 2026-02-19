@@ -29,13 +29,21 @@ export default function InviteAccept({ auth, invitation, error }) {
       try {
         const response = await axios.post('/store-invite-token', { token: invitation.token });
         console.log('🔍 Token stored successfully:', response.data);
+        
+        // Wait a moment to ensure session is saved
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Redirect to login page (not register)
+        console.log('🔍 Redirecting to login...');
+        router.visit(route('login'), {
+          method: 'get',
+          data: { invite: invitation.token } // Add token as fallback
+        });
       } catch (error) {
         console.error('Failed to store invitation token:', error);
+        setMessage('Failed to process invitation. Please try again.');
+        setMessageType('error');
       }
-      
-      // Redirect to register with invitation flow
-      console.log('🔍 Redirecting to register...');
-      router.visit(route('register'));
       return;
     }
 

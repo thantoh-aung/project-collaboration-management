@@ -32,6 +32,7 @@ class Task extends Model implements Auditable, Sortable
         'number',
         'description',
         'status',
+        'priority',
         'labels',
         'attachments',
         'subscribers',

@@ -137,11 +137,28 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         // Admins can move any task
         if (userRole === 'admin') return true;
         
-        // Members can only move tasks assigned to them
+        // Members can move tasks if:
+        // 1. Task is unassigned (assigned_to_user_id is null) - any team member can move
+        // 2. Task is assigned to them
+        // 3. Task was created by them
         if (userRole === 'member') {
             const assignedUserId = task.assigned_to_user_id;
             const currentUserId = user?.id;
-            return assignedUserId != null && assignedUserId == currentUserId;
+            const createdById = task.created_by_user_id;
+            
+            // Unassigned tasks can be moved by all team members (matches drawer logic)
+            if (assignedUserId == null) {
+                console.log('🔍 Unassigned task - allowing move for team member', {
+                    taskId: task.id,
+                    taskName: task.name,
+                    userId: currentUserId,
+                    assignedUserId
+                });
+                return true;
+            }
+            
+            // Assigned tasks can only be moved by the assigned user or creator
+            return assignedUserId == currentUserId || createdById == currentUserId;
         }
         
         return false;
@@ -212,7 +229,20 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         try {
             setIsDragging(true);
             
-            const response = await axios.patch(`/tasks/${taskId}`, {
+            console.log('🔍 Drag-and-drop API call:', {
+                taskId: taskId,
+                taskName: task.name,
+                assignedTo: task.assigned_to_user_id,
+                currentUserId: user?.id,
+                canMoveTask: canMoveTask(task),
+                fromGroup: originalGroupId,
+                toGroup: newGroupId,
+                workspaceId: project.workspace_id,
+                url: `/api/workspaces/${project.workspace_id}/tasks/${taskId}`,
+                payload: { group_id: newGroupId, completed: isComplete }
+            });
+
+            const response = await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 group_id: newGroupId,
                 completed: isComplete,
             }, { 
@@ -220,11 +250,23 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                 timeout: 10000
             });
 
+            console.log('✅ Drag-and-drop API success:', response.data);
+
             // Success - clear any pending moves
             setPendingMove(null);
             
         } catch (error) {
             console.error('❌ Failed to move task:', error.response?.data || error.message);
+            console.error('❌ Full error details:', {
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                config: {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    data: error.config?.data
+                }
+            });
             
             // Rollback with animation
             setLocalTasks(originalTasks);
@@ -254,7 +296,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         try {
             setIsDragging(true);
             
-            await axios.patch(`/tasks/${taskId}`, {
+            await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 group_id: newGroupId,
                 completed: isComplete,
             }, { 
@@ -324,7 +366,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         ));
 
         try {
-            await axios.patch(`/tasks/${task.id}`, {
+            await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${task.id}`, {
                 group_id: targetGroup.id,
                 completed: !isCompleted,
             }, { headers: { 'Accept': 'application/json' } });
@@ -462,7 +504,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             if (todoGroup && groupToDelete.name !== 'To Do') {
                 const tasksInGroup = localTasks.filter(t => t.group_id === groupId);
                 for (const task of tasksInGroup) {
-                    await axios.patch(`/tasks/${task.id}`, {
+                    await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${task.id}`, {
                         group_id: todoGroup.id,
                     }, { headers: { 'Accept': 'application/json' } });
                 }
@@ -518,7 +560,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
     // ─── List View Handlers ───────────────────────────────────────
     const handleStatusChange = useCallback(async (taskId, groupId) => {
         try {
-            await axios.patch(`/tasks/${taskId}`, {
+            await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 group_id: groupId,
             }, { headers: { 'Accept': 'application/json' } });
             
@@ -532,21 +574,39 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
 
     const handleAssigneeChange = useCallback(async (taskId, assigneeId) => {
         try {
-            await axios.patch(`/tasks/${taskId}`, {
+            const response = await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 assigned_to_user_id: assigneeId || null,
             }, { headers: { 'Accept': 'application/json' } });
             
-            setLocalTasks(prev => prev.map(t => 
-                t.id === taskId ? { ...t, assigned_to_user_id: assigneeId } : t
-            ));
+            // Update local tasks with the response data (includes full assignedToUser object)
+            if (response.data?.task) {
+                setLocalTasks(prev => prev.map(t => 
+                    t.id === taskId ? { ...t, ...response.data.task } : t
+                ));
+            } else {
+                // Fallback: update with just the ID if response doesn't have full task
+                const member = teamMembers?.find(m => m.id === assigneeId);
+                setLocalTasks(prev => prev.map(t => 
+                    t.id === taskId ? { 
+                        ...t, 
+                        assigned_to_user_id: assigneeId,
+                        assignedToUser: member || null,
+                        assigned_to_user: member || null
+                    } : t
+                ));
+            }
         } catch (error) {
             console.error('❌ Failed to change assignee:', error.response?.data || error.message);
+            // Show error to user
+            if (error.response?.status === 403) {
+                alert(error.response?.data?.message || 'You do not have permission to reassign this task.');
+            }
         }
-    }, []);
+    }, [teamMembers]);
 
     const handleDueDateChange = useCallback(async (taskId, dueDate) => {
         try {
-            await axios.patch(`/tasks/${taskId}`, {
+            await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 due_on: dueDate,
             }, { headers: { 'Accept': 'application/json' } });
             
@@ -560,7 +620,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
 
     const handlePriorityChange = useCallback(async (taskId, priority) => {
         try {
-            await axios.patch(`/tasks/${taskId}`, {
+            await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 priority,
             }, { headers: { 'Accept': 'application/json' } });
             
@@ -823,6 +883,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                         onAssigneeChange={handleAssigneeChange}
                         onDueDateChange={handleDueDateChange}
                         onPriorityChange={handlePriorityChange}
+                        projectId={project.workspace_id}
                     />
                 </div>
             )}
@@ -837,10 +898,20 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                         taskId: updatedTask.id,
                         attachmentCount: updatedTask.attachments?.length || 0,
                         pendingMove: !!pendingMove,
-                        hasAttachments: updatedTask.attachments && updatedTask.attachments.length > 0
+                        hasAttachments: updatedTask.attachments && updatedTask.attachments.length > 0,
+                        isArchived: !!updatedTask.archived_at
                     });
                     
-                    setLocalTasks(prev => prev.map(t => t.id === updatedTask.id ? { ...t, ...updatedTask } : t));
+                    // If task is archived, remove it from local state immediately
+                    if (updatedTask.archived_at) {
+                        console.log('🗑️ Removing archived task from UI:', updatedTask.id);
+                        setLocalTasks(prev => prev.filter(t => t.id !== updatedTask.id));
+                        setSelectedTask(null);
+                        setShowTaskDetail(false);
+                    } else {
+                        // Normal task update
+                        setLocalTasks(prev => prev.map(t => t.id === updatedTask.id ? { ...t, ...updatedTask } : t));
+                    }
                     
                     // If this was a pending move and attachments were added, complete the move
                     if (pendingMove && updatedTask.attachments && updatedTask.attachments.length > 0) {

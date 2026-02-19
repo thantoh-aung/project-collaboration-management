@@ -18,6 +18,7 @@ class ClientProfile extends Model
         'timezone',
         'website',
         'total_projects',
+        'avatar',
     ];
 
     public function user(): BelongsTo

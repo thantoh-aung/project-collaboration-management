@@ -22,9 +22,24 @@ export default function ClientProfileOnboarding({ profile }) {
     // Simple CSRF token refresh on component mount
     useEffect(() => {
         if (typeof window !== 'undefined' && window.axios) {
-            window.axios.get('/sanctum/csrf-cookie').catch(() => {
-                // Silently ignore CSRF refresh errors
-            });
+            // Refresh CSRF token on mount to ensure it's valid
+            window.axios.get('/sanctum/csrf-cookie')
+                .then(() => {
+                    // Update meta tag with fresh token
+                    const token = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('XSRF-TOKEN='))
+                        ?.split('=')[1];
+                    if (token) {
+                        const metaTag = document.querySelector('meta[name="csrf-token"]');
+                        if (metaTag) {
+                            metaTag.setAttribute('content', decodeURIComponent(token));
+                        }
+                    }
+                })
+                .catch(() => {
+                    // Silently ignore CSRF refresh errors
+                });
         }
     }, []);
 
@@ -80,9 +95,13 @@ export default function ClientProfileOnboarding({ profile }) {
         // Refresh CSRF token and meta tag before submission
         if (typeof window !== 'undefined' && window.axios) {
             try {
+                // Refresh CSRF token and wait for it to complete
                 await window.axios.get('/sanctum/csrf-cookie');
-                // Update the meta tag with fresh token
-                const response = await window.axios.get('/sanctum/csrf-cookie');
+                
+                // Small delay to ensure cookie is set
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Update the meta tag with fresh token from cookie
                 const newToken = document.cookie
                     .split('; ')
                     .find(row => row.startsWith('XSRF-TOKEN='))
@@ -92,8 +111,11 @@ export default function ClientProfileOnboarding({ profile }) {
                     if (metaTag) {
                         metaTag.setAttribute('content', decodeURIComponent(newToken));
                     }
+                } else {
+                    console.warn('CSRF token not found in cookie after refresh');
                 }
             } catch (error) {
+                console.warn('CSRF token refresh failed:', error);
                 // Continue even if CSRF refresh fails
             }
         }
@@ -168,72 +190,48 @@ export default function ClientProfileOnboarding({ profile }) {
             onError: (errors) => {
                 console.error('Client profile submission errors:', errors);
 
-                // Handle validation errors
+                // Handle validation errors without losing data
                 if (errors && typeof errors === 'object') {
-                    const errorMessages = Object.entries(errors)
-                        .map(([field, message]) => `${field}: ${message}`)
-                        .join('\n');
-                    alert('Please fix the following errors:\n\n' + errorMessages);
+                    // Show user-friendly error message
+                    const firstError = Object.values(errors)[0];
+                    if (firstError) {
+                        alert('Please fix the following error: ' + firstError);
+                    }
+                } else if (errors === '419') {
+                    // Handle CSRF error specifically
+                    alert('Session expired. Please try submitting again.');
                 }
             },
             onSuccess: () => {
-                // Clear saved form data
+                // Clear saved form data only on success
                 localStorage.removeItem('client_onboarding_data');
-            }
+            },
+            preserveState: false // Don't reset form state on error
         });
     };
-
-    // Form data persistence
-    useEffect(() => {
-        // Load saved form data from localStorage
-        const savedData = localStorage.getItem('client_onboarding_data');
-        if (savedData) {
-            try {
-                const parsed = JSON.parse(savedData);
-                // Restore form data (except avatar file)
-                Object.keys(parsed).forEach(key => {
-                    if (key !== 'avatar') {
-                        setData(key, parsed[key]);
-                    }
-                });
-                setAvatarPreview(parsed.avatarPreview || null);
-            } catch (error) {
-                console.warn('Failed to load saved form data:', error);
-            }
-        }
-    }, []);
-
-    // Auto-save form data
-    useEffect(() => {
-        const dataToSave = {
-            ...data,
-            avatarPreview
-        };
-        localStorage.setItem('client_onboarding_data', JSON.stringify(dataToSave));
-    }, [data, avatarPreview]);
 
     return (
         <>
             <Head title="Set Up Your Client Profile" />
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-6">
+            <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
                 <div className="w-full max-w-lg">
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 mb-4">
-                            <div className="h-10 w-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <div className="h-10 w-10 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
                                 <Search className="h-5 w-5 text-white" />
                             </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">CollabTool</span>
+                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">CollabTool</span>
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Set up your client profile</h1>
-                        <p className="text-gray-500">Help freelancers understand who you are. You can edit this later.</p>
+                        <h1 className="text-3xl font-bold text-white mb-2">Set up your client profile</h1>
+                        <p className="text-gray-400">Help freelancers understand who you are. You can edit this later.</p>
                     </div>
 
-                    <form onSubmit={submit} className="bg-white rounded-2xl border border-gray-200 shadow-xl shadow-blue-500/10 p-8 space-y-6">
+                    <form onSubmit={submit} className="bg-slate-800 rounded-2xl border border-slate-700 shadow-xl shadow-blue-500/10 p-8 space-y-6">
                         {/* Avatar Upload */}
                         <div className="flex items-center space-x-6">
                             <div className="relative">
-                                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-lg">
+                                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-slate-700 shadow-lg">
                                     {avatarPreview ? (
                                         <img src={avatarPreview} alt="Avatar preview" className="h-20 w-20 rounded-full object-cover" />
                                     ) : (
@@ -256,32 +254,32 @@ export default function ClientProfileOnboarding({ profile }) {
                                 />
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-700">Profile Photo</Label>
-                                <p className="text-sm text-gray-500 mt-1">Add a professional company logo or headshot. JPG, PNG up to 2MB.</p>
-                                {errors.avatar && <p className="text-red-500 text-xs mt-1">{errors.avatar}</p>}
+                                <Label className="text-sm font-medium text-gray-300">Profile Photo</Label>
+                                <p className="text-sm text-gray-400 mt-1">Add a professional company logo or headshot. JPG, PNG up to 2MB.</p>
+                                {errors.avatar && <p className="text-red-400 text-xs mt-1">{errors.avatar}</p>}
                             </div>
                         </div>
 
                         {/* Company */}
                         <div>
-                            <Label className="text-sm font-medium text-gray-700">Company Name</Label>
+                            <Label className="text-sm font-medium text-gray-300">Company Name</Label>
                             <div className="relative mt-1.5">
                                 <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input value={data.company_name} onChange={(e) => setData('company_name', e.target.value)} placeholder="e.g. Acme Inc." className="pl-10 h-11 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                                <Input value={data.company_name} onChange={(e) => setData('company_name', e.target.value)} placeholder="e.g. Acme Inc." className="pl-10 h-11 rounded-xl border-slate-600 bg-slate-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
                             </div>
-                            {errors.company_name && <p className="text-red-500 text-xs mt-1">{errors.company_name}</p>}
+                            {errors.company_name && <p className="text-red-400 text-xs mt-1">{errors.company_name}</p>}
                         </div>
 
                         {/* Industry */}
                         <div>
-                            <Label className="text-sm font-medium text-gray-700">Industry</Label>
-                            <Input value={data.industry} onChange={(e) => setData('industry', e.target.value)} placeholder="e.g. Technology, Healthcare, Finance" className="mt-1.5 h-11 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
-                            {errors.industry && <p className="text-red-500 text-xs mt-1">{errors.industry}</p>}
+                            <Label className="text-sm font-medium text-gray-300">Industry</Label>
+                            <Input value={data.industry} onChange={(e) => setData('industry', e.target.value)} placeholder="e.g. Technology, Healthcare, Finance" className="mt-1.5 h-11 rounded-xl border-slate-600 bg-slate-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                            {errors.industry && <p className="text-red-400 text-xs mt-1">{errors.industry}</p>}
                         </div>
 
                         {/* Location */}
                         <div>
-                            <Label className="text-sm font-medium text-gray-700">Location & Timezone</Label>
+                            <Label className="text-sm font-medium text-gray-300">Location & Timezone</Label>
                             <CountryTimezoneSelector
                                 value={{ country: data.country, timezone: data.timezone }}
                                 onChange={(value) => {
@@ -290,26 +288,26 @@ export default function ClientProfileOnboarding({ profile }) {
                                 }}
                                 className="mt-1.5"
                             />
-                            {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
-                            {errors.timezone && <p className="text-red-500 text-xs mt-1">{errors.timezone}</p>}
+                            {errors.country && <p className="text-red-400 text-xs mt-1">{errors.country}</p>}
+                            {errors.timezone && <p className="text-red-400 text-xs mt-1">{errors.timezone}</p>}
                         </div>
 
                         {/* Website */}
                         <div>
-                            <Label className="text-sm font-medium text-gray-700">Website</Label>
+                            <Label className="text-sm font-medium text-gray-300">Website</Label>
                             <div className="relative mt-1.5">
                                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input value={data.website} onChange={(e) => setData('website', e.target.value)} placeholder="https://yourcompany.com" className="pl-10 h-11 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                                <Input value={data.website} onChange={(e) => setData('website', e.target.value)} placeholder="https://yourcompany.com" className="pl-10 h-11 rounded-xl border-slate-600 bg-slate-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
                             </div>
-                            {errors.website && <p className="text-red-500 text-xs mt-1">{errors.website}</p>}
+                            {errors.website && <p className="text-red-400 text-xs mt-1">{errors.website}</p>}
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <Link href={route('onboarding.skip')} method="post" as="button" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                        <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+                            <Link href={route('onboarding.skip')} method="post" as="button" className="text-sm text-gray-400 hover:text-gray-300 transition-colors">
                                 Skip for now
                             </Link>
-                            <Button type="submit" disabled={processing} className="h-11 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium shadow-lg shadow-blue-500/30">
+                            <Button type="submit" disabled={processing} className="h-11 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/30">
                                 <Sparkles className="h-4 w-4 mr-2" />{processing ? 'Saving...' : 'Complete Setup'}
                                 <ArrowRight className="h-4 w-4 ml-2" />
                             </Button>
