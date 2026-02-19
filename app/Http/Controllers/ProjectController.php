@@ -374,40 +374,55 @@ class ProjectController extends Controller
 
         $validated = $request->only(['name', 'description', 'status', 'start_date', 'due_date', 'members']);
 
-        // Update project with validated data
-        $project->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'status' => $validated['status'] ?? 'active',
-            'start_date' => $validated['start_date'] ?? null,
-            'due_date' => $validated['due_date'] ?? null,
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $project, $validated) {
+            // 2. Update the Project model (persists name, status, etc.)
+            $project->update([
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'status' => $validated['status'] ?? 'active',
+                'start_date' => $validated['start_date'] ?? null,
+                'due_date' => $validated['due_date'] ?? null,
+            ]);
 
-        // Sync team members using pivot roles while keeping creator/admin intact
-        $newMemberIds = $request->input('members', []);
-        $creatorId = $project->created_by;
+            // 3. Sync the relationship (persists the members array [16, 18])
+            if ($request->has('members')) {
+                $newMemberIds = $request->input('members', []);
+                
+                // Identify persistent roles to preserve (admin, client)
+                $persistentMembers = \Illuminate\Support\Facades\DB::table('project_user_access')
+                    ->where('project_id', $project->id)
+                    ->whereIn('role', ['admin', 'client'])
+                    ->get();
+                    
+                $syncData = [];
+                
+                // Re-add persistent members with their original roles
+                foreach ($persistentMembers as $member) {
+                    $syncData[$member->user_id] = ['role' => $member->role];
+                }
+                
+                // Add new members with 'member' role if they don't have a persistent role
+                foreach ($newMemberIds as $memberId) {
+                    $mId = (int) $memberId;
+                    if (!isset($syncData[$mId])) {
+                        $syncData[$mId] = ['role' => 'member'];
+                    }
+                }
+                
+                // Always ensure the creator remains an admin
+                if ($project->created_by && !isset($syncData[$project->created_by])) {
+                    $syncData[$project->created_by] = ['role' => 'admin'];
+                }
 
-        $syncData = [];
-        foreach ($newMemberIds as $memberId) {
-            if ($memberId != $creatorId) {
-                $syncData[$memberId] = ['role' => 'member'];
+                // Actually sync with the pivot table
+                $project->members()->sync($syncData);
+
+                \Log::info('Project members synced successfully', [
+                    'project_id' => $project->id,
+                    'synced_members' => array_keys($syncData),
+                ]);
             }
-        }
-
-        // ensure creator/admin record always exists
-        $project->teamMembers()->syncWithoutDetaching([
-            $creatorId => ['role' => 'admin']
-        ]);
-
-        // sync member roles without touching admins/clients
-        $project->teamMembers()
-            ->wherePivot('role', 'member')
-            ->sync($syncData);
-
-        \Log::info('Project members synced successfully', [
-            'project_id' => $project->id,
-            'synced_members' => array_keys($syncData),
-        ]);
+        });
 
         return redirect()
             ->route('projects.index')

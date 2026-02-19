@@ -121,6 +121,14 @@ class Project extends Model implements Auditable
     }
 
     /**
+     * Alias for teamMembers to match common naming conventions.
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->teamMembers();
+    }
+
+    /**
      * Get the task groups for this project.
      */
     public function taskGroups(): HasMany

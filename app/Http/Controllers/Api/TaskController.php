@@ -61,15 +61,26 @@ class TaskController extends Controller
             }
         }
 
-        // Validate task due date against project due date
-        if (!empty($validated['due_on']) && $project->due_date) {
-            $taskIdDueDate = \Carbon\Carbon::parse($validated['due_on']);
-            $projectDueDate = \Carbon\Carbon::parse($project->due_date);
+        // Validate task due date against project dates
+        if (!empty($validated['due_on'])) {
+            $taskDueDate = \Carbon\Carbon::parse($validated['due_on']);
             
-            if ($taskIdDueDate->gt($projectDueDate)) {
-                return response()->json([
-                    'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
-                ], 422);
+            if ($project->due_date) {
+                $projectDueDate = \Carbon\Carbon::parse($project->due_date);
+                if ($taskDueDate->gt($projectDueDate)) {
+                    return response()->json([
+                        'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
+                    ], 422);
+                }
+            }
+
+            if ($project->start_date) {
+                $projectStartDate = \Carbon\Carbon::parse($project->start_date);
+                if ($taskDueDate->lt($projectStartDate)) {
+                    return response()->json([
+                        'error' => 'Task due date cannot be before project start date (' . $projectStartDate->format('Y-m-d') . ').'
+                    ], 422);
+                }
             }
         }
 
@@ -169,15 +180,26 @@ class TaskController extends Controller
             'completed' => 'sometimes|boolean',
         ]);
 
-        // Validate task due date against project due date
-        if (array_key_exists('due_on', $validated) && !empty($validated['due_on']) && $task->project->due_date) {
+        // Validate task due date against project dates
+        if (array_key_exists('due_on', $validated) && !empty($validated['due_on'])) {
             $taskDueDate = \Carbon\Carbon::parse($validated['due_on']);
-            $projectDueDate = \Carbon\Carbon::parse($task->project->due_date);
             
-            if ($taskDueDate->gt($projectDueDate)) {
-                return response()->json([
-                    'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
-                ], 422);
+            if ($task->project->due_date) {
+                $projectDueDate = \Carbon\Carbon::parse($task->project->due_date);
+                if ($taskDueDate->gt($projectDueDate)) {
+                    return response()->json([
+                        'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
+                    ], 422);
+                }
+            }
+
+            if ($task->project->start_date) {
+                $projectStartDate = \Carbon\Carbon::parse($task->project->start_date);
+                if ($taskDueDate->lt($projectStartDate)) {
+                    return response()->json([
+                        'error' => 'Task due date cannot be before project start date (' . $projectStartDate->format('Y-m-d') . ').'
+                    ], 422);
+                }
             }
         }
 
@@ -313,7 +335,7 @@ class TaskController extends Controller
             })
             ->first();
 
-        if (!$taskId) {
+        if (!$task) {
             return response()->json(['error' => 'Task not found'], 404);
         }
 

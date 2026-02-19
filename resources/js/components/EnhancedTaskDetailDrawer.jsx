@@ -158,6 +158,26 @@ export default function EnhancedTaskDetailDrawer({
 
         // Optimistic local update
         const updated = { ...localTask, ...updates };
+
+        // Date range validation
+        if (updates.due_on && localTask.project) {
+            const taskDue = new Date(updates.due_on);
+            if (localTask.project.start_date) {
+                const projectStart = new Date(localTask.project.start_date);
+                if (taskDue < projectStart) {
+                    alert(`Task due date cannot be before project start date (${localTask.project.start_date})`);
+                    return;
+                }
+            }
+            if (localTask.project.due_date) {
+                const projectDue = new Date(localTask.project.due_date);
+                if (taskDue > projectDue) {
+                    alert(`Task due date cannot be after project due date (${localTask.project.due_date})`);
+                    return;
+                }
+            }
+        }
+
         setLocalTask(updated);
         onTaskUpdate?.(updated);
 
@@ -166,12 +186,9 @@ export default function EnhancedTaskDetailDrawer({
         debounceRef.current = setTimeout(async () => {
             try {
                 const url = `/tasks/${localTask.id}`;
-                console.log('🔍 Task Update URL:', url);
-                console.log('🔍 Task Update Data:', updates);
                 const response = await axios.patch(url, updates, {
                     headers: { 'Accept': 'application/json' }
                 });
-                console.log('✅ Task updated successfully');
 
                 // Update local task with server response if available
                 if (response.data?.task) {
@@ -179,8 +196,11 @@ export default function EnhancedTaskDetailDrawer({
                     onTaskUpdate?.(response.data.task);
                 }
             } catch (error) {
+                const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to update task';
+                alert(errorMessage);
                 console.error('❌ Failed to update task:', error.response?.data || error.message);
                 setLocalTask(task); // revert
+                onTaskUpdate?.(task);
             }
         }, 500);
     }, [localTask, task, canReassign, canChangePriority, canChangeDueDate, canUpdateStatus, isReadOnly, onTaskUpdate]);
