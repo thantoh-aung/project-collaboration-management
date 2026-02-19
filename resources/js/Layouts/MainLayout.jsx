@@ -49,44 +49,8 @@ const MainLayoutContent = ({ title, children }) => {
   const { props } = usePage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const { currentWorkspace, userRole, workspaces, switchWorkspace, loading, hasPermission } = useWorkspace();
-  const theme = useTheme();
 
-  // Initialize dark mode immediately
-  useEffect(() => {
-    // Get initial dark mode preference
-    const getInitialDarkMode = () => {
-      const stored = localStorage.getItem('darkMode');
-      if (stored !== null) {
-        return stored === 'true';
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    };
-
-    const isDark = getInitialDarkMode();
-    setIsDarkMode(isDark);
-
-    // Apply to document immediately
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-
-    // Listen for system theme changes only if no manual preference is set
-    if (localStorage.getItem('darkMode') === null) {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = (e) => {
-        const newDarkMode = e.matches;
-        setIsDarkMode(newDarkMode);
-        document.documentElement.classList.toggle('dark', newDarkMode);
-      };
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, []);
 
   // Check if mobile
   useEffect(() => {
@@ -99,12 +63,6 @@ const MainLayoutContent = ({ title, children }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode.toString());
-    document.documentElement.classList.toggle('dark', newDarkMode);
-  };
 
   // Show loading state while workspace context is loading
   if (loading) {
@@ -427,20 +385,6 @@ const MainLayoutContent = ({ title, children }) => {
           </div>
         )}
 
-        {/* Dark Mode Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleDarkMode}
-          className="h-9 w-9"
-          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {isDarkMode ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
-        </Button>
 
         {/* Notifications — dynamic */}
         <NotificationBell />

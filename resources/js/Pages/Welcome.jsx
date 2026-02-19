@@ -33,7 +33,7 @@ export default function Welcome() {
         {
             icon: Clock,
             title: "Time Tracking",
-            description: "Built-in time tracking with detailed reports, screenshots, and productivity analytics for accurate billing.",
+            description: "Built-in time tracking with detailed dashboard, and productivity analytics for accurate tasking.",
             color: "from-emerald-600 to-emerald-700"
         },
         {

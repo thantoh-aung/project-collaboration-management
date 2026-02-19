@@ -12,10 +12,10 @@ import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
 
-export default function EnhancedTaskDetailDrawer({ 
-    task, 
-    open, 
-    onClose, 
+export default function EnhancedTaskDetailDrawer({
+    task,
+    open,
+    onClose,
     onTaskUpdate,
     teamMembers = [],
     taskGroups = [],
@@ -34,7 +34,7 @@ export default function EnhancedTaskDetailDrawer({
     const finalUserRole = userRole || workspaceUser.userRole;
     const finalCurrentUser = currentUser || workspaceUser.user;
     const [localTask, setLocalTask] = useState(task);
-    
+
     // Sync localTask with task prop when it changes
     useEffect(() => {
         console.log('🔍 Task prop changed, syncing localTask:', {
@@ -45,13 +45,13 @@ export default function EnhancedTaskDetailDrawer({
         });
         setLocalTask(task);
     }, [task]);
-    
+
     // Get current user ID from page props as fallback
     const currentUserId = finalCurrentUser?.id || props.auth?.user?.id;
-    
+
     // Real App Standard Permissions
     const isAdmin = finalUserRole === 'admin' || finalUserRole === 'project_owner';
-    
+
     // Debug: Log what we have
     console.log('🔍 Enhanced Drawer Debug:', {
         finalUserRole,
@@ -61,10 +61,10 @@ export default function EnhancedTaskDetailDrawer({
         task,
         localTask
     });
-    
+
     // Simplified permission logic - use currentUserId from page props if workspace context fails
     const isAssignedMember = localTask?.assigned_to_user_id === currentUserId;
-    
+
     // Debug logging
     console.log('🔍 Task Permission Debug:', {
         taskId: localTask?.id,
@@ -75,15 +75,15 @@ export default function EnhancedTaskDetailDrawer({
         isAdmin: isAdmin,
         isAssignedMember: isAssignedMember
     });
-    
+
     const canReassign = isAdmin; // Only Admin/Project Owner can reassign
     const canChangePriority = isAdmin; // Only Admin/Project Owner can change priority
     const canChangeDueDate = isAdmin; // Only Admin/Project Owner can change due date
-    
+
     // New permission logic for status and attachments
     let canUpdateStatus = false;
     let canUploadAttachments = false;
-    
+
     if (isAdmin) {
         // Admins can always update status and upload attachments
         canUpdateStatus = true;
@@ -100,10 +100,10 @@ export default function EnhancedTaskDetailDrawer({
             canUploadAttachments = isAssignedMember;
         }
     }
-    
+
     const canComment = true; // All authenticated users can comment
     const isReadOnly = finalUserRole === 'client' || (!isAdmin && !isAssignedMember && !canUpdateStatus && !canUploadAttachments && !canComment);
-    
+
     console.log('🔍 Permission Results:', {
         canReassign,
         canChangePriority,
@@ -113,7 +113,7 @@ export default function EnhancedTaskDetailDrawer({
         canComment,
         isReadOnly
     });
-    
+
     console.log('🔍 EnhancedTaskDetailDrawer - Team Members Prop Debug:', {
         teamMembers,
         teamMembersCount: teamMembers?.length || 0,
@@ -172,7 +172,7 @@ export default function EnhancedTaskDetailDrawer({
                     headers: { 'Accept': 'application/json' }
                 });
                 console.log('✅ Task updated successfully');
-                
+
                 // Update local task with server response if available
                 if (response.data?.task) {
                     setLocalTask(prev => ({ ...prev, ...response.data.task }));
@@ -231,7 +231,7 @@ export default function EnhancedTaskDetailDrawer({
             setTimeout(() => {
                 errorDiv.remove();
             }, 4000);
-            
+
             return;
         }
 
@@ -250,60 +250,55 @@ export default function EnhancedTaskDetailDrawer({
                 group_id: gid,
                 completed: isComplete,
             }, { headers: { 'Accept': 'application/json' } });
-            
+
             console.log('✅ Status change successful:', response.data);
-            
+
             // Update local state with server response if available
             if (response.data?.task) {
                 const updatedTask = { ...updated, ...response.data.task };
                 setLocalTask(updatedTask);
                 onTaskUpdate?.(updatedTask);
             }
-            
+
         } catch (error) {
             console.error('❌ Failed to change status:', error.response?.data || error.message);
-            
+
             // Revert local state on error
             setLocalTask(task);
             onTaskUpdate?.(task);
-            
+
             // Check for backend validation errors
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.error || 
-                               'Failed to change status';
-            
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data?.error ||
+                'Failed to change status';
+
             // Create a temporary error message element
             const errorDiv = document.createElement('div');
             const isAttachmentError = errorMessage.includes('attachment') || errorMessage.includes('required');
-            
-            errorDiv.className = `fixed top-4 right-4 z-50 border rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right ${
-                isAttachmentError ? 'bg-amber-100 border-amber-300' : 'bg-red-100 border-red-300'
-            }`;
-            
+
+            errorDiv.className = `fixed top-4 right-4 z-50 border rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right ${isAttachmentError ? 'bg-amber-100 border-amber-300' : 'bg-red-100 border-red-300'
+                }`;
+
             errorDiv.innerHTML = `
                 <div class="flex items-start gap-2">
-                    <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                        isAttachmentError ? 'bg-amber-200' : 'bg-red-200'
-                    }">
+                    <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAttachmentError ? 'bg-amber-200' : 'bg-red-200'
+                }">
                         <svg class="h-3 w-3 ${isAttachmentError ? 'text-amber-700' : 'text-red-700'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm font-semibold mt-0.5 ${
-                            isAttachmentError ? 'text-amber-900' : 'text-red-900'
-                        }">
+                        <p class="text-sm font-semibold mt-0.5 ${isAttachmentError ? 'text-amber-900' : 'text-red-900'
+                }">
                             ${isAttachmentError ? 'Attachment Required' : 'Status Change Failed'}
                         </p>
-                        <p class="text-sm mt-0.5 ${
-                            isAttachmentError ? 'text-amber-800' : 'text-red-800'
-                        }">
+                        <p class="text-sm mt-0.5 ${isAttachmentError ? 'text-amber-800' : 'text-red-800'
+                }">
                             ${isAttachmentError ? 'Attachment required to change task status. Please add at least one file.' : errorMessage}
                         </p>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="transition-colors ${
-                        isAttachmentError ? 'text-amber-600 hover:text-amber-800' : 'text-red-600 hover:text-red-800'
-                    }">
+                    <button onclick="this.parentElement.parentElement.remove()" class="transition-colors ${isAttachmentError ? 'text-amber-600 hover:text-amber-800' : 'text-red-600 hover:text-red-800'
+                }">
                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -311,7 +306,7 @@ export default function EnhancedTaskDetailDrawer({
                 </div>
             `;
             document.body.appendChild(errorDiv);
-            
+
             // Auto-remove after 4 seconds
             setTimeout(() => {
                 if (errorDiv.parentElement) {
@@ -375,25 +370,25 @@ export default function EnhancedTaskDetailDrawer({
                 headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' },
             });
             const att = response.data.attachment || response.data;
-            
+
             // Update local state
             const updatedTask = {
                 ...localTask,
                 attachments: [...(localTask.attachments || []), att],
             };
             setLocalTask(updatedTask);
-            
+
             // Immediately update parent state to sync attachment data
             if (onTaskUpdate) {
                 onTaskUpdate(updatedTask);
             }
-            
+
             console.log('✅ Attachment uploaded and parent state synced:', {
                 taskId: localTask.id,
                 attachmentCount: updatedTask.attachments.length,
                 pendingMove: !!pendingMove
             });
-            
+
         } catch (error) {
             console.error('❌ Failed to upload file:', error.response?.data || error.message);
         } finally {
@@ -423,10 +418,10 @@ export default function EnhancedTaskDetailDrawer({
     // ─── Delete task ────────────────────────────────────────────
     const handleDeleteTask = useCallback(async () => {
         if (!localTask || !confirm('Are you sure you want to delete this task?')) return;
-        
+
         // Optimistic: remove task from local state immediately
         onTaskUpdate?.({ ...localTask, archived_at: new Date().toISOString() });
-        
+
         try {
             await axios.delete(`/tasks/${localTask.id}`, { headers: { 'Accept': 'application/json' } });
             console.log('✅ Task deleted successfully');
@@ -500,19 +495,19 @@ export default function EnhancedTaskDetailDrawer({
                                     {pendingMove ? 'Complete Task Move' : 'Attachment Required'}
                                 </p>
                                 <p className="text-xs text-amber-700 mt-0.5">
-                                    {pendingMove 
+                                    {pendingMove
                                         ? `Add at least one attachment to complete moving this task to "${taskGroups.find(g => g.id === pendingMove.newGroupId)?.name}".`
                                         : 'This task needs at least one attachment before it can be moved to "In Progress" or "Complete".'}
                                 </p>
                                 {pendingMove && (
                                     <div className="mt-2 flex gap-2">
-                                        <button 
+                                        <button
                                             onClick={() => fileInputRef.current?.click()}
                                             className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 transition-colors"
                                         >
                                             Add Attachment
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={onClose}
                                             className="text-xs text-amber-700 hover:text-amber-900 transition-colors"
                                         >
@@ -612,30 +607,30 @@ export default function EnhancedTaskDetailDrawer({
                                             onValueChange={async (v) => {
                                                 const uid = parseInt(v);
                                                 const member = teamMembers.find(m => m.id === uid);
-                                                
+
                                                 if (!member) return;
-                                                
+
                                                 // Optimistic update
-                                                setLocalTask(prev => ({ 
-                                                    ...prev, 
+                                                setLocalTask(prev => ({
+                                                    ...prev,
                                                     assigned_to_user_id: uid,
                                                     assigned_to_user: member,
                                                     assignedToUser: member
                                                 }));
-                                                
+
                                                 // Make API call to update backend
                                                 try {
                                                     const url = `/tasks/${localTask.id}`;
                                                     console.log('🔍 Assignee Update URL:', url);
                                                     console.log('🔍 Assignee Update Data:', { assigned_to_user_id: uid });
-                                                    const response = await axios.patch(url, { 
-                                                        assigned_to_user_id: uid 
+                                                    const response = await axios.patch(url, {
+                                                        assigned_to_user_id: uid
                                                     }, {
                                                         headers: { 'Accept': 'application/json' }
                                                     });
-                                                    
+
                                                     console.log('✅ Assignee updated successfully:', response.data);
-                                                    
+
                                                     // Update with server response to ensure consistency
                                                     if (response.data?.task) {
                                                         setLocalTask(prev => ({ ...prev, ...response.data.task }));
@@ -643,10 +638,10 @@ export default function EnhancedTaskDetailDrawer({
                                                     }
                                                 } catch (error) {
                                                     console.error('❌ Failed to update assignee:', error.response?.data || error.message);
-                                                    
+
                                                     // Revert optimistic update on error
                                                     setLocalTask(task);
-                                                    
+
                                                     if (error.response?.status === 403) {
                                                         alert(error.response?.data?.message || 'You do not have permission to reassign this task.');
                                                     } else if (error.response?.status === 404) {
@@ -677,7 +672,7 @@ export default function EnhancedTaskDetailDrawer({
                                     {!canChangeDueDate ? (
                                         <span className="text-sm">{localTask.due_on ? new Date(localTask.due_on).toLocaleDateString() : 'No due date'}</span>
                                     ) : (
-                                        <Input type="date" value={localTask.due_on || ''} onChange={(e) => updateTask({ due_on: e.target.value || null })} className="h-9" />
+                                        <Input type="date" value={localTask.due_on ? localTask.due_on.split('T')[0]?.split(' ')[0] : ''} onChange={(e) => updateTask({ due_on: e.target.value || null })} className="h-9" />
                                     )}
                                 </div>
 
@@ -722,7 +717,7 @@ export default function EnhancedTaskDetailDrawer({
                                 )}
                             </div>
 
-                            
+
                             {/* Attachments */}
                             <div>
                                 <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">

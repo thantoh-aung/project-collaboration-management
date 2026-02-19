@@ -13,7 +13,7 @@ class AiChatController extends Controller
 {
     private function getApiKey()
     {
-        return config('services.openrouter.api_key', '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');
+        return config('services.openrouter.api_key');
     }
 
     private function getApiUrl()

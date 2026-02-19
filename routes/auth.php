@@ -162,7 +162,7 @@ Route::middleware('auth')->group(function () {
 
         // Tasks API
         Route::post('/tasks', [App\Http\Controllers\Api\TaskController::class, 'store'])->name('api.workspaces.tasks.store');
-        Route::patch('/tasks/{task}', [App\Http\Controllers\Api\TaskController::class, 'update'])->name('api.workspaces.tasks.update');
+        Route::match(['put', 'patch'], '/tasks/{task}', [App\Http\Controllers\Api\TaskController::class, 'update'])->name('api.workspaces.tasks.update');
         Route::delete('/tasks/{task}', [App\Http\Controllers\Api\TaskController::class, 'destroy'])->name('api.workspaces.tasks.destroy');
     });
     

@@ -148,7 +148,7 @@ function DueDateCell({ task, canEdit, onDueDateChange }) {
         <div className="relative">
             <input
                 type="date"
-                defaultValue={task.due_on ? task.due_on.split('T')[0] : (task.due_date ? task.due_date.split('T')[0] : '')}
+                defaultValue={task.due_on ? task.due_on.split('T')[0]?.split(' ')[0] : (task.due_date ? task.due_date.split('T')[0]?.split(' ')[0] : '')}
                 onChange={(e) => onDueDateChange(task.id, e.target.value || null)}
                 className={cn(
                     'text-xs bg-transparent border-0 outline-none cursor-pointer hover:bg-gray-100 rounded px-1 py-0.5 w-[110px]',
@@ -405,7 +405,7 @@ export default function ClickUpTaskList({
         if (onStatusChange) {
             return onStatusChange(taskId, newGroupId);
         }
-        
+
         const group = groups.find(g => g.id === newGroupId);
         const isComplete = group?.name === 'Complete';
         onUpdateTask?.({ id: taskId, group_id: newGroupId, completed: isComplete });
@@ -419,29 +419,29 @@ export default function ClickUpTaskList({
         if (onAssigneeChange) {
             return onAssigneeChange(taskId, userId);
         }
-        
+
         const member = (teamMembers || []).find(m => m.id === userId);
-        
+
         // Optimistic update
-        onUpdateTask?.({ 
-            id: taskId, 
-            assigned_to_user_id: userId, 
-            assigned_to_user: member || null, 
-            assignedToUser: member || null 
+        onUpdateTask?.({
+            id: taskId,
+            assigned_to_user_id: userId,
+            assigned_to_user: member || null,
+            assignedToUser: member || null
         });
-        
+
         try {
-            const response = await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { 
-                assigned_to_user_id: userId 
-            }, { 
-                headers: { 'Accept': 'application/json' } 
+            const response = await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, {
+                assigned_to_user_id: userId
+            }, {
+                headers: { 'Accept': 'application/json' }
             });
-            
+
             // Update with server response if available
             if (response.data?.task) {
                 onUpdateTask?.(response.data.task);
             }
-        } catch (e) { 
+        } catch (e) {
             console.error('Failed to update assignee:', e.response?.data || e.message);
             if (e.response?.status === 403) {
                 alert(e.response?.data?.message || 'You do not have permission to reassign this task.');
@@ -454,7 +454,7 @@ export default function ClickUpTaskList({
         if (onDueDateChange) {
             return onDueDateChange(taskId, date);
         }
-        
+
         onUpdateTask?.({ id: taskId, due_on: date });
         try {
             await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { due_on: date }, { headers: { 'Accept': 'application/json' } });
@@ -466,7 +466,7 @@ export default function ClickUpTaskList({
         if (onPriorityChange) {
             return onPriorityChange(taskId, priority);
         }
-        
+
         onUpdateTask?.({ id: taskId, priority });
         try {
             await axios.patch(`/api/workspaces/${projectId}/tasks/${taskId}`, { priority }, { headers: { 'Accept': 'application/json' } });
@@ -492,11 +492,11 @@ export default function ClickUpTaskList({
                         const groupTasks = tasks.filter(t => t.group_id === group.id);
                         return (
                             <React.Fragment key={group.id}>
-                                <GroupHeaderRow 
-                                    group={group} 
-                                    tasks={tasks} 
-                                    canEdit={canEdit} 
-                                    onAddTask={onAddTask} 
+                                <GroupHeaderRow
+                                    group={group}
+                                    tasks={tasks}
+                                    canEdit={canEdit}
+                                    onAddTask={onAddTask}
                                 />
                                 {groupTasks.map(task => (
                                     <TaskRow

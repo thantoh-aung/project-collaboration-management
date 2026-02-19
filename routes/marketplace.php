@@ -62,7 +62,7 @@ Route::middleware(['web', 'auth', 'marketplace.access'])->prefix('marketplace')-
     Route::get('/client-profile', [ClientProfileController::class, 'show'])->name('marketplace.client-profile');
     Route::get('/client-profile/edit', [ClientProfileController::class, 'edit'])->name('marketplace.client-profile.edit');
     Route::put('/client-profile', [ClientProfileController::class, 'update'])->name('marketplace.client-profile.update');
-    Route::post('/client-profile', [ClientProfileController::class, 'update'])->name('marketplace.client-profile.update');
+    Route::post('/client-profile', [ClientProfileController::class, 'update'])->name('marketplace.client-profile.post');
 
     // Pre-project chats
     Route::get('/chats', [PreProjectChatController::class, 'index'])->name('marketplace.chats.index');

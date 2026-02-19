@@ -16,7 +16,7 @@ import { usePage } from '@inertiajs/react';
 
 export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }) {
     const { props, auth } = usePage();
-    const { userRole } = useWorkspace();
+    const { currentWorkspace, userRole } = useWorkspace();
     const user = auth?.user || props?.auth?.user;
     
         const [localTasks, setLocalTasks] = useState(tasks || []);
@@ -193,8 +193,8 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             return;
         }
 
-        const isComplete = newGroup.name === 'Complete';
-        const isInProgress = newGroup.name === 'In Progress';
+        const isComplete = newGroup?.name === 'Complete';
+        const isInProgress = newGroup?.name === 'In Progress';
         const requiresAttachment = isInProgress || isComplete;
         const hasAttachments = task.attachments && task.attachments.length > 0;
 
@@ -232,17 +232,17 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             console.log('🔍 Drag-and-drop API call:', {
                 taskId: taskId,
                 taskName: task.name,
-                assignedTo: task.assigned_to_user_id,
+                assignedToUser: task.assigned_to_user_id,
                 currentUserId: user?.id,
                 canMoveTask: canMoveTask(task),
                 fromGroup: originalGroupId,
                 toGroup: newGroupId,
-                workspaceId: project.workspace_id,
-                url: `/api/workspaces/${project.workspace_id}/tasks/${taskId}`,
+                workspaceId: currentWorkspace?.id || workspaceUser.currentWorkspace?.id,
+                url: `/api/workspaces/${currentWorkspace?.id || workspaceUser.currentWorkspace?.id}/tasks/${taskId}`,
                 payload: { group_id: newGroupId, completed: isComplete }
             });
 
-            const response = await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
+            const response = await axios.patch(`/api/workspaces/${currentWorkspace?.id || workspaceUser.currentWorkspace?.id}/tasks/${taskId}`, {
                 group_id: newGroupId,
                 completed: isComplete,
             }, { 
@@ -268,7 +268,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                 }
             });
             
-            // Rollback with animation
+            // Revert local state on error
             setLocalTasks(originalTasks);
             
             // Show specific error message
@@ -278,54 +278,12 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             
             setDragError(errorMessage);
             
-            // Clear error after 3 seconds
-            setTimeout(() => setDragError(null), 3000);
+            // Clear error after 5 seconds
+            setTimeout(() => setDragError(null), 5000);
         } finally {
             setIsDragging(false);
         }
-    }, [localGroups, localTasks, canMoveTask]);
-
-    // ─── Complete Pending Move ───────────────────────────────────
-    const completePendingMove = useCallback(async () => {
-        if (!pendingMove) return;
-
-        const { taskId, newGroupId, task } = pendingMove;
-        const newGroup = localGroups.find(g => g.id === newGroupId);
-        const isComplete = newGroup?.name === 'Complete';
-
-        try {
-            setIsDragging(true);
-            
-            await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
-                group_id: newGroupId,
-                completed: isComplete,
-            }, { 
-                headers: { 'Accept': 'application/json' },
-                timeout: 10000
-            });
-
-            // Update local state
-            setLocalTasks(prev => prev.map(t =>
-                t.id === taskId ? { ...t, group_id: newGroupId, completed: isComplete } : t
-            ));
-
-            // Clear pending move
-            setPendingMove(null);
-            setRequireAttachment(false);
-            
-        } catch (error) {
-            console.error('❌ Failed to complete pending move:', error.response?.data || error.message);
-            
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.error || 
-                               'Failed to move task. Please try again.';
-            
-            setDragError(errorMessage);
-            setTimeout(() => setDragError(null), 3000);
-        } finally {
-            setIsDragging(false);
-        }
-    }, [pendingMove, localGroups]);
+    }, [localGroups, localTasks, canMoveTask, user]);
 
     // ─── Handle Drawer Close with Validation ─────────────────────
     const handleDrawerClose = useCallback(() => {

@@ -63,10 +63,10 @@ class TaskController extends Controller
 
         // Validate task due date against project due date
         if (!empty($validated['due_on']) && $project->due_date) {
-            $taskDueDate = \Carbon\Carbon::parse($validated['due_on']);
+            $taskIdDueDate = \Carbon\Carbon::parse($validated['due_on']);
             $projectDueDate = \Carbon\Carbon::parse($project->due_date);
             
-            if ($taskDueDate->gt($projectDueDate)) {
+            if ($taskIdDueDate->gt($projectDueDate)) {
                 return response()->json([
                     'error' => 'Task due date cannot be after project due date (' . $projectDueDate->format('Y-m-d') . ').'
                 ], 422);
@@ -82,7 +82,7 @@ class TaskController extends Controller
             ->whereNull('archived_at')
             ->max('order_column');
 
-        $task = Task::create([
+        $taskId = Task::create([
             'name' => $validated['name'],
             'description' => $validated['description'],
             'assigned_to_user_id' => $validated['assigned_to_user_id'],
@@ -95,7 +95,7 @@ class TaskController extends Controller
 
         return response()->json([
             'success' => true,
-            'task' => $task->load([
+            'task' => $taskId->load([
                 'assignedToUser:id,name,avatar',
                 'taskGroup:id,name,project_id',
             ]),
@@ -105,10 +105,10 @@ class TaskController extends Controller
     /**
      * Update the specified task.
      */
-    public function update(Request $request, $taskId)
+    public function update(Request $request, $workspace, $task)
     {
         \Log::info('API Task Update Called', [
-            'task_id' => $taskId,
+            'task_id' => $task,
             'user_id' => $request->user()->id,
             'user_email' => $request->user()->email,
             'workspace_id' => $this->getCurrentWorkspace($request)?->id,
@@ -126,7 +126,7 @@ class TaskController extends Controller
         }
 
         // Find the task within the workspace context
-        $task = Task::where('id', $taskId)
+        $task = Task::where('id', $task)
             ->whereHas('project', function ($query) use ($workspace) {
                 $query->where('workspace_id', $workspace->id);
             })
@@ -166,6 +166,7 @@ class TaskController extends Controller
             'description' => 'sometimes|nullable|string',
             'assigned_to_user_id' => 'sometimes|nullable|exists:users,id',
             'due_on' => 'sometimes|nullable|date',
+            'completed' => 'sometimes|boolean',
         ]);
 
         // Validate task due date against project due date
@@ -242,10 +243,10 @@ class TaskController extends Controller
     /**
      * Reorder tasks when moving between groups or changing position
      */
-    private function reorderTasks(Task $task, $newGroupId, int $newOrderColumn)
+    private function reorderTasks(Task $taskId, $newGroupId, int $newOrderColumn)
     {
-        $oldGroupId = $task->group_id;
-        $oldOrderColumn = $task->order_column;
+        $oldGroupId = $taskId->group_id;
+        $oldOrderColumn = $taskId->order_column;
 
         if ($newGroupId !== null) {
             $newGroupId = (int) $newGroupId;
@@ -255,7 +256,7 @@ class TaskController extends Controller
         if ($oldGroupId !== $newGroupId) {
             // Decrease order_column of tasks in old group that were after this task
             Task::query()
-                ->where('project_id', $task->project_id)
+                ->where('project_id', $taskId->project_id)
                 ->where('group_id', $oldGroupId)
                 ->whereNull('archived_at')
                 ->where('order_column', '>', $oldOrderColumn)
@@ -263,7 +264,7 @@ class TaskController extends Controller
 
             // Increase order_column of tasks in new group that are at or after new order_column
             Task::query()
-                ->where('project_id', $task->project_id)
+                ->where('project_id', $taskId->project_id)
                 ->where('group_id', $newGroupId)
                 ->whereNull('archived_at')
                 ->where('order_column', '>=', $newOrderColumn)
@@ -273,7 +274,7 @@ class TaskController extends Controller
             if ($newOrderColumn > $oldOrderColumn) {
                 // Moving down: decrement tasks between old and new order
                 Task::query()
-                    ->where('project_id', $task->project_id)
+                    ->where('project_id', $taskId->project_id)
                     ->where('group_id', $oldGroupId)
                     ->whereNull('archived_at')
                     ->where('order_column', '>', $oldOrderColumn)
@@ -282,7 +283,7 @@ class TaskController extends Controller
             } else {
                 // Moving up: increment tasks between new and old order
                 Task::query()
-                    ->where('project_id', $task->project_id)
+                    ->where('project_id', $taskId->project_id)
                     ->where('group_id', $oldGroupId)
                     ->whereNull('archived_at')
                     ->where('order_column', '>=', $newOrderColumn)
@@ -295,7 +296,7 @@ class TaskController extends Controller
     /**
      * Remove the specified task.
      */
-    public function destroy(Request $request, $taskId)
+    public function destroy(Request $request, $workspace, $task)
     {
         $user = $request->user();
         $workspace = $this->getCurrentWorkspace($request);
@@ -306,17 +307,15 @@ class TaskController extends Controller
         }
 
         // Find the task within the workspace context
-        $task = Task::where('id', $taskId)
+        $task = Task::where('id', $task)
             ->whereHas('project', function ($query) use ($workspace) {
                 $query->where('workspace_id', $workspace->id);
             })
             ->first();
 
-        if (!$task) {
+        if (!$taskId) {
             return response()->json(['error' => 'Task not found'], 404);
         }
-
-        abort_unless($user && $user->can('archive', $task), 403);
 
         $task->loadMissing('project');
         if (!$workspace || $task->project->workspace_id !== $workspace->id) {
