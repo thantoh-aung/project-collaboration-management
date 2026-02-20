@@ -29,6 +29,7 @@ class OnboardingController extends Controller
             $profile = $user->freelancerProfile;
             return Inertia::render('Onboarding/FreelancerProfile', [
                 'profile' => $profile,
+                'user' => $user,
             ]);
         }
 
@@ -36,6 +37,7 @@ class OnboardingController extends Controller
             $profile = $user->clientProfile;
             return Inertia::render('Onboarding/ClientProfile', [
                 'profile' => $profile,
+                'user' => $user,
             ]);
         }
 

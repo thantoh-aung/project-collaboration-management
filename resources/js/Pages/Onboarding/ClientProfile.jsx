@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Search, ArrowRight, Sparkles, Building, Globe, MapPin, Camera } from 'lucide-react';
 import CountryTimezoneSelector from '@/Components/Forms/CountryTimezoneSelector';
 
-export default function ClientProfileOnboarding({ profile }) {
+export default function ClientProfileOnboarding({ profile, user }) {
     const [avatarPreview, setAvatarPreview] = useState(profile?.avatar || null);
     const fileInputRef = useRef(null);
 
@@ -19,14 +19,20 @@ export default function ClientProfileOnboarding({ profile }) {
         avatar: null,
     });
 
-
-
-
+    // Use a per-user storage key so old drafts from other users don't leak into new profiles
+    const storageKey = user?.id
+        ? `client_onboarding_data_user_${user.id}`
+        : 'client_onboarding_data';
 
     // Form data persistence
     useEffect(() => {
-        // Load saved form data from localStorage
-        const savedData = localStorage.getItem('client_onboarding_data');
+        // Clear legacy global key to avoid leaking old drafts into new users
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('client_onboarding_data');
+        }
+
+        // Load saved form data from per-user localStorage key
+        const savedData = localStorage.getItem(storageKey);
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
@@ -41,13 +47,13 @@ export default function ClientProfileOnboarding({ profile }) {
                 console.warn('Failed to load saved form data:', error);
             }
         }
-    }, []);
+    }, [storageKey]);
 
-    // Auto-save form data to localStorage
+    // Auto-save form data to localStorage (per user)
     useEffect(() => {
         const dataToSave = { ...data, avatarPreview };
-        localStorage.setItem('client_onboarding_data', JSON.stringify(dataToSave));
-    }, [data, avatarPreview]);
+        localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+    }, [data, avatarPreview, storageKey]);
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
@@ -140,7 +146,7 @@ export default function ClientProfileOnboarding({ profile }) {
             },
             onSuccess: () => {
                 // Clear saved form data only on success
-                localStorage.removeItem('client_onboarding_data');
+                localStorage.removeItem(storageKey);
             },
             preserveState: false // Don't reset form state on error
         });
