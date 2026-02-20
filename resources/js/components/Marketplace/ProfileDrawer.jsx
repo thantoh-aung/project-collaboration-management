@@ -1,23 +1,25 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-    MapPin, 
-    Briefcase, 
-    Mail, 
-    Calendar, 
-    Star, 
+import {
+    MapPin,
+    Briefcase,
+    Mail,
+    Calendar,
+    Star,
     ExternalLink,
     Building,
     Globe,
     Users,
     Award,
     CheckCircle,
-    X
+    X,
+    FileText
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import RatingComponent from './RatingComponent';
+import RatingStars from './RatingStars';
 
 export default function ProfileDrawer({ isOpen, onClose, userId }) {
     const [profile, setProfile] = useState(null);
@@ -35,11 +37,21 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
     const fetchProfile = async () => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const response = await axios.get(`/api/users/${userId}/profile`);
             console.log('🔍 ProfileDrawer Debug - API Response:', response.data);
             setProfile(response.data);
+
+            // Set existing rating if current user has already reviewed
+            if (response.data.type === 'freelancer' && response.data.freelancer_profile?.reviews) {
+                const myReview = response.data.freelancer_profile.reviews.find(
+                    r => r.client_id === auth?.user?.id
+                );
+                if (myReview) {
+                    setExistingRating(myReview);
+                }
+            }
         } catch (err) {
             console.error('Failed to fetch profile:', err);
             setError('Failed to load profile');
@@ -82,9 +94,9 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                             <div className="absolute -bottom-12 left-6">
                                 <div className="h-24 w-24 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
                                     {profile.user.avatar_url ? (
-                                        <img 
-                                            src={profile.user.avatar_url} 
-                                            alt={profile.user.name} 
+                                        <img
+                                            src={profile.user.avatar_url}
+                                            alt={profile.user.name}
                                             className="h-24 w-24 rounded-full object-cover"
                                         />
                                     ) : (
@@ -108,8 +120,8 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                             {/* User Type Badge */}
                             <div className="mb-6">
                                 <Badge className={
-                                    profile.type === 'freelancer' 
-                                        ? 'bg-emerald-600/20 text-emerald-300 border-emerald-500/30' 
+                                    profile.type === 'freelancer'
+                                        ? 'bg-emerald-600/20 text-emerald-300 border-emerald-500/30'
                                         : 'bg-blue-600/20 text-blue-300 border-blue-500/30'
                                 }>
                                     {profile.type === 'freelancer' ? 'Freelancer' : 'Client'}
@@ -320,8 +332,58 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                 </div>
                             )}
 
+                            {/* Reviews Section */}
+                            {profile.type === 'freelancer' && profile.freelancer_profile?.reviews?.length > 0 && (
+                                <div className="mt-8 pt-6 border-t border-slate-700">
+                                    <h3 className="text-lg font-semibold text-white mb-4">Reviews</h3>
+                                    <div className="space-y-4">
+                                        {profile.freelancer_profile.reviews.map((review) => (
+                                            <div key={review.id} className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center overflow-hidden">
+                                                            {review.client?.avatar ? (
+                                                                <img src={review.client.avatar} alt={review.client.name} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <span className="text-xs font-bold text-white">
+                                                                    {review.client?.name?.charAt(0).toUpperCase() || 'C'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <span className="text-sm font-medium text-white">{review.client?.name || 'Client'}</span>
+                                                    </div>
+                                                    <RatingStars rating={review.rating} />
+                                                </div>
+                                                {review.comment && (
+                                                    <p className="text-sm text-gray-300 italic">"{review.comment}"</p>
+                                                )}
+                                                <p className="text-[10px] text-gray-500 mt-2">
+                                                    {new Date(review.created_at).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* CV Link */}
+                                    {profile.freelancer_profile.cv_path && (
+                                        <div className="pt-2">
+                                            <a
+                                                href={profile.freelancer_profile.cv_path}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-blue-400 rounded-lg border border-slate-600 transition-colors w-full justify-center"
+                                            >
+                                                <FileText className="h-4 w-4" />
+                                                <span className="font-medium text-sm">View CV / Resume</span>
+                                                <ExternalLink className="h-3 w-3 opacity-50" />
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Rating Section - Only for clients viewing freelancers */}
-                            {profile.type === 'freelancer' && auth?.user?.usage_type === 'client' && (
+                            {profile.type === 'freelancer' && auth?.user?.usage_type === 'client' && auth?.user?.id !== profile.user.id && (
                                 <div className="mt-8 pt-6 border-t border-slate-700">
                                     <RatingComponent
                                         freelancerId={profile.user.id}

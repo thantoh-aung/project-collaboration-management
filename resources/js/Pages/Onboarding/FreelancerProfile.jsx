@@ -33,7 +33,12 @@ export default function FreelancerProfileOnboarding({ profile }) {
         linkedin_link: profile?.linkedin_link || '',
         website_link: profile?.website_link || '',
         avatar: null,
+        cv: null,
     });
+
+    // CV File Preview/Placeholder (optional but helpful)
+    const [cvFileName, setCvFileName] = useState('');
+    const cvInputRef = useRef(null);
 
     // Simple CSRF token refresh on component mount
     useEffect(() => {
@@ -116,6 +121,15 @@ export default function FreelancerProfileOnboarding({ profile }) {
         }
     };
 
+    const handleCvChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('cv', file);
+            setCvFileName(file.name);
+            console.log('🔍 CV file selected:', file.name, file.size);
+        }
+    };
+
     // Helper function to validate URLs
     const isValidUrl = (url) => {
         try {
@@ -128,16 +142,16 @@ export default function FreelancerProfileOnboarding({ profile }) {
 
     const submit = async (e) => {
         e.preventDefault();
-        
+
         // Refresh CSRF token and meta tag before submission
         if (typeof window !== 'undefined' && window.axios) {
             try {
                 // Refresh CSRF token and wait for it to complete
                 await window.axios.get('/sanctum/csrf-cookie');
-                
+
                 // Small delay to ensure cookie is set
                 await new Promise(resolve => setTimeout(resolve, 100));
-                
+
                 // Update the meta tag with fresh token from cookie
                 const newToken = document.cookie
                     .split('; ')
@@ -238,6 +252,17 @@ export default function FreelancerProfileOnboarding({ profile }) {
             errors.linkedin_link = 'Please enter a valid LinkedIn URL';
         }
 
+        // CV validation (Required)
+        if (!data.cv) {
+            errors.cv = 'Your CV (resume) is required';
+        } else if (data.cv instanceof File) {
+            const allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg'];
+            const fileExtension = data.cv.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                errors.cv = 'CV must be a PDF, PNG, or JPG file';
+            }
+        }
+
         // Website link is optional but if provided, must be valid
         if (data.website_link?.trim() && !isValidUrl(data.website_link)) {
             errors.website_link = 'Please enter a valid website URL';
@@ -261,6 +286,9 @@ export default function FreelancerProfileOnboarding({ profile }) {
                 if (key === 'avatar' && data[key] instanceof File) {
                     formData.append(key, data[key]);
                     console.log('🔍 Adding avatar file to FormData:', data[key].name, data[key].size);
+                } else if (key === 'cv' && data[key] instanceof File) {
+                    formData.append(key, data[key]);
+                    console.log('🔍 Adding CV file to FormData:', data[key].name, data[key].size);
                 } else if (Array.isArray(data[key])) {
                     formData.append(key, JSON.stringify(data[key]));
                 } else if (typeof data[key] === 'object') {
@@ -492,6 +520,30 @@ export default function FreelancerProfileOnboarding({ profile }) {
                                 </div>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">* GitHub and LinkedIn profiles are required</p>
+                        </div>
+
+                        {/* CV Upload */}
+                        <div className="pt-4 border-t border-slate-700">
+                            <Label className="text-sm font-medium text-gray-300 mb-2 block">Upload CV (Resume) *</Label>
+                            <div
+                                onClick={() => cvInputRef.current?.click()}
+                                className={`cursor-pointer border-2 border-dashed rounded-xl p-6 text-center transition-colors ${errors.cv ? 'border-red-500/50 bg-red-500/5' : 'border-slate-600 hover:border-blue-500 hover:bg-slate-700/50'
+                                    }`}
+                            >
+                                <Input
+                                    ref={cvInputRef}
+                                    type="file"
+                                    accept=".pdf,.png,.jpg,.jpeg"
+                                    onChange={handleCvChange}
+                                    className="hidden"
+                                />
+                                <Plus className={`h-8 w-8 mx-auto mb-2 ${errors.cv ? 'text-red-400' : 'text-gray-400'}`} />
+                                <p className={`text-sm ${errors.cv ? 'text-red-400' : 'text-gray-300'}`}>
+                                    {cvFileName ? `Selected: ${cvFileName}` : 'Click to upload your CV (PDF, PNG, JPG)'}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">Maximum file size: 5MB</p>
+                            </div>
+                            {errors.cv && <p className="text-red-400 text-xs mt-2 font-medium">{errors.cv}</p>}
                         </div>
 
                         {/* Actions */}

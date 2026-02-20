@@ -50,13 +50,13 @@ export default function RatingComponent({ freelancerId, existingRating, onRating
     };
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h4 className="font-semibold text-gray-900 mb-3">Rate this Freelancer</h4>
+        <div className="bg-slate-800 rounded-lg border border-slate-600 p-4 shadow-lg shadow-blue-600/20">
+            <h4 className="font-semibold text-white mb-3">Rate this Freelancer</h4>
             
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Star Rating */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                         Your Rating
                     </label>
                     <div className="flex items-center gap-1">
@@ -64,7 +64,7 @@ export default function RatingComponent({ freelancerId, existingRating, onRating
                             <button
                                 key={star}
                                 type="button"
-                                className="p-1 transition-colors"
+                                className="p-1 transition-colors hover:bg-slate-700 rounded"
                                 onClick={() => setRating(star)}
                                 onMouseEnter={() => setHoveredStar(star)}
                                 onMouseLeave={() => setHoveredStar(0)}
@@ -73,12 +73,12 @@ export default function RatingComponent({ freelancerId, existingRating, onRating
                                     className={`h-6 w-6 transition-colors ${
                                         star <= (hoveredStar || rating) 
                                             ? 'text-yellow-400 fill-yellow-400' 
-                                            : 'text-gray-300'
+                                            : 'text-gray-400'
                                     }`}
                                 />
                             </button>
                         ))}
-                        <span className="ml-2 text-sm text-gray-600">
+                        <span className="ml-2 text-sm text-gray-400">
                             {rating > 0 ? `${rating}/5` : 'Select rating'}
                         </span>
                     </div>
@@ -86,14 +86,14 @@ export default function RatingComponent({ freelancerId, existingRating, onRating
 
                 {/* Comment */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                         Comment (optional)
                     </label>
                     <textarea
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Share your experience working with this freelancer..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400"
                         rows="3"
                     />
                 </div>
@@ -102,7 +102,7 @@ export default function RatingComponent({ freelancerId, existingRating, onRating
                 <Button
                     type="submit"
                     disabled={isSubmitting || rating === 0}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                 >
                     {isSubmitting ? 'Submitting...' : existingRating ? 'Update Rating' : 'Submit Rating'}
                 </Button>

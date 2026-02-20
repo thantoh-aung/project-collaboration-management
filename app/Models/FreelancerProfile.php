@@ -28,6 +28,7 @@ class FreelancerProfile extends Model
         'availability',
         'country',
         'timezone',
+        'cv_path',
         'status',
         'featured',
         'total_projects',

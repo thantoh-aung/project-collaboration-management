@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { X, MapPin, Star, MessageCircle, Github, Linkedin, Globe, ExternalLink, Loader2 } from 'lucide-react';
+import { X, MapPin, Star, MessageCircle, Github, Linkedin, Globe, ExternalLink, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SkillBadge from './SkillBadge';
 import RatingStars from './RatingStars';
@@ -205,10 +205,62 @@ export default function FreelancerDrawer({ slug, onClose }) {
                             {/* Stats */}
                             <div className="mt-4 pt-4 border-t border-slate-700">
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold text-white">{profile.avg_rating ? parseFloat(profile.avg_rating).toFixed(1) : 'N/A'}</div>
+                                    <div className="text-2xl font-bold text-white">
+                                        {profile.avg_rating ? parseFloat(profile.avg_rating).toFixed(1) : 'N/A'}
+                                    </div>
                                     <div className="text-sm text-gray-400">Rating</div>
                                 </div>
                             </div>
+
+                            {/* CV Link */}
+                            {profile.cv_path && (
+                                <div className="mt-4 pt-4 border-t border-slate-700">
+                                    <a
+                                        href={profile.cv_path}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-blue-400 rounded-lg border border-slate-600 transition-colors w-full justify-center group"
+                                    >
+                                        <FileText className="h-4 w-4" />
+                                        <span className="font-medium text-sm">View CV / Resume</span>
+                                        <ExternalLink className="h-3.5 w-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                    </a>
+                                </div>
+                            )}
+
+                            {/* Reviews Section */}
+                            {reviews.length > 0 && (
+                                <div className="mt-8 pt-6 border-t border-slate-700">
+                                    <h3 className="text-sm font-semibold text-white mb-4">Client Reviews</h3>
+                                    <div className="space-y-4">
+                                        {reviews.map((review) => (
+                                            <div key={review.id} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-6 w-6 rounded-full bg-slate-600 flex items-center justify-center overflow-hidden">
+                                                            {review.client?.avatar ? (
+                                                                <img src={review.client.avatar} alt={review.client.name} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <span className="text-[10px] font-bold text-white">
+                                                                    {review.client?.name?.charAt(0).toUpperCase() || 'C'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <span className="text-xs font-medium text-white">{review.client?.name || 'Client'}</span>
+                                                    </div>
+                                                    <RatingStars rating={review.rating} />
+                                                </div>
+                                                {review.comment && (
+                                                    <p className="text-xs text-gray-300 italic">"{review.comment}"</p>
+                                                )}
+                                                <p className="text-[9px] text-gray-500 mt-2">
+                                                    {new Date(review.created_at).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Action Button */}
                             {canMessage && (
@@ -218,7 +270,7 @@ export default function FreelancerDrawer({ slug, onClose }) {
                                         className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl shadow-lg shadow-blue-500/30 font-medium"
                                     >
                                         <MessageCircle className="h-4 w-4 mr-2" />
-                                        {profile.hasExistingChat ? 'Continue Chat' : 'Contact Freelancer'}
+                                        {data?.hasExistingChat ? 'Continue Chat' : 'Contact Freelancer'}
                                     </Button>
                                 </div>
                             )}

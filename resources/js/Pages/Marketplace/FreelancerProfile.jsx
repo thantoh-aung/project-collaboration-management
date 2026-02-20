@@ -2,7 +2,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import MarketplaceLayout from '@/Layouts/MarketplaceLayout';
 import SkillBadge from '@/Components/Marketplace/SkillBadge';
 import RatingStars from '@/Components/Marketplace/RatingStars';
-import { MapPin, Globe, Clock, MessageSquare, ExternalLink, ArrowLeft } from 'lucide-react';
+import { MapPin, Globe, Clock, MessageSquare, ExternalLink, ArrowLeft, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const availabilityMap = {
@@ -157,6 +157,26 @@ export default function FreelancerProfilePage({ profile, reviews, hasExistingCha
                                 </div>
                             </div>
                         </div>
+
+                        {/* CV Download */}
+                        {profile.cv_path && (
+                            <div className="bg-slate-800 rounded-xl border border-slate-600 p-6">
+                                <h3 className="text-sm font-semibold text-white mb-3">Documents</h3>
+                                <a
+                                    href={profile.cv_path}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 p-3 rounded-lg border border-slate-600 hover:border-blue-500 hover:bg-slate-700 transition-colors group"
+                                >
+                                    <FileText className="h-5 w-5 text-gray-400 group-hover:text-blue-400" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-300 group-hover:text-blue-400">Freelancer CV</p>
+                                        <p className="text-xs text-gray-500">PDF / Image</p>
+                                    </div>
+                                    <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-blue-400" />
+                                </a>
+                            </div>
+                        )}
 
                         {/* Contact CTA */}
                         {isClient && !isOwnProfile && (

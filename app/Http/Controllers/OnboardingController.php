@@ -80,7 +80,14 @@ class OnboardingController extends Controller
                 'country' => 'nullable|string|max:100',
                 'timezone' => 'nullable|string|max:100',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+                'cv' => 'required|file|mimes:pdf,png,jpg,jpeg|max:5120',
             ]);
+            
+            // Handle CV upload
+            if ($request->hasFile('cv')) {
+                $cvPath = $request->file('cv')->store('resumes', 'public');
+                $data['cv_path'] = '/storage/' . $cvPath;
+            }
 
             // Handle avatar upload
             if ($request->hasFile('avatar')) {

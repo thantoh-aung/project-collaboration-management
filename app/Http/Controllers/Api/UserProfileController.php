@@ -65,6 +65,11 @@ class UserProfileController extends Controller
                     'avg_rating' => $freelancerProfile->avg_rating,
                     'status' => $freelancerProfile->status,
                     'featured' => $freelancerProfile->featured,
+                    'cv_path' => $freelancerProfile->cv_path,
+                    'reviews' => $freelancerProfile->reviews()
+                        ->with('client:id,name,avatar')
+                        ->latest()
+                        ->get(),
                 ];
             }
         } elseif ($user->usage_type === 'client') {
