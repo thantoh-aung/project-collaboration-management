@@ -76,7 +76,7 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`mb-1.5 cursor-pointer hover:shadow-sm transition-all border-l-2 border-l-transparent hover:border-l-blue-500 ${
+      className={`mb-1.5 cursor-pointer hover:shadow-sm transition-all border-l-2 border-l-transparent hover:border-l-blue-500 bg-slate-800 border-slate-700 ${
         isDragging ? 'shadow-md opacity-50' : ''
       }`}
       onClick={onClick}
@@ -86,7 +86,7 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
         <div 
           {...attributes}
           {...listeners}
-          className="absolute top-1 right-1 p-1 cursor-grab active:cursor-grabbing hover:bg-gray-100 rounded"
+          className="absolute top-1 right-1 p-1 cursor-grab active:cursor-grabbing hover:bg-slate-700 rounded"
           onClick={(e) => e.stopPropagation()}
         >
           <svg className="h-3 w-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -94,7 +94,7 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
           </svg>
         </div>
         
-        <h4 className="font-medium text-xs mb-1.5 line-clamp-2 leading-tight pr-6">{task.name}</h4>
+        <h4 className="font-medium text-xs mb-1.5 line-clamp-2 leading-tight pr-6 text-white">{task.name}</h4>
         
         {/* Labels */}
         {task.labels && task.labels.length > 0 && (
@@ -103,7 +103,7 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
               <Badge
                 key={idx}
                 variant="outline"
-                className={`text-[10px] h-4 px-1 ${labelColors[label] || 'bg-gray-100 text-gray-800'}`}
+                className={`text-[10px] h-4 px-1 ${labelColors[label] || 'bg-red-900/30 text-red-400'}`}
               >
                 {label}
               </Badge>
@@ -129,31 +129,31 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
             )}
             
             {task.time_estimate && (
-              <div className="flex items-center gap-0.5 text-gray-500">
+              <div className="flex items-center gap-0.5 text-gray-400">
                 <Timer className="h-2.5 w-2.5" />
-                <span>{formatTime(task.time_estimate)}</span>
+                <span className="text-gray-400">{formatTime(task.time_estimate)}</span>
               </div>
             )}
             
             {task.attachments && task.attachments.length > 0 && (
-              <div className="flex items-center gap-0.5 text-gray-500">
+              <div className="flex items-center gap-0.5 text-gray-400">
                 <Paperclip className="h-2.5 w-2.5" />
-                <span>{task.attachments.length}</span>
+                <span className="text-gray-400">{task.attachments.length}</span>
               </div>
             )}
             
             {task.subscribers && task.subscribers.length > 0 && (
-              <div className="flex items-center gap-0.5 text-gray-500">
+              <div className="flex items-center gap-0.5 text-gray-400">
                 <Users className="h-2.5 w-2.5" />
-                <span>{task.subscribers.length}</span>
+                <span className="text-gray-400">{task.subscribers.length}</span>
               </div>
             )}
           </div>
           
           {task.due_on && (
-            <div className="flex items-center gap-0.5 text-gray-500">
+            <div className="flex items-center gap-0.5 text-gray-400">
               <Calendar className="h-2.5 w-2.5" />
-              <span>{new Date(task.due_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              <span className="text-gray-400">{new Date(task.due_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
             </div>
           )}
         </div>
@@ -243,20 +243,20 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
   const taskGroupsList = taskGroups || [];
   
   const taskStatuses = [
-    { id: 'todo', name: 'To Do', color: 'bg-gray-100 text-gray-800', icon: Clock },
-    { id: 'in-progress', name: 'In Progress', color: 'bg-blue-100 text-blue-800', icon: AlertCircle },
-    { id: 'in-review', name: 'In Review', color: 'bg-purple-100 text-purple-800', icon: Users },
-    { id: 'qa', name: 'QA', color: 'bg-orange-100 text-orange-800', icon: CheckCircle },
-    { id: 'done', name: 'Done', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-    { id: 'deployed', name: 'Deployed', color: 'bg-indigo-100 text-indigo-800', icon: CheckCircle },
+    { id: 'todo', name: 'To Do', color: 'bg-gray-900/30 text-gray-400', icon: Clock },
+    { id: 'in-progress', name: 'In Progress', color: 'bg-blue-900/30 text-blue-400', icon: AlertCircle },
+    { id: 'in-review', name: 'In Review', color: 'bg-purple-900/30 text-purple-400', icon: Users },
+    { id: 'qa', name: 'QA', color: 'bg-orange-900/30 text-orange-400', icon: CheckCircle },
+    { id: 'done', name: 'Done', color: 'bg-green-900/30 text-green-400', icon: CheckCircle },
+    { id: 'deployed', name: 'Deployed', color: 'bg-indigo-900/30 text-indigo-400', icon: CheckCircle },
   ];
 
   const labelColors = {
-    bug: 'bg-red-100 text-red-800',
-    feature: 'bg-green-100 text-green-800',
-    improvement: 'bg-blue-100 text-blue-800',
-    urgent: 'bg-yellow-100 text-yellow-800',
-    documentation: 'bg-purple-100 text-purple-800',
+    bug: 'bg-red-900/30 text-red-400',
+    feature: 'bg-green-900/30 text-green-400',
+    improvement: 'bg-blue-900/30 text-blue-400',
+    urgent: 'bg-yellow-900/30 text-yellow-400',
+    documentation: 'bg-purple-900/30 text-purple-400',
   };
 
   // Filter tasks based on search and filters
@@ -407,8 +407,8 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   </Button>
                 </Link>
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900">{project.name}</h1>
-                  <p className="text-xs text-gray-500">{tasks?.length || 0} tasks</p>
+                  <h1 className="text-lg font-semibold text-white">{project.name}</h1>
+                  <p className="text-xs text-gray-400">{tasks?.length || 0} tasks</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -416,7 +416,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="h-8"
+                    className="h-8 border-slate-600 text-gray-400 hover:bg-slate-700"
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     <Filter className="h-3.5 w-3.5 mr-1.5" />
@@ -430,21 +430,21 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                         onClick={() => setShowFilters(false)}
                       />
                       <div 
-                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-50"
+                        className="absolute right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-lg shadow-blue-600/20 border border-slate-700 p-3 z-50"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="space-y-3">
                           <div>
-                            <Label className="text-xs font-medium mb-1.5 block">Assignee</Label>
+                            <Label className="text-xs font-medium mb-1.5 block text-gray-300">Assignee</Label>
                             <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-                              <SelectTrigger className="h-8 text-xs">
+                              <SelectTrigger className="h-8 text-xs bg-slate-700 border-slate-600 text-white">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">All Members</SelectItem>
-                                <SelectItem value="unassigned">Unassigned</SelectItem>
+                              <SelectContent className="bg-slate-800 border-slate-600">
+                                <SelectItem value="all" className="text-white hover:bg-slate-700">All Members</SelectItem>
+                                <SelectItem value="unassigned" className="text-white hover:bg-slate-700">Unassigned</SelectItem>
                                 {assignableMembers?.map(member => (
-                                  <SelectItem key={member.id} value={member.id.toString()}>
+                                  <SelectItem key={member.id} value={member.id.toString()} className="text-white hover:bg-slate-700">
                                     {member.name}
                                   </SelectItem>
                                 ))}
@@ -455,7 +455,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              className="h-7 text-xs flex-1"
+                              className="h-7 text-xs flex-1 border-slate-600 text-gray-400 hover:bg-slate-700"
                               onClick={() => {
                                 setFilterAssignee('all');
                                 setFilterStatus('all');
@@ -465,7 +465,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                             </Button>
                             <Button 
                               size="sm" 
-                              className="h-7 text-xs flex-1"
+                              className="h-7 text-xs flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                               onClick={() => setShowFilters(false)}
                             >
                               Apply
@@ -479,7 +479,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                 {canCreateTasks && (
                   <Button 
                     size="sm" 
-                    className="h-8"
+                    className="h-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     onClick={() => {
                       setSelectedGroupId(taskGroups?.[0]?.id || null);
                       setShowCreateModal(true);
@@ -495,39 +495,39 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
             {/* Compact Stats */}
             <div className="flex gap-6 px-1">
               <div>
-                <div className="text-xl font-bold text-gray-900">{localTasks?.length || 0}</div>
-                <p className="text-xs text-gray-500">Total</p>
+                <div className="text-xl font-bold text-white">{localTasks?.length || 0}</div>
+                <p className="text-xs text-gray-400">Total</p>
               </div>
               {useTaskGroups ? (
                 <>
                   {taskGroupsList.slice(0, 3).map((group) => (
                     <div key={group.id}>
-                      <div className="text-xl font-bold text-gray-900">
+                      <div className="text-xl font-bold text-white">
                         {localTasks?.filter(t => t.group_id === group.id).length || 0}
                       </div>
-                      <p className="text-xs text-gray-500">{group.name}</p>
+                      <p className="text-xs text-gray-400">{group.name}</p>
                     </div>
                   ))}
                 </>
               ) : (
                 <>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">
+                    <div className="text-xl font-bold text-white">
                       {localTasks?.filter(t => t.status === 'todo').length || 0}
                     </div>
-                    <p className="text-xs text-gray-500">To Do</p>
+                    <p className="text-xs text-gray-400">To Do</p>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">
+                    <div className="text-xl font-bold text-white">
                       {localTasks?.filter(t => t.status === 'in-progress').length || 0}
                     </div>
-                    <p className="text-xs text-gray-500">In Progress</p>
+                    <p className="text-xs text-gray-400">In Progress</p>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-gray-900">
+                    <div className="text-xl font-bold text-white">
                       {localTasks?.filter(t => ['done', 'deployed'].includes(t.status)).length || 0}
                     </div>
-                    <p className="text-xs text-gray-500">Completed</p>
+                    <p className="text-xs text-gray-400">Completed</p>
                   </div>
                 </>
               )}
@@ -540,7 +540,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
               <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
               <Input
                 placeholder="Search tasks..."
-                className="pl-8 h-8 text-sm"
+                className="pl-8 h-8 text-sm bg-slate-700 border-slate-600 text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -563,13 +563,13 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                     return (
                       <div key={group.id} className="flex flex-col h-full">
                         <div className="flex items-center gap-1.5 mb-2 px-1">
-                          <h3 className="font-medium text-xs text-gray-700 uppercase tracking-wide">{group.name}</h3>
+                          <h3 className="font-medium text-xs text-gray-300 uppercase tracking-wide">{group.name}</h3>
                           <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
                             {groupTasks.length}
                           </Badge>
                         </div>
                         
-                        <div className="flex-1 min-h-[400px] p-1.5 rounded-md bg-gray-50/50">
+                        <div className="flex-1 min-h-[400px] p-1.5 rounded-md bg-slate-700/30">
                           <SortableContext
                             items={groupTasks.map(t => t.id.toString())}
                             strategy={verticalListSortingStrategy}
@@ -594,7 +594,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full mt-1 h-7 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                              className="w-full mt-1 h-7 text-xs text-gray-400 hover:text-white hover:bg-slate-700"
                               onClick={() => {
                                 setSelectedGroupId(group.id);
                                 setShowCreateModal(true);
@@ -617,14 +617,14 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                     return (
                       <div key={status.id} className="flex flex-col h-full">
                         <div className="flex items-center gap-2 mb-3">
-                          <StatusIcon className="h-4 w-4" />
-                          <h3 className="font-medium text-sm">{status.name}</h3>
+                          <StatusIcon className="h-4 w-4 text-gray-400" />
+                          <h3 className="font-medium text-sm text-white">{status.name}</h3>
                           <Badge variant="secondary" className="text-xs">
                             {statusTasks.length}
                           </Badge>
                         </div>
                         
-                        <div className="flex-1 min-h-[400px] p-2 rounded-lg bg-gray-50">
+                        <div className="flex-1 min-h-[400px] p-2 rounded-lg bg-slate-700/30">
                           <SortableContext
                             items={statusTasks.map(t => t.id.toString())}
                             strategy={verticalListSortingStrategy}
@@ -649,7 +649,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full mt-2 text-gray-500 hover:text-gray-700"
+                              className="w-full mt-2 text-gray-400 hover:text-white hover:bg-slate-700"
                               onClick={() => {
                                 setSelectedGroupId(null);
                                 setShowCreateModal(true);

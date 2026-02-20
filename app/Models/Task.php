@@ -16,6 +16,31 @@ use Spatie\EloquentSortable\SortableTrait;
 class Task extends Model implements Auditable, Sortable
 {
     use HasFactory, /*Archivable,*/ AuditableTrait, SortableTrait;
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($task) {
+            // Auto-set completed_at based on group name
+            if ($task->isDirty('group_id') && $task->group_id) {
+                $group = \App\Models\TaskGroup::find($task->group_id);
+                if ($group && strtolower($group->name) === 'complete') {
+                    $task->completed_at = $task->completed_at ?? now();
+                } else if ($group) {
+                    $task->completed_at = null;
+                }
+            }
+
+            // Auto-set completed_at based on status
+            if ($task->isDirty('status')) {
+                if (in_array(strtolower($task->status), ['completed', 'done', 'deployed'])) {
+                    $task->completed_at = $task->completed_at ?? now();
+                } else if (in_array(strtolower($task->status), ['todo', 'in-progress', 'in-review', 'qa'])) {
+                    $task->completed_at = null;
+                }
+            }
+        });
+    }
 
     public $sortable = [
         'order_column_name' => 'order_column',

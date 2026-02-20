@@ -96,7 +96,7 @@ const Notifications = ({ notifications = [] }) => {
         <Button
           variant="outline"
           size="icon"
-          className="relative"
+          className="relative border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 text-white"
           onClick={() => setIsOpen(!isOpen)}
         >
           <Bell className="h-4 w-4" />
@@ -110,13 +110,14 @@ const Notifications = ({ notifications = [] }) => {
 
       {/* Notifications Panel */}
       {isOpen && (
-        <div className="fixed top-16 right-4 z-50 w-80 bg-background border rounded-lg shadow-lg max-h-96 overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="font-semibold">Notifications</h3>
+        <div className="fixed top-16 right-4 z-50 w-80 bg-slate-800 border border-slate-600 rounded-lg shadow-lg shadow-blue-600/20 max-h-96 overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b border-slate-600">
+            <h3 className="font-semibold text-white">Notifications</h3>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
+              className="text-gray-400 hover:text-white hover:bg-slate-700"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -124,18 +125,18 @@ const Notifications = ({ notifications = [] }) => {
           
           <div className="max-h-80 overflow-y-auto">
             {activeNotifications.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
+              <div className="p-8 text-center text-gray-400">
                 <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No notifications</p>
               </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-y divide-slate-600">
                 {activeNotifications.map((notification) => (
                   <div
                     key={notification.id}
                     className={cn(
-                      "p-4 hover:bg-accent cursor-pointer transition-colors",
-                      !notification.read && "bg-blue-50/50 dark:bg-blue-950/20"
+                      "p-4 hover:bg-slate-700 cursor-pointer transition-colors",
+                      !notification.read && "bg-blue-900/30"
                     )}
                     onClick={() => {
                       markAsRead(notification.id);
@@ -146,21 +147,21 @@ const Notifications = ({ notifications = [] }) => {
                       {getIcon(notification.type)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-medium truncate">
+                          <p className="text-sm font-medium truncate text-white">
                             {notification.title}
                           </p>
-                          <span className="text-xs text-muted-foreground ml-2">
+                          <span className="text-xs text-gray-400 ml-2">
                             {notification.time}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-gray-300">
                           {notification.message}
                         </p>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 -mt-1 -mr-1"
+                        className="h-6 w-6 -mt-1 -mr-1 text-gray-400 hover:text-white hover:bg-slate-600"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeNotification(notification.id);
@@ -176,11 +177,11 @@ const Notifications = ({ notifications = [] }) => {
           </div>
           
           {activeNotifications.length > 0 && (
-            <div className="p-3 border-t bg-muted/50">
+            <div className="p-3 border-t border-slate-600 bg-slate-700/50">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full"
+                className="w-full text-gray-300 hover:text-white hover:bg-slate-600"
                 onClick={() => {
                   // Mark all as read
                   setActiveNotifications(prev => 
@@ -198,7 +199,7 @@ const Notifications = ({ notifications = [] }) => {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         />
       )}

@@ -252,7 +252,13 @@ class DashboardController extends Controller
         ]);
 
         $totalTasks = (clone $tasksQuery)->count();
-        $completedTasks = (clone $tasksQuery)->whereNotNull('completed_at')->count();
+        $completedTasks = (clone $tasksQuery)->where(function($q) {
+            $q->whereNotNull('completed_at')
+              ->orWhereHas('taskGroup', function($sq) {
+                  $sq->whereRaw('LOWER(name) = ?', ['complete']);
+              })
+              ->orWhereIn('status', ['completed', 'done', 'deployed']);
+        })->count();
 
         $statistics = [
             'total_projects' => (clone $projectsQuery)->count(),
@@ -260,7 +266,7 @@ class DashboardController extends Controller
             'total_comments' => (clone $commentsQuery)->count(),
             'completed_tasks' => $completedTasks,
             'in_progress_tasks' => $totalTasks - $completedTasks,
-            'progress_percentage' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0,
+            'progress_percentage' => $totalTasks > 0 ? min(100, round(($completedTasks / $totalTasks) * 100)) : 0,
         ];
 
         // Get workspace members for admin and client views

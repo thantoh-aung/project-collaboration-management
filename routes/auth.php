@@ -217,11 +217,13 @@ Route::middleware('auth')->group(function () {
         // Notifications page (renders with real data from controller)
         Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'page'])->name('notifications.index');
         
-        // Notification API routes
-        Route::get('/api/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);
-        Route::get('/api/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount']);
-        Route::post('/api/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
-        Route::post('/api/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+        // Notification API routes (workspace scoped)
+        Route::middleware(['workspace.auth'])->prefix('/api')->group(function () {
+            Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);
+            Route::get('/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount']);
+            Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
+            Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+        });
         
                 
         Route::get('/projects/{project}/tasks', [TaskController::class, 'index'])->name('auth.workspaces.projects.tasks');

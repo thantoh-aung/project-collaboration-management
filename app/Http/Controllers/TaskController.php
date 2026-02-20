@@ -449,13 +449,6 @@ class TaskController extends Controller
         if (array_key_exists('group_id', $data) && $data['group_id'] !== null) {
             $group = TaskGroup::query()->where('project_id', $task->project_id)->whereNull('archived_at')->findOrFail($data['group_id']);
             abort_unless($user->can('view', $group->project), 403);
-
-            // Auto-set completed_at based on group name
-            if (strtolower($group->name) === 'complete') {
-                $task->completed_at = $task->completed_at ?? now();
-            } else {
-                $task->completed_at = null;
-            }
         }
 
         // Handle explicit completed flag
@@ -566,6 +559,9 @@ class TaskController extends Controller
         $task->completed_at = $task->completed_at ?? now();
         $task->save();
 
+        // Dispatch event for real-time report updates
+        broadcast(new \App\Events\TaskUpdated($task))->toOthers();
+
         return response()->json([
             'task' => $task,
         ]);
@@ -636,6 +632,9 @@ class TaskController extends Controller
         }
 
         $task->save();
+
+        // Dispatch event for real-time report updates
+        broadcast(new \App\Events\TaskUpdated($task))->toOthers();
 
         return response()->json([
             'task' => $task,

@@ -366,7 +366,7 @@ export default function Dashboard() {
                           <FolderOpen className="h-5 w-5 text-blue-400" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm">{project.name}</p>
+                          <p className="font-medium text-sm text-white">{project.name}</p>
                           <p className="text-xs text-gray-400">{project.client_company?.name || 'No client'}</p>
                         </div>
                       </div>

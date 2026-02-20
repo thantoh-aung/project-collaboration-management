@@ -125,7 +125,7 @@ const MainLayoutContent = ({ title, children }) => {
       current: window.location.pathname.startsWith('/projects'),
       permission: 'view_projects',
     },
-        {
+    {
       title: 'Team',
       href: '/team',
       icon: Users,
@@ -139,7 +139,7 @@ const MainLayoutContent = ({ title, children }) => {
       current: window.location.pathname.startsWith('/clients'),
       permission: 'view_clients',
     },
-            {
+    {
       title: 'Settings',
       href: '/workspaces/current/settings',
       icon: Settings,
@@ -158,7 +158,7 @@ const MainLayoutContent = ({ title, children }) => {
         {navigationItems.map((item) => {
           const Icon = item.icon;
           return (
-            <a
+            <Link
               key={item.title}
               href={item.href.replace('/workspaces/current', `/workspaces/${currentWorkspace?.id}`)}
               className={cn(
@@ -175,7 +175,7 @@ const MainLayoutContent = ({ title, children }) => {
                   : "text-gray-500 group-hover:text-blue-400"
               )} />
               <span className="flex-1">{item.title}</span>
-            </a>
+            </Link>
           );
         })}
       </div>
@@ -208,13 +208,13 @@ const MainLayoutContent = ({ title, children }) => {
     const markRead = async (id) => {
       setNotifs(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n));
       setUnread(prev => Math.max(0, prev - 1));
-      try { await fetch(`/api/notifications/${id}/read`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content, 'Accept': 'application/json' } }); } catch (e) {}
+      try { await fetch(`/api/notifications/${id}/read`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content, 'Accept': 'application/json' } }); } catch (e) { }
     };
 
     const markAllRead = async () => {
       setNotifs(prev => prev.map(n => ({ ...n, read_at: n.read_at || new Date().toISOString() })));
       setUnread(0);
-      try { await fetch('/api/notifications/mark-all-read', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content, 'Accept': 'application/json' } }); } catch (e) {}
+      try { await fetch('/api/notifications/mark-all-read', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content, 'Accept': 'application/json' } }); } catch (e) { }
     };
 
     const timeAgo = (ts) => {
@@ -271,8 +271,8 @@ const MainLayoutContent = ({ title, children }) => {
                     n.type === 'comment_added' ? 'bg-blue-600/20' : n.type === 'attachment_added' ? 'bg-emerald-600/20' : n.type === 'status_changed' ? 'bg-orange-600/20' : 'bg-purple-600/20'
                   )}>
                     {n.type === 'comment_added' ? <MessageSquare className="h-4 w-4 text-blue-400" /> :
-                     n.type === 'status_changed' ? <CheckSquare className="h-4 w-4 text-orange-400" /> :
-                     <CheckSquare className="h-4 w-4 text-purple-400" />}
+                      n.type === 'status_changed' ? <CheckSquare className="h-4 w-4 text-orange-400" /> :
+                        <CheckSquare className="h-4 w-4 text-purple-400" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{n.title}</p>
@@ -325,8 +325,8 @@ const MainLayoutContent = ({ title, children }) => {
               onClick={() => switchWorkspace(workspace.id)}
               className={cn(
                 "flex items-center gap-3 cursor-pointer rounded-lg mx-1 transition-all duration-200",
-                workspace.id === currentWorkspace?.id 
-                  ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 shadow-sm" 
+                workspace.id === currentWorkspace?.id
+                  ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 shadow-sm"
                   : "hover:bg-gradient-to-r hover:from-blue-900/30 hover:to-purple-900/30 hover:border-blue-500/30"
               )}
             >
@@ -349,19 +349,19 @@ const MainLayoutContent = ({ title, children }) => {
           ))}
           <DropdownMenuSeparator />
           {hasPermission('manage_settings') && (
-            <DropdownMenuItem onClick={() => router.visit(route('invite.members'))}>
-              <UserPlus className="h-4 w-4 mr-2" />
+            <DropdownMenuItem onClick={() => router.visit(route('invite.members'))} className="text-gray-300 hover:text-white hover:bg-slate-700">
+              <UserPlus className="h-4 w-4 mr-2 text-blue-400" />
               Invite Team Member
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => window.location.href = '/workspaces/select'}>
-            <Plus className="h-4 w-4 mr-2" />
+          <DropdownMenuItem onClick={() => window.location.href = '/workspaces/select'} className="text-gray-300 hover:text-white hover:bg-slate-700">
+            <Plus className="h-4 w-4 mr-2 text-emerald-400" />
             Switch Workspace
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      
+
       {/* Right side items */}
       <div className="flex items-center gap-x-4">
         {/* Marketplace Quick Access - Only for Clients and Freelancers */}
@@ -370,7 +370,7 @@ const MainLayoutContent = ({ title, children }) => {
             variant="outline"
             size="sm"
             onClick={() => window.location.href = '/marketplace'}
-            className="flex items-center gap-2 h-9 px-3 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-300"
+            className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white"
           >
             <Store className="h-4 w-4" />
             <span className="hidden sm:inline">Marketplace</span>
@@ -384,7 +384,7 @@ const MainLayoutContent = ({ title, children }) => {
               variant="outline"
               size="sm"
               onClick={() => window.location.href = '/marketplace/chats'}
-              className="flex items-center gap-2 h-9 px-3 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-300"
+              className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white"
             >
               <MessageSquare className="h-4 w-4" />
               <span className="hidden sm:inline">Messages</span>
@@ -404,13 +404,13 @@ const MainLayoutContent = ({ title, children }) => {
     </header>
   );
   return (
-      <div className="min-h-screen bg-slate-900 text-white">
-        {/* Animated Background Elements */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
-        </div>
+    <div className="min-h-screen bg-slate-900 text-white">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+      </div>
       <Head title={title} />
 
       {/* Flash Notifications */}
@@ -443,7 +443,7 @@ const MainLayoutContent = ({ title, children }) => {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-slate-700 bg-gradient-to-r from-slate-700 to-blue-900/30">
-            <div 
+            <div
               className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/80 transition-all duration-300 cursor-pointer"
               onClick={() => {
                 // Route to correct profile based on user type
@@ -515,7 +515,7 @@ const MainLayoutContent = ({ title, children }) => {
             <SidebarNavigation />
 
             <div className="p-4 border-t border-slate-700 bg-gradient-to-r from-slate-700 to-blue-900/30">
-              <div 
+              <div
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-700/80 transition-all duration-300 cursor-pointer"
                 onClick={() => {
                   // Route to correct profile based on user type
@@ -547,7 +547,7 @@ const MainLayoutContent = ({ title, children }) => {
           </div>
         </div>
       )}
-      
+
       {/* AI Chatbot - Available on all pages */}
       <AiChatbot />
     </div>

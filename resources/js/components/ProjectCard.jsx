@@ -278,8 +278,8 @@ export default function ProjectCard({ project }) {
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 w-8 p-0 hover:bg-gray-100 rounded-lg",
-                isMenuOpen && "bg-gray-100"
+                "h-8 w-8 p-0 hover:bg-slate-700 rounded-lg transition-colors",
+                isMenuOpen && "bg-slate-700"
               )}
               onClick={(e) => {
                 e.preventDefault();
@@ -287,32 +287,32 @@ export default function ProjectCard({ project }) {
                 setIsMenuOpen(!isMenuOpen);
               }}
             >
-              <MoreHorizontal className="h-4 w-4 text-gray-500" />
+              <MoreHorizontal className="h-4 w-4 text-gray-400" />
             </Button>
 
             {isMenuOpen && (
-              <div className="absolute right-0 bottom-full mb-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-[100] py-1 animate-in fade-in zoom-in duration-200">
+              <div className="absolute right-0 bottom-full mb-2 w-48 bg-slate-800 border border-slate-600 rounded-xl shadow-xl shadow-black/50 z-[100] py-1 animate-in fade-in zoom-in duration-200">
                 {/* Admins and creators see full menu */}
                 {canManageProject && (
                   <>
                     <button
                       onClick={handleEdit}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-slate-700 flex items-center transition-colors text-blue-300 hover:text-blue-200"
                     >
-                      <Edit className="h-4 w-4 mr-2 text-blue-500" />
+                      <Edit className="h-4 w-4 mr-2" />
                       Edit Project
                     </button>
                     <button
                       onClick={handleOpen}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-slate-700 flex items-center transition-colors text-emerald-300 hover:text-emerald-200"
                     >
-                      <Eye className="h-4 w-4 mr-2 text-emerald-500" />
+                      <Eye className="h-4 w-4 mr-2" />
                       View Tasks
                     </button>
-                    <div className="my-1 border-t border-gray-100" />
+                    <div className="my-1 border-t border-slate-600" />
                     <button
                       onClick={handleDelete}
-                      className="w-full px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center transition-colors"
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-red-900/50 flex items-center transition-colors text-red-400 hover:text-red-300"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete Project
@@ -324,9 +324,9 @@ export default function ProjectCard({ project }) {
                 {!canManageProject && (
                   <button
                     onClick={handleOpen}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center transition-colors"
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-slate-700 flex items-center transition-colors text-emerald-300 hover:text-emerald-200"
                   >
-                    <Eye className="h-4 w-4 mr-2 text-emerald-500" />
+                    <Eye className="h-4 w-4 mr-2" />
                     View Tasks
                   </button>
                 )}
