@@ -71,6 +71,14 @@ class UserProfileController extends Controller
                         ->latest()
                         ->get(),
                 ];
+
+                // Stats for freelancer
+                $profileData['stats'] = [
+                    'member_since' => $user->created_at->format('M Y'),
+                    'workspaces_count' => \App\Models\Workspace::where('owner_id', $user->id)->count()
+                        + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $user->id))->count(),
+                    'avg_rating' => round($freelancerProfile->avg_rating ?? 0, 1),
+                ];
             }
         } elseif ($user->usage_type === 'client') {
             $clientProfile = $user->clientProfile;
@@ -81,6 +89,7 @@ class UserProfileController extends Controller
                     'country' => $clientProfile->country,
                     'timezone' => $clientProfile->timezone,
                     'website' => $clientProfile->website,
+                    'avg_rating' => round($clientProfile->avg_rating ?? 0, 1),
                 ];
 
                 // Get recent posted projects
@@ -90,6 +99,30 @@ class UserProfileController extends Controller
                     ->get(['id', 'title', 'description', 'budget_min', 'budget_max', 'deadline']);
 
                 $profileData['posted_projects'] = $postedProjects;
+
+                // Stats
+                $profileData['stats'] = [
+                    'member_since' => $user->created_at->format('M Y'),
+                    'projects_posted' => ProjectPost::where('user_id', $user->id)->count(),
+                    'workspaces_count' => \App\Models\Workspace::where('owner_id', $user->id)->count()
+                        + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $user->id))->count(),
+                    'avg_rating' => round($clientProfile->avg_rating ?? 0, 1),
+                    'review_count' => \App\Models\ClientReview::where('client_id', $user->id)->count(),
+                ];
+
+                // Trust badges
+                $profileData['badges'] = [
+                    'email_verified' => $user->email_verified_at !== null,
+                    'has_website' => !empty($clientProfile->website),
+                    'profile_complete' => !empty($clientProfile->company_name) && !empty($clientProfile->industry) && !empty($clientProfile->country),
+                ];
+
+                // Client reviews from freelancers
+                $profileData['client_reviews'] = \App\Models\ClientReview::where('client_id', $user->id)
+                    ->with('freelancer:id,name,avatar')
+                    ->orderByDesc('created_at')
+                    ->limit(5)
+                    ->get();
             }
         }
 

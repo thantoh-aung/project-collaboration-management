@@ -384,23 +384,15 @@ class ProjectController extends Controller
                 'due_date'    => $validated['due_date'] ?? null,
             ]);
 
-            // 2. The Logic Fix: Direct Reconciliation
+            // 2. Member Synchronization
             if ($request->has('members')) {
-                // Normalize IDs to integers from the React payload [16, 18]
-                $submittedIds = collect($request->input('members'))->map(fn($id) => (int)$id);
+                // Ensure IDs are integers
+                $submittedIds = collect($request->input('members', []))->map(fn($id) => (int)$id);
 
-                // Fetch existing roles ONLY for the IDs being submitted 
-                // to ensure we don't accidentally demote an admin to a member.
-                $existingRoles = \Illuminate\Support\Facades\DB::table('project_user_access')
-                    ->where('project_id', $project->id)
-                    ->whereIn('user_id', $submittedIds)
-                    ->pluck('role', 'user_id');
-
+                // Build sync data - default to 'member' role
                 $syncData = [];
                 foreach ($submittedIds as $userId) {
-                    // Keep existing role (admin/client) or default to 'member'
-                    $role = $existingRoles->get($userId) ?? 'member';
-                    $syncData[$userId] = ['role' => $role];
+                    $syncData[$userId] = ['role' => 'member'];
                 }
 
                 // 3. Safety Lock: Force Creator to stay Admin
@@ -410,11 +402,13 @@ class ProjectController extends Controller
 
                 // 4. THE ATOMIC SYNC: 
                 // This will DELETE anyone not in the list and ADD anyone new.
+                // Note: Per user request, we don't need to specifically handle 'client' roles here 
+                // as they have workspace-level access and aren't typically added as 'project members'.
                 $project->members()->sync($syncData);
 
-                \Log::info('Project members reconciled successfully', [
+                \Log::info('Project members synced successfully', [
                     'project_id' => $project->id,
-                    'sync_data' => $syncData
+                    'sync_counts' => count($syncData)
                 ]);
             }
         });

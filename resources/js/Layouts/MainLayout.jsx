@@ -305,6 +305,40 @@ const MainLayoutContent = ({ title, children }) => {
         <Menu className="h-5 w-5" />
       </Button>
 
+      {/* Marketplace & Messages - Only for Clients and Freelancers */}
+      <div className="flex items-center gap-x-2">
+        {props.auth?.user?.usage_type !== 'team_member' && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.href = '/marketplace'}
+            className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white"
+          >
+            <Store className="h-4 w-4" />
+            <span className="hidden sm:inline">Marketplace</span>
+          </Button>
+        )}
+
+        {props.auth?.user?.usage_type !== 'team_member' && (
+          <div className="relative">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/marketplace/chats'}
+              className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Messages</span>
+            </Button>
+            {props.unread_message_count > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                {props.unread_message_count > 99 ? '99+' : props.unread_message_count}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Workspace Switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -361,43 +395,10 @@ const MainLayoutContent = ({ title, children }) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <div className="flex-1" />
 
       {/* Right side items */}
       <div className="flex items-center gap-x-4">
-        {/* Marketplace Quick Access - Only for Clients and Freelancers */}
-        {props.auth?.user?.usage_type !== 'team_member' && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.location.href = '/marketplace'}
-            className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white"
-          >
-            <Store className="h-4 w-4" />
-            <span className="hidden sm:inline">Marketplace</span>
-          </Button>
-        )}
-
-        {/* Messages - Only for Clients and Freelancers */}
-        {props.auth?.user?.usage_type !== 'team_member' && (
-          <div className="relative">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.location.href = '/marketplace/chats'}
-              className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white"
-            >
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Messages</span>
-            </Button>
-            {props.unread_message_count > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                {props.unread_message_count > 99 ? '99+' : props.unread_message_count}
-              </span>
-            )}
-          </div>
-        )}
-
-
         {/* Notifications — dynamic */}
         <NotificationBell />
       </div>

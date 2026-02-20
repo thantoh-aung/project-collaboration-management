@@ -17,7 +17,7 @@ export default function MarketplaceLayout({ children }) {
         const handleMessagesRead = (event) => {
             console.log('🔍 MarketplaceLayout messagesRead event received:', event.detail);
             const { chatId, unreadCount } = event.detail;
-            
+
             // Update local unread count immediately
             setLocalUnreadCount(prevCount => {
                 // Calculate new total by subtracting the read messages from this chat
@@ -27,7 +27,7 @@ export default function MarketplaceLayout({ children }) {
         };
 
         window.addEventListener('messagesRead', handleMessagesRead);
-        
+
         return () => {
             window.removeEventListener('messagesRead', handleMessagesRead);
         };
@@ -76,9 +76,6 @@ export default function MarketplaceLayout({ children }) {
                                 <Link href={route('marketplace.home')} className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-slate-700 transition-colors">
                                     <Home className="h-4 w-4 inline mr-1.5" />Marketplace
                                 </Link>
-                                <Link href={route('workspaces.select')} className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-slate-700 transition-colors">
-                                    <Briefcase className="h-4 w-4 inline mr-1.5" />Workspaces
-                                </Link>
                                 <Link href={route('marketplace.chats.index')} className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-slate-700 transition-colors">
                                     <MessageSquare className="h-4 w-4" />
                                     <span>Messages</span>
@@ -87,6 +84,9 @@ export default function MarketplaceLayout({ children }) {
                                             {localUnreadCount > 99 ? '99+' : localUnreadCount}
                                         </span>
                                     )}
+                                </Link>
+                                <Link href={route('workspaces.select')} className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-slate-700 transition-colors">
+                                    <Briefcase className="h-4 w-4 inline mr-1.5" />Workspaces
                                 </Link>
                             </div>
                         </div>
@@ -102,10 +102,10 @@ export default function MarketplaceLayout({ children }) {
                                 >
                                     <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium overflow-hidden">
                                         {user?.avatar_url ? (
-                                            <img 
+                                            <img
                                                 key={`avatar-${user.id}-${avatarKey}`}
-                                                src={`${user.avatar_url}?v=${avatarKey}`} 
-                                                alt={user.name} 
+                                                src={`${user.avatar_url}?v=${avatarKey}`}
+                                                alt={user.name}
                                                 className="h-8 w-8 rounded-full object-cover"
                                             />
                                         ) : (
@@ -161,7 +161,6 @@ export default function MarketplaceLayout({ children }) {
                 {mobileMenuOpen && (
                     <div className="md:hidden border-t border-slate-700 bg-slate-800 px-4 py-3 space-y-1">
                         <Link href={route('marketplace.home')} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-slate-700">Marketplace</Link>
-                        <Link href={route('workspaces.select')} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-slate-700">Workspaces</Link>
                         <Link href={route('marketplace.chats.index')} className="relative flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-slate-700">
                             <span>Messages</span>
                             {localUnreadCount > 0 && (
@@ -170,6 +169,7 @@ export default function MarketplaceLayout({ children }) {
                                 </span>
                             )}
                         </Link>
+                        <Link href={route('workspaces.select')} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-slate-700">Workspaces</Link>
                     </div>
                 )}
             </nav>

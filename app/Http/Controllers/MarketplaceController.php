@@ -98,8 +98,11 @@ class MarketplaceController extends Controller
     {
         $profile = FreelancerProfile::where('slug', $slug)
             ->where('status', 'published')
-            ->with('user:id,name,avatar,email')
+            ->with('user:id,name,avatar,email,created_at')
             ->firstOrFail();
+
+        $profile->workspaces_count = \App\Models\Workspace::where('owner_id', $profile->user_id)->count()
+            + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $profile->user_id))->count();
 
         $reviews = FreelancerReview::where('freelancer_id', $profile->user_id)
             ->with('client:id,name,avatar')
@@ -136,8 +139,11 @@ class MarketplaceController extends Controller
     {
         $profile = FreelancerProfile::where('slug', $slug)
             ->where('status', 'published')
-            ->with('user:id,name,avatar,email')
+            ->with('user:id,name,avatar,email,created_at')
             ->firstOrFail();
+
+        $profile->workspaces_count = \App\Models\Workspace::where('owner_id', $profile->user_id)->count()
+            + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $profile->user_id))->count();
 
         $reviews = FreelancerReview::where('freelancer_id', $profile->user_id)
             ->with('client:id,name,avatar')
@@ -167,6 +173,11 @@ class MarketplaceController extends Controller
             'reviews' => $reviews,
             'hasExistingChat' => $hasExistingChat,
             'existingChatId' => $existingChatId,
+            'stats' => [
+                'member_since' => $profile->user->created_at->format('M Y'),
+                'workspaces_count' => $profile->workspaces_count,
+                'avg_rating' => round($profile->avg_rating ?? 0, 1),
+            ],
         ]);
     }
 

@@ -19,7 +19,7 @@ export default function ChatList({ chats }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     const [chatsState, setChatsState] = useState(chats || []);
-    
+
     // Debug: Log chat data to check user avatars
     console.log('🔍 ChatList Debug - Chats:', chats);
 
@@ -28,14 +28,14 @@ export default function ChatList({ chats }) {
         const handleMessagesRead = (event) => {
             console.log('🔍 messagesRead event received:', event.detail);
             const { chatId, unreadCount } = event.detail;
-            
+
             console.log('🔍 Updating chat:', chatId, 'to unread_count:', unreadCount);
             console.log('🔍 Current chatsState:', chatsState);
-            
+
             setChatsState(prevChats => {
                 console.log('🔍 Previous chats:', prevChats);
-                const updatedChats = prevChats.map(chat => 
-                    chat.id === chatId 
+                const updatedChats = prevChats.map(chat =>
+                    chat.id === chatId
                         ? { ...chat, unread_count: unreadCount }
                         : chat
                 );
@@ -46,7 +46,7 @@ export default function ChatList({ chats }) {
 
         console.log('🔍 Adding messagesRead event listener');
         window.addEventListener('messagesRead', handleMessagesRead);
-        
+
         return () => {
             console.log('🔍 Removing messagesRead event listener');
             window.removeEventListener('messagesRead', handleMessagesRead);
@@ -58,16 +58,16 @@ export default function ChatList({ chats }) {
         setChatsState(chats || []);
     }, [chats]);
 
-    
+
     // Filter chats based on search and filter
     const filteredChats = chatsState?.filter(chat => {
         const otherUser = chat.other_user;
-        const matchesSearch = !searchQuery || 
+        const matchesSearch = !searchQuery ||
             otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             chat.messages?.[0]?.body?.toLowerCase().includes(searchQuery.toLowerCase());
-        
+
         const matchesFilter = activeFilter === 'all' || (activeFilter === 'open' && chat.status !== 'converted_to_workspace') || chat.status === activeFilter;
-        
+
         return matchesSearch && matchesFilter;
     }) || [];
 
@@ -84,7 +84,7 @@ export default function ChatList({ chats }) {
     const deleteChat = (chatId, e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (confirm('Are you sure you want to delete this chat? You can restore it later by starting a new conversation.')) {
             router.delete(route('marketplace.chats.delete', chatId), {
                 onSuccess: (page) => {
@@ -118,7 +118,7 @@ export default function ChatList({ chats }) {
                                 </h1>
                                 <p className="text-gray-400 mt-1">Connect with clients and freelancers</p>
                             </div>
-                            
+
                             {/* Stats Cards */}
                             <div className="hidden lg:flex items-center gap-4">
                                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/30">
@@ -172,19 +172,17 @@ export default function ChatList({ chats }) {
                                 <button
                                     key={filter.key}
                                     onClick={() => setActiveFilter(filter.key)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                        activeFilter === filter.key
-                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                                            : 'text-gray-400 hover:text-white hover:bg-slate-700'
-                                    }`}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeFilter === filter.key
+                                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                                        : 'text-gray-400 hover:text-white hover:bg-slate-700'
+                                        }`}
                                 >
                                     {filter.label}
                                     {filter.count > 0 && (
-                                        <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
-                                            activeFilter === filter.key
-                                                ? 'bg-white/20 text-white'
-                                                : 'bg-slate-700 text-gray-400'
-                                        }`}>
+                                        <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${activeFilter === filter.key
+                                            ? 'bg-white/20 text-white'
+                                            : 'bg-slate-700 text-gray-400'
+                                            }`}>
                                             {filter.count}
                                         </span>
                                     )}
@@ -215,7 +213,7 @@ export default function ChatList({ chats }) {
                                             <div className="flex items-start gap-4">
                                                 {/* Avatar Section */}
                                                 <div className="relative">
-                                                    <div 
+                                                    <div
                                                         className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-600 via-purple-600 to-emerald-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 cursor-pointer hover:ring-4 hover:ring-blue-500/20 transition-all group-hover:scale-105 shadow-md shadow-blue-500/20 overflow-hidden"
                                                         onClick={(e) => {
                                                             e.preventDefault();
@@ -273,28 +271,34 @@ export default function ChatList({ chats }) {
                                                             </div>
                                                         </div>
                                                         <div className="flex flex-col items-end gap-2 ml-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <button
+                                                                    onClick={(e) => deleteChat(chat.id, e)}
+                                                                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                                                    title="Delete chat"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </button>
+                                                            </div>
                                                             {chat.last_message_at && (
                                                                 <span className="text-xs text-gray-400 flex items-center gap-1">
                                                                     <Clock className="h-3 w-3" />
-                                                                    {new Date(chat.last_message_at).toLocaleDateString(undefined, { 
-                                                                        month: 'short', 
+                                                                    {new Date(chat.last_message_at).toLocaleDateString(undefined, {
+                                                                        month: 'short',
                                                                         day: 'numeric',
-                                                                        hour: '2-digit', 
-                                                                        minute: '2-digit' 
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
                                                                     })}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    
-                                                    <div className="mb-3">
-                                                        <p className="text-gray-400 text-sm leading-relaxed">
+
+                                                    <div className="mb-2">
+                                                        <p className="text-gray-400 text-sm leading-relaxed line-clamp-2">
                                                             {lastMessage ? (
                                                                 <span className={chat.unread_count > 0 ? 'font-semibold text-white' : ''}>
-                                                                    {lastMessage.body.length > 120 
-                                                                        ? `${lastMessage.body.substring(0, 120)}...` 
-                                                                        : lastMessage.body
-                                                                    }
+                                                                    {lastMessage.body}
                                                                 </span>
                                                             ) : (
                                                                 <span className="text-gray-500 italic">No messages yet</span>
@@ -302,35 +306,13 @@ export default function ChatList({ chats }) {
                                                         </p>
                                                     </div>
 
-                                                    {/* Action Buttons */}
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    e.stopPropagation();
-                                                                    openProfileDrawer(otherUser.id);
-                                                                }}
-                                                                className="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 hover:bg-blue-600/20 px-2 py-1 rounded-lg transition-colors"
-                                                            >
-                                                                <Users className="h-3 w-3" />
-                                                                View Profile
-                                                            </button>
-                                                            <button
-                                                                onClick={(e) => deleteChat(chat.id, e)}
-                                                                className="text-xs text-red-400 hover:text-red-300 font-medium flex items-center gap-1 hover:bg-red-600/20 px-2 py-1 rounded-lg transition-colors"
-                                                                title="Delete chat"
-                                                            >
-                                                                <Trash2 className="h-3 w-3" />
-                                                                Delete
-                                                            </button>
-                                                        </div>
+                                                    <div className="flex items-center justify-end">
                                                         <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         {/* Status Bar */}
                                         {chat.status === 'converted_to_workspace' && (
                                             <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 px-6 py-3 border-t border-blue-500/30">
@@ -339,7 +321,7 @@ export default function ChatList({ chats }) {
                                                         <CheckCircle2 className="h-4 w-4" />
                                                         <span className="font-medium">Workspace Created</span>
                                                     </div>
-                                                    <button 
+                                                    <button
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             e.stopPropagation();
@@ -366,7 +348,7 @@ export default function ChatList({ chats }) {
                                     {searchQuery ? 'No conversations found' : 'No conversations yet'}
                                 </h3>
                                 <p className="text-gray-400 mb-8 max-w-md mx-auto">
-                                    {searchQuery 
+                                    {searchQuery
                                         ? 'Try adjusting your search or filters to find what you\'re looking for.'
                                         : 'Browse the marketplace to find talented freelancers and start meaningful conversations.'
                                     }

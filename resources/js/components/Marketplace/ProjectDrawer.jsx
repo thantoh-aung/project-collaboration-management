@@ -31,9 +31,9 @@ export default function ProjectDrawer({ projectId, onClose }) {
     const project = data?.project;
     const user = project?.user;
     // Ensure skills is always an array, even if it comes as a JSON string
-    const skills = project?.skills_required 
-        ? (Array.isArray(project.skills_required) 
-            ? project.skills_required 
+    const skills = project?.skills_required
+        ? (Array.isArray(project.skills_required)
+            ? project.skills_required
             : (typeof project.skills_required === 'string' ? JSON.parse(project.skills_required || '[]') : []))
         : [];
     const deadline = project?.deadline ? new Date(project.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' }) : null;

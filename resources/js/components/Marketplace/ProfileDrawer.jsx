@@ -19,6 +19,7 @@ import { useState, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import RatingComponent from './RatingComponent';
+import ClientRatingComponent from './ClientRatingComponent';
 import RatingStars from './RatingStars';
 
 export default function ProfileDrawer({ isOpen, onClose, userId }) {
@@ -26,6 +27,7 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [existingRating, setExistingRating] = useState(null);
+    const [existingClientRating, setExistingClientRating] = useState(null);
     const { auth } = usePage().props;
 
     useEffect(() => {
@@ -43,13 +45,25 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
             console.log('🔍 ProfileDrawer Debug - API Response:', response.data);
             setProfile(response.data);
 
-            // Set existing rating if current user has already reviewed
+            // Set existing rating if current user has already reviewed (client -> freelancer)
             if (response.data.type === 'freelancer' && response.data.freelancer_profile?.reviews) {
                 const myReview = response.data.freelancer_profile.reviews.find(
                     r => r.client_id === auth?.user?.id
                 );
                 if (myReview) {
                     setExistingRating(myReview);
+                }
+            }
+
+            // Fetch existing client rating if current user is a freelancer viewing a client
+            if (response.data.type === 'client' && auth?.user?.usage_type === 'freelancer') {
+                try {
+                    const reviewRes = await axios.get(`/api/client-reviews/${userId}/freelancer-review`);
+                    if (reviewRes.data) {
+                        setExistingClientRating(reviewRes.data);
+                    }
+                } catch (e) {
+                    // No existing review, that's fine
                 }
             }
         } catch (err) {
@@ -244,21 +258,36 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                         )}
                                     </div>
 
-                                    {/* Stats (Rating & Status only - project count hidden) */}
-                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700">
-                                        <div className="text-center">
-                                            <div className="text-2xl font-bold text-white">
-                                                {profile.freelancer_profile.avg_rating ? parseFloat(profile.freelancer_profile.avg_rating).toFixed(1) : 'N/A'}
+                                    {/* Stats Grid */}
+                                    {profile.stats && (
+                                        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Calendar className="h-4 w-4 text-blue-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">{profile.stats.member_since}</p>
+                                                <p className="text-xs text-gray-400">Member Since</p>
                                             </div>
-                                            <div className="text-sm text-gray-400">Rating</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="text-2xl font-bold text-white">
-                                                {profile.freelancer_profile.availability === 'available' ? 'Available' : 'Busy'}
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Briefcase className="h-4 w-4 text-emerald-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">{profile.freelancer_profile.total_projects || 0}</p>
+                                                <p className="text-xs text-gray-400">Total Projects</p>
                                             </div>
-                                            <div className="text-sm text-gray-400">Status</div>
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Users className="h-4 w-4 text-purple-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">{profile.stats.workspaces_count || 0}</p>
+                                                <p className="text-xs text-gray-400">Collaborations</p>
+                                            </div>
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Star className="h-4 w-4 text-amber-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">
+                                                    {profile.stats.avg_rating > 0 ? profile.stats.avg_rating : 'New'}
+                                                </p>
+                                                <div className="text-xs text-gray-400 flex items-center justify-center gap-1">
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${profile.freelancer_profile.availability === 'available' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                                    {profile.freelancer_profile.availability === 'available' ? 'Available' : 'Busy'}
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             )}
 
@@ -274,6 +303,57 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                             <p className="text-gray-400">{profile.client_profile.industry}</p>
                                         )}
                                     </div>
+
+                                    {/* Trust Badges */}
+                                    {profile.badges && (
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            {profile.badges.email_verified && (
+                                                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                                                    <CheckCircle className="h-3 w-3" /> Email Verified
+                                                </span>
+                                            )}
+                                            {profile.badges.has_website && (
+                                                <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">
+                                                    <Globe className="h-3 w-3" /> Company Website
+                                                </span>
+                                            )}
+                                            {profile.badges.profile_complete && (
+                                                <span className="inline-flex items-center gap-1 text-xs font-medium text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+                                                    <Award className="h-3 w-3" /> Profile Complete
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Stats Grid */}
+                                    {profile.stats && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Calendar className="h-4 w-4 text-blue-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">{profile.stats.member_since}</p>
+                                                <p className="text-xs text-gray-400">Member Since</p>
+                                            </div>
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Briefcase className="h-4 w-4 text-emerald-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">{profile.stats.projects_posted}</p>
+                                                <p className="text-xs text-gray-400">Projects Posted</p>
+                                            </div>
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Users className="h-4 w-4 text-purple-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">{profile.stats.workspaces_count}</p>
+                                                <p className="text-xs text-gray-400">Collaborations</p>
+                                            </div>
+                                            <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                                <Star className="h-4 w-4 text-amber-400 mx-auto mb-1" />
+                                                <p className="text-sm font-semibold text-white">
+                                                    {profile.stats.avg_rating > 0 ? `${profile.stats.avg_rating} ⭐` : 'New'}
+                                                </p>
+                                                <p className="text-xs text-gray-400">
+                                                    {profile.stats.review_count > 0 ? `${profile.stats.review_count} review${profile.stats.review_count !== 1 ? 's' : ''}` : 'No reviews'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Location & Timezone */}
                                     <div className="grid grid-cols-2 gap-4">
@@ -307,9 +387,43 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                         </div>
                                     )}
 
+                                    {/* Client Reviews from Freelancers */}
+                                    {profile.client_reviews && profile.client_reviews.length > 0 && (
+                                        <div className="pt-4 border-t border-slate-700">
+                                            <h3 className="text-lg font-semibold text-white mb-3">Freelancer Reviews</h3>
+                                            <div className="space-y-3">
+                                                {profile.client_reviews.map((review) => (
+                                                    <div key={review.id} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
+                                                        <div className="flex items-center justify-between mb-1.5">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="h-7 w-7 rounded-full bg-slate-600 flex items-center justify-center overflow-hidden">
+                                                                    {review.freelancer?.avatar ? (
+                                                                        <img src={review.freelancer.avatar} alt={review.freelancer.name} className="h-full w-full object-cover" />
+                                                                    ) : (
+                                                                        <span className="text-xs font-bold text-white">
+                                                                            {review.freelancer?.name?.charAt(0)?.toUpperCase() || 'F'}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <span className="text-sm font-medium text-white">{review.freelancer?.name}</span>
+                                                            </div>
+                                                            <RatingStars rating={review.rating} />
+                                                        </div>
+                                                        {review.comment && (
+                                                            <p className="text-sm text-gray-300 italic">"{review.comment}"</p>
+                                                        )}
+                                                        <p className="text-[10px] text-gray-500 mt-1.5">
+                                                            {new Date(review.created_at).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Posted Projects */}
                                     {profile.posted_projects && profile.posted_projects.length > 0 && (
-                                        <div>
+                                        <div className="pt-4 border-t border-slate-700">
                                             <h3 className="text-lg font-semibold text-white mb-3">Recent Projects</h3>
                                             <div className="space-y-3">
                                                 {profile.posted_projects.slice(0, 3).map((project) => (
@@ -391,6 +505,20 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                         onRatingSubmitted={(rating) => {
                                             setExistingRating(rating);
                                             // Optionally refresh profile data to show updated rating
+                                            fetchProfile();
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Client Rating Section - Only for freelancers viewing clients */}
+                            {profile.type === 'client' && auth?.user?.usage_type === 'freelancer' && auth?.user?.id !== profile.user.id && (
+                                <div className="mt-8 pt-6 border-t border-slate-700">
+                                    <ClientRatingComponent
+                                        clientId={profile.user.id}
+                                        existingRating={existingClientRating}
+                                        onRatingSubmitted={(rating) => {
+                                            setExistingClientRating(rating);
                                             fetchProfile();
                                         }}
                                     />

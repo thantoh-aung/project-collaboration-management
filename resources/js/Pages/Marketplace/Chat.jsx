@@ -10,7 +10,7 @@ import axios from 'axios';
 
 export default function ChatPage({ chat, messages: initialMessages, currentUserId }) {
     const { auth } = usePage().props;
-    
+
     // Debug chat data
     console.log('🔍 Chat Page Debug - Chat Data:', {
         chat_id: chat?.id,
@@ -42,7 +42,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
 
     const deleteWorkspace = () => {
         if (!chat.workspace) return;
-        
+
         if (confirm('Are you sure you want to delete this workspace? This will permanently delete all projects, tasks, and data. The chat will be restored to its original state.')) {
             window.axios.delete(`/workspaces/${chat.workspace.id}`)
                 .then(response => {
@@ -56,7 +56,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                 })
                 .catch(error => {
                     console.error('Error deleting workspace:', error);
-                    
+
                     // Better error message extraction
                     let errorMessage = 'Unknown error occurred';
                     if (error.response) {
@@ -70,9 +70,28 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                     } else if (error.message) {
                         errorMessage = error.message;
                     }
-                    
+
                     alert('Error deleting workspace: ' + errorMessage);
                 });
+        }
+    };
+
+    const deleteChat = () => {
+        if (confirm('Are you sure you want to delete this chat? You can restore it later by starting a new conversation.')) {
+            router.delete(route('marketplace.chats.delete', chat.id), {
+                onSuccess: (page) => {
+                    // Handle JSON response with redirect
+                    if (page.props.redirect) {
+                        window.location.href = page.props.redirect;
+                    } else {
+                        // If no redirect, redirect to index
+                        router.visit(route('marketplace.chats.index'));
+                    }
+                },
+                onError: (errors) => {
+                    alert('Error deleting chat: ' + (errors.message || 'Unknown error'));
+                }
+            });
         }
     };
 
@@ -95,7 +114,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
         try {
             // Mark unread messages as read in the backend
             await axios.post(route('marketplace.chats.mark-read', chat.id));
-            
+
             // Emit custom event to update chat list
             window.dispatchEvent(new CustomEvent('messagesRead', {
                 detail: { chatId: chat.id, unreadCount: 0 }
@@ -190,7 +209,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
 
     const handleSendImages = async () => {
         if (selectedImages.length === 0 || uploading) return;
-        
+
         setUploading(true);
         const formData = new FormData();
         selectedImages.forEach((img, index) => {
@@ -253,7 +272,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 setAudioBlob(audioBlob);
-                
+
                 // Stop all tracks to release microphone
                 stream.getTracks().forEach(track => track.stop());
             };
@@ -277,7 +296,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
         if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
-            
+
             // Clear recording timer
             if (recordingIntervalRef.current) {
                 clearInterval(recordingIntervalRef.current);
@@ -317,7 +336,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    
+
     return (
         <MarketplaceLayout>
             <Head title={`Chat with ${otherUser?.name}`} />
@@ -327,14 +346,14 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                     {/* Chat Header */}
                     <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700 bg-slate-900">
                         <div className="flex items-center gap-3">
-                            <button 
+                            <button
                                 onClick={() => router.visit(route('marketplace.chats.index'))}
                                 className="p-1.5 rounded-lg hover:bg-slate-700 text-gray-400 hover:text-gray-300 transition-colors"
                             >
                                 <ArrowLeft className="h-5 w-5" />
                             </button>
                             {/* Avatar */}
-                            <div 
+                            <div
                                 className="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-indigo-300 transition-all overflow-hidden"
                                 onClick={() => {
                                     openProfileDrawer(otherUser.id);
@@ -358,7 +377,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                             <div>
                                 <h2 className="font-semibold text-white text-sm">{otherUser?.name}</h2>
                                 <p className="text-xs text-gray-400">
-                                    {isFreelancer 
+                                    {isFreelancer
                                         ? (otherUser?.job_title || chat.client?.client_profile?.company_name || 'Client')
                                         : (otherUser?.job_title || chat.freelancer?.freelancer_profile?.title || 'Freelancer')
                                     }
@@ -375,6 +394,14 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                                     <Rocket className="h-4 w-4 mr-1.5" />Start Project
                                 </Button>
                             )}
+
+                            <button
+                                onClick={deleteChat}
+                                className="p-2 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                title="Delete conversation"
+                            >
+                                <Trash2 className="h-5 w-5" />
+                            </button>
                         </div>
                     </div>
 
@@ -394,7 +421,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                                         Delete Workspace
                                     </button>
                                 )}
-                                <button 
+                                <button
                                     onClick={() => router.visit(route('dashboard'))}
                                     className="text-indigo-600 hover:text-indigo-700 font-semibold text-xs underline"
                                 >
@@ -403,7 +430,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                             </div>
                         </div>
                     )}
-                    
+
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto px-5 py-4 bg-slate-900">
                         {messages.length === 0 ? (
@@ -412,9 +439,9 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                             </div>
                         ) : (
                             messages.map((msg) => (
-                                <ChatBubble 
-                                    key={msg.id} 
-                                    message={msg} 
+                                <ChatBubble
+                                    key={msg.id}
+                                    message={msg}
                                     isOwn={msg.sender_id === currentUserId}
                                     openProfileDrawer={openProfileDrawer}
                                 />
@@ -533,7 +560,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                                 >
                                     <Paperclip className="h-5 w-5" />
                                 </button>
-                                
+
                                 {/* Voice Recording Button */}
                                 {!isRecording && !audioBlob && (
                                     <button
@@ -546,7 +573,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                                         <Mic className="h-5 w-5" />
                                     </button>
                                 )}
-                                
+
                                 <input
                                     type="text"
                                     value={newMessage}

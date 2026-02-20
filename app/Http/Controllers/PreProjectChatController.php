@@ -16,8 +16,10 @@ class PreProjectChatController extends Controller
     {
         $user = Auth::user();
 
-        $chats = PreProjectChat::where('client_id', $user->id)
-            ->orWhere('freelancer_id', $user->id)
+        $chats = PreProjectChat::where(function ($q) use ($user) {
+            $q->where('client_id', $user->id)
+              ->orWhere('freelancer_id', $user->id);
+        })
             ->whereDoesntHave('deletions', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -452,6 +454,13 @@ class PreProjectChatController extends Controller
 
         $chat->update(['last_message_at' => now()]);
 
+    // Restore chat for the other participant if they had deleted it
+    // (so new messages make the chat reappear in their list)
+    $otherUserId = $chat->client_id === $user->id ? $chat->freelancer_id : $chat->client_id;
+    \App\Models\ChatDeletion::where('user_id', $otherUserId)
+        ->where('chat_id', $chat->id)
+        ->delete();
+
         $message->load('sender:id,name,avatar');
         
         // Create proper array structure for message sender with avatar_url
@@ -499,6 +508,12 @@ class PreProjectChatController extends Controller
         ]);
 
         $chat->update(['last_message_at' => now()]);
+
+        // Restore chat for the other participant if they had deleted it
+        $otherUserId = $chat->client_id === $user->id ? $chat->freelancer_id : $chat->client_id;
+        \App\Models\ChatDeletion::where('user_id', $otherUserId)
+            ->where('chat_id', $chat->id)
+            ->delete();
 
         $message->load('sender:id,name,avatar');
         
@@ -575,6 +590,12 @@ class PreProjectChatController extends Controller
 
         $chat->update(['last_message_at' => now()]);
 
+        // Restore chat for the other participant if they had deleted it
+        $otherUserId = $chat->client_id === $user->id ? $chat->freelancer_id : $chat->client_id;
+        \App\Models\ChatDeletion::where('user_id', $otherUserId)
+            ->where('chat_id', $chat->id)
+            ->delete();
+
         return response()->json($messages);
     }
 
@@ -613,6 +634,12 @@ class PreProjectChatController extends Controller
         ]);
 
         $chat->update(['last_message_at' => now()]);
+
+        // Restore chat for the other participant if they had deleted it
+        $otherUserId = $chat->client_id === $user->id ? $chat->freelancer_id : $chat->client_id;
+        \App\Models\ChatDeletion::where('user_id', $otherUserId)
+            ->where('chat_id', $chat->id)
+            ->delete();
 
         $message->load('sender:id,name,avatar');
         
@@ -701,11 +728,9 @@ class PreProjectChatController extends Controller
             'chat_id' => $chat->id,
         ]);
 
-        // Return JSON response for Inertia.js DELETE request
-        return response()->json([
-            'message' => 'Chat deleted successfully.',
-            'redirect' => route('marketplace.chats.index')
-        ]);
+        // Redirect back to chats list (Inertia-compatible)
+        return redirect()->route('marketplace.chats.index')
+            ->with('success', 'Chat deleted successfully.');
     }
 
     /**

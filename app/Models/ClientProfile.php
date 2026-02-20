@@ -19,6 +19,7 @@ class ClientProfile extends Model
         'website',
         'total_projects',
         'avatar',
+        'avg_rating',
     ];
 
     public function user(): BelongsTo

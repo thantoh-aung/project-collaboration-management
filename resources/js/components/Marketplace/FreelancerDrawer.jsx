@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { router, usePage } from '@inertiajs/react';
-import { X, MapPin, Star, MessageCircle, Github, Linkedin, Globe, ExternalLink, Loader2, FileText } from 'lucide-react';
+import { usePage, router } from '@inertiajs/react';
+console.log('🔍 FreelancerDrawer Debug - usePage:', typeof usePage);
+import { X, MapPin, Star, MessageCircle, Github, Linkedin, Globe, ExternalLink, Loader2, FileText, Calendar, Briefcase, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SkillBadge from './SkillBadge';
 import RatingStars from './RatingStars';
@@ -202,15 +203,36 @@ export default function FreelancerDrawer({ slug, onClose }) {
                                 </div>
                             </div>
 
-                            {/* Stats */}
-                            <div className="mt-4 pt-4 border-t border-slate-700">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-white">
-                                        {profile.avg_rating ? parseFloat(profile.avg_rating).toFixed(1) : 'N/A'}
+                            {/* Stats Grid */}
+                            {data?.stats && (
+                                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+                                    <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                        <Calendar className="h-4 w-4 text-blue-400 mx-auto mb-1" />
+                                        <p className="text-sm font-semibold text-white">{data.stats.member_since}</p>
+                                        <p className="text-xs text-gray-400">Member Since</p>
                                     </div>
-                                    <div className="text-sm text-gray-400">Rating</div>
+                                    <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                        <Briefcase className="h-4 w-4 text-emerald-400 mx-auto mb-1" />
+                                        <p className="text-sm font-semibold text-white">{profile.total_projects || 0}</p>
+                                        <p className="text-xs text-gray-400">Total Projects</p>
+                                    </div>
+                                    <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                        <Users className="h-4 w-4 text-purple-400 mx-auto mb-1" />
+                                        <p className="text-sm font-semibold text-white">{data.stats.workspaces_count || 0}</p>
+                                        <p className="text-xs text-gray-400">Collaborations</p>
+                                    </div>
+                                    <div className="bg-slate-700/50 rounded-lg p-3 text-center border border-slate-600">
+                                        <Star className="h-4 w-4 text-amber-400 mx-auto mb-1" />
+                                        <p className="text-sm font-semibold text-white">
+                                            {data.stats.avg_rating > 0 ? data.stats.avg_rating : 'New'}
+                                        </p>
+                                        <div className="text-xs text-gray-400 flex items-center justify-center gap-1">
+                                            <span className={`h-1.5 w-1.5 rounded-full ${profile.availability === 'available' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                            {profile.availability === 'available' ? 'Available' : 'Busy'}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* CV Link */}
                             {profile.cv_path && (

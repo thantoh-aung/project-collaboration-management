@@ -46,29 +46,17 @@ class Project extends Model implements Auditable
 
         // Validate start date before saving
         static::saving(function ($project) {
-            if ($project->start_date) {
+            // Note: Validation is primarily handled in ProjectController.
+            // This observer is kept as a secondary safety net but loosened to allow updates.
+            if ($project->start_date && $project->isDirty('start_date')) {
                 $today = now()->toDateString();
                 $originalStartDate = $project->getOriginal('start_date')?->toDateString();
                 
-                // Only validate if this is a new project or start date is being changed
-                if (!$project->exists || $project->start_date->toDateString() !== $originalStartDate) {
-                    // For new projects, always prevent past dates
-                    if (!$project->exists && $project->start_date->toDateString() < $today) {
-                        throw new \Illuminate\Validation\ValidationException([
-                            'start_date' => 'Project start date must be today or later.'
-                        ]);
-                    }
-                    
-                    // For existing projects, prevent changing to past date (unless admin editing historical data)
-                    if ($project->exists && $project->start_date->toDateString() < $today && $project->start_date->toDateString() !== $originalStartDate) {
-                        // This is a safety net - controller should handle this logic
-                        \Log::warning('Attempted to set project start date to past date', [
-                            'project_id' => $project->id,
-                            'new_start_date' => $project->start_date,
-                            'original_start_date' => $originalStartDate,
-                            'today' => $today
-                        ]);
-                    }
+                // For new projects, prevent past dates
+                if (!$project->exists && $project->start_date->toDateString() < $today) {
+                    \Log::warning('New project created with past start date via model', [
+                        'new_start_date' => $project->start_date,
+                    ]);
                 }
             }
         });

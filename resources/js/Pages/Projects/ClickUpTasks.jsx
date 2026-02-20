@@ -18,8 +18,8 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
     const { props, auth } = usePage();
     const { currentWorkspace, userRole } = useWorkspace();
     const user = auth?.user || props?.auth?.user;
-    
-        const [localTasks, setLocalTasks] = useState(tasks || []);
+
+    const [localTasks, setLocalTasks] = useState(tasks || []);
     const [localGroups, setLocalGroups] = useState(taskGroups || []);
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskDetail, setShowTaskDetail] = useState(false);
@@ -53,7 +53,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
 
     // Filter team members to exclude clients (only team members can be assigned tasks)
     const assignableMembers = teamMembers?.filter(member => member.pivot?.role !== 'client') || [];
-    
+
     console.log('🔍 ClickUpTasks - Assignable Members Debug:', {
         assignableMembers,
         assignableMembersCount: assignableMembers.length,
@@ -78,20 +78,20 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         const matchesSearch = !searchTerm ||
             task.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
-        
+
         if (!matchesSearch) return false;
-        
+
         // Status filter
         if (filters.status !== 'all') {
             const taskGroup = localGroups.find(g => g.id === task.group_id);
             if (!taskGroup || taskGroup.name !== filters.status) return false;
         }
-        
+
         // Priority filter
         if (filters.priority !== 'all') {
             if (task.priority !== filters.priority) return false;
         }
-        
+
         // Assignee filter
         if (filters.assignee !== 'all') {
             if (filters.assignee === 'unassigned') {
@@ -100,17 +100,17 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                 if (task.assigned_to_user_id != filters.assignee) return false;
             }
         }
-        
+
         // Due date filter
         if (filters.dueDate !== 'all') {
             const dueDate = task.due_on || task.due_date;
             if (!dueDate) return false;
-            
+
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const taskDueDate = new Date(dueDate);
             taskDueDate.setHours(0, 0, 0, 0);
-            
+
             switch (filters.dueDate) {
                 case 'overdue':
                     if (taskDueDate >= today) return false;
@@ -125,7 +125,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                     break;
             }
         }
-        
+
         return true;
     }) || [];
 
@@ -133,10 +133,10 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
     const canMoveTask = useCallback((task) => {
         // Clients cannot move tasks
         if (userRole === 'client') return false;
-        
+
         // Admins can move any task
         if (userRole === 'admin') return true;
-        
+
         // Members can move tasks if:
         // 1. Task is unassigned (assigned_to_user_id is null) - any team member can move
         // 2. Task is assigned to them
@@ -145,7 +145,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             const assignedUserId = task.assigned_to_user_id;
             const currentUserId = user?.id;
             const createdById = task.created_by_user_id;
-            
+
             // Unassigned tasks can be moved by all team members (matches drawer logic)
             if (assignedUserId == null) {
                 console.log('🔍 Unassigned task - allowing move for team member', {
@@ -156,22 +156,22 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                 });
                 return true;
             }
-            
+
             // Assigned tasks can only be moved by the assigned user or creator
             return assignedUserId == currentUserId || createdById == currentUserId;
         }
-        
+
         return false;
     }, [userRole, user]);
 
     // ─── Drag & Drop ───────────────────────────────────────────
     const handleDragEnd = useCallback(async (result) => {
         const { draggableId, source, destination } = result;
-        
+
         // Reset drag error state
         setDragError(null);
         setIsDragging(false);
-        
+
         if (!destination) return;
         if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
@@ -181,7 +181,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         const newGroup = localGroups.find(g => g.id === newGroupId);
         const originalGroup = localGroups.find(g => g.id === originalGroupId);
         const task = localTasks.find(t => t.id === taskId);
-        
+
         if (!task || !newGroup || !originalGroup) {
             console.error('❌ Invalid drag operation: missing task or group data');
             return;
@@ -193,34 +193,14 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             return;
         }
 
+
+        // Proceed directly — no attachment required
         const isComplete = newGroup?.name === 'Complete';
         const isInProgress = newGroup?.name === 'In Progress';
-        const requiresAttachment = isInProgress || isComplete;
-        const hasAttachments = task.attachments && task.attachments.length > 0;
-
-        // Attachment validation for status changes
-        if (requiresAttachment && !hasAttachments) {
-            // Store pending move for later completion
-            setPendingMove({
-                taskId,
-                originalGroupId,
-                newGroupId,
-                task: { ...task }
-            });
-
-            // Show task detail drawer for adding attachments
-            setSelectedTask(task);
-            setShowTaskDetail(true);
-            setRequireAttachment(true);
-            
-            // Show warning message (not error)
-            setDragError(`Attachment required to move task to "${newGroup.name}". Please add at least one file.`);
-            return;
-        }
 
         // Store original state for rollback
         const originalTasks = [...localTasks];
-        
+
         // Optimistic update
         setLocalTasks(prev => prev.map(t =>
             t.id === taskId ? { ...t, group_id: newGroupId, completed: isComplete } : t
@@ -228,7 +208,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
 
         try {
             setIsDragging(true);
-            
+
             console.log('🔍 Drag-and-drop API call:', {
                 taskId: taskId,
                 taskName: task.name,
@@ -245,7 +225,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             const response = await axios.patch(`/api/workspaces/${currentWorkspace?.id || workspaceUser.currentWorkspace?.id}/tasks/${taskId}`, {
                 group_id: newGroupId,
                 completed: isComplete,
-            }, { 
+            }, {
                 headers: { 'Accept': 'application/json' },
                 timeout: 10000
             });
@@ -254,7 +234,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
 
             // Success - clear any pending moves
             setPendingMove(null);
-            
+
         } catch (error) {
             console.error('❌ Failed to move task:', error.response?.data || error.message);
             console.error('❌ Full error details:', {
@@ -267,17 +247,17 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                     data: error.config?.data
                 }
             });
-            
+
             // Revert local state on error
             setLocalTasks(originalTasks);
-            
+
             // Show specific error message
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.error || 
-                               'Failed to move task. Please try again.';
-            
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data?.error ||
+                'Failed to move task. Please try again.';
+
             setDragError(errorMessage);
-            
+
             // Clear error after 5 seconds
             setTimeout(() => setDragError(null), 5000);
         } finally {
@@ -285,24 +265,12 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         }
     }, [localGroups, localTasks, canMoveTask, user]);
 
-    // ─── Handle Drawer Close with Validation ─────────────────────
+    // ─── Handle Drawer Close ──────────────────────────────────────
     const handleDrawerClose = useCallback(() => {
-        if (pendingMove) {
-            // Rollback the move if drawer is closed without completing
-            setLocalTasks(prev => prev.map(t =>
-                t.id === pendingMove.taskId ? { ...t, group_id: pendingMove.originalGroupId } : t
-            ));
-            
-            setDragError('Attachment required to change task status. Task moved back to original group.');
-            setTimeout(() => setDragError(null), 3000);
-            
-            setPendingMove(null);
-            setRequireAttachment(false);
-        }
-        
         setShowTaskDetail(false);
         setSelectedTask(null);
-    }, [pendingMove]);
+    }, []);
+
 
     // ─── Task Click ────────────────────────────────────────────
     const handleTaskClick = useCallback((task) => {
@@ -357,7 +325,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                 project_id: project.id,
                 _token: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             });
-            
+
             const response = await axios.post(`/tasks`, {
                 ...taskData,
                 project_id: project.id,
@@ -372,7 +340,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             console.log('🔍 New task created:', newTask);
             console.log('🔍 Task group_id:', newTask.group_id, 'Task task_group_id:', newTask.task_group_id);
             console.log('🔍 All tasks before update:', localTasks);
-            
+
             setLocalTasks(prev => {
                 const updated = prev.map(t =>
                     t.id === tempId
@@ -384,13 +352,13 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             });
         } catch (error) {
             console.error('❌ Failed to create task:', error.response?.data || error.message);
-            
+
             // Show validation errors to user
             if (error.response?.status === 422) {
                 console.error('❌ Validation errors:', error.response.data.errors);
                 // You could add a toast notification here
             }
-            
+
             setLocalTasks(prev => prev.filter(t => t.id !== tempId));
         }
     }, [project.id, user]);
@@ -411,13 +379,13 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                 // Optimistically add the new group to local state
                 const newGroup = response.data.group;
                 console.log('🔍 Adding new group to state:', newGroup);
-                
+
                 setLocalGroups(prev => {
                     const updated = [...prev, newGroup];
                     console.log('🔍 Updated groups list:', updated);
                     return updated;
                 });
-                
+
                 // Show success message to user
                 alert('Group created successfully!');
             } else {
@@ -466,16 +434,16 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                         group_id: todoGroup.id,
                     }, { headers: { 'Accept': 'application/json' } });
                 }
-                setLocalTasks(prev => prev.map(t => 
+                setLocalTasks(prev => prev.map(t =>
                     t.group_id === groupId ? { ...t, group_id: todoGroup.id } : t
                 ));
             }
 
             // Delete the group
-            const response = await axios.delete(`/groups/${groupId}`, { 
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } 
+            const response = await axios.delete(`/groups/${groupId}`, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
-            
+
             if (response.data.success) {
                 setLocalGroups(prev => prev.filter(g => g.id !== groupId));
             } else {
@@ -521,8 +489,8 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 group_id: groupId,
             }, { headers: { 'Accept': 'application/json' } });
-            
-            setLocalTasks(prev => prev.map(t => 
+
+            setLocalTasks(prev => prev.map(t =>
                 t.id === taskId ? { ...t, group_id: groupId } : t
             ));
         } catch (error) {
@@ -535,18 +503,18 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             const response = await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 assigned_to_user_id: assigneeId || null,
             }, { headers: { 'Accept': 'application/json' } });
-            
+
             // Update local tasks with the response data (includes full assignedToUser object)
             if (response.data?.task) {
-                setLocalTasks(prev => prev.map(t => 
+                setLocalTasks(prev => prev.map(t =>
                     t.id === taskId ? { ...t, ...response.data.task } : t
                 ));
             } else {
                 // Fallback: update with just the ID if response doesn't have full task
                 const member = teamMembers?.find(m => m.id === assigneeId);
-                setLocalTasks(prev => prev.map(t => 
-                    t.id === taskId ? { 
-                        ...t, 
+                setLocalTasks(prev => prev.map(t =>
+                    t.id === taskId ? {
+                        ...t,
                         assigned_to_user_id: assigneeId,
                         assignedToUser: member || null,
                         assigned_to_user: member || null
@@ -567,8 +535,8 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 due_on: dueDate,
             }, { headers: { 'Accept': 'application/json' } });
-            
-            setLocalTasks(prev => prev.map(t => 
+
+            setLocalTasks(prev => prev.map(t =>
                 t.id === taskId ? { ...t, due_on: dueDate } : t
             ));
         } catch (error) {
@@ -581,8 +549,8 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
                 priority,
             }, { headers: { 'Accept': 'application/json' } });
-            
-            setLocalTasks(prev => prev.map(t => 
+
+            setLocalTasks(prev => prev.map(t =>
                 t.id === taskId ? { ...t, priority } : t
             ));
         } catch (error) {
@@ -590,7 +558,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
         }
     }, []);
 
-    
+
     // Sync selectedTask with localTasks so drawer reflects moves
     const currentSelectedTask = selectedTask
         ? localTasks.find(t => t.id === selectedTask.id) || selectedTask
@@ -602,46 +570,40 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
 
             {/* Error/Warning Toast */}
             {dragError && (
-                <div className={`fixed top-4 right-4 z-50 border rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right ${
-                    dragError.includes('Attachment required') 
-                        ? 'bg-amber-100 border-amber-300' 
-                        : 'bg-red-100 border-red-300'
-                }`}>
+                <div className={`fixed top-4 right-4 z-50 border rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right ${dragError.includes('Attachment required')
+                    ? 'bg-amber-100 border-amber-300'
+                    : 'bg-red-100 border-red-300'
+                    }`}>
                     <div className="flex items-start gap-2">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                            dragError.includes('Attachment required')
-                                ? 'bg-amber-200'
-                                : 'bg-red-200'
-                        }`}>
-                            <X className={`h-3 w-3 ${
-                                dragError.includes('Attachment required')
-                                    ? 'text-amber-700'
-                                    : 'text-red-700'
-                            }`} />
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${dragError.includes('Attachment required')
+                            ? 'bg-amber-200'
+                            : 'bg-red-200'
+                            }`}>
+                            <X className={`h-3 w-3 ${dragError.includes('Attachment required')
+                                ? 'text-amber-700'
+                                : 'text-red-700'
+                                }`} />
                         </div>
                         <div className="flex-1">
-                            <p className={`text-sm font-semibold mt-0.5 ${
-                                dragError.includes('Attachment required')
-                                    ? 'text-amber-900'
-                                    : 'text-red-900'
-                            }`}>
+                            <p className={`text-sm font-semibold mt-0.5 ${dragError.includes('Attachment required')
+                                ? 'text-amber-900'
+                                : 'text-red-900'
+                                }`}>
                                 {dragError.includes('Attachment required') ? 'Attachment Required' : 'Task Move Failed'}
                             </p>
-                            <p className={`text-sm mt-0.5 ${
-                                dragError.includes('Attachment required')
-                                    ? 'text-amber-800'
-                                    : 'text-red-800'
-                            }`}>
+                            <p className={`text-sm mt-0.5 ${dragError.includes('Attachment required')
+                                ? 'text-amber-800'
+                                : 'text-red-800'
+                                }`}>
                                 {dragError}
                             </p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => setDragError(null)}
-                            className={`transition-colors ${
-                                dragError.includes('Attachment required')
-                                    ? 'text-amber-600 hover:text-amber-800'
-                                    : 'text-red-600 hover:text-red-800'
-                            }`}
+                            className={`transition-colors ${dragError.includes('Attachment required')
+                                ? 'text-amber-600 hover:text-amber-800'
+                                : 'text-red-600 hover:text-red-800'
+                                }`}
                         >
                             <X className="h-3 w-3" />
                         </button>
@@ -676,17 +638,15 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                             <div className="flex items-center border rounded-md overflow-hidden h-8">
                                 <button
                                     onClick={() => setViewMode('board')}
-                                    className={`flex items-center gap-1 px-2.5 h-full text-xs font-medium transition-colors ${
-                                        viewMode === 'board' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-500 hover:bg-gray-50'
-                                    }`}
+                                    className={`flex items-center gap-1 px-2.5 h-full text-xs font-medium transition-colors ${viewMode === 'board' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-500 hover:bg-gray-50'
+                                        }`}
                                 >
                                     <LayoutGrid className="h-3.5 w-3.5" /> Board
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`flex items-center gap-1 px-2.5 h-full text-xs font-medium transition-colors border-l ${
-                                        viewMode === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-500 hover:bg-gray-50'
-                                    }`}
+                                    className={`flex items-center gap-1 px-2.5 h-full text-xs font-medium transition-colors border-l ${viewMode === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-500 hover:bg-gray-50'
+                                        }`}
                                 >
                                     <List className="h-3.5 w-3.5" /> List
                                 </button>
@@ -701,12 +661,12 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                                 <DropdownMenuContent align="end" className="w-72 bg-white border-gray-300 shadow-xl">
                                     <DropdownMenuLabel className="text-xs font-semibold">Filter Tasks</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    
+
                                     {/* Status Filter */}
                                     <div className="px-2 py-2">
                                         <label className="text-xs font-medium text-gray-700 mb-1 block">Status</label>
-                                        <select 
-                                            value={filters.status} 
+                                        <select
+                                            value={filters.status}
                                             onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
                                             className="w-full text-xs border border-gray-300 bg-white rounded px-2 py-1 shadow-sm"
                                         >
@@ -716,12 +676,12 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                                             ))}
                                         </select>
                                     </div>
-                                    
+
                                     {/* Priority Filter */}
                                     <div className="px-2 py-2">
                                         <label className="text-xs font-medium text-gray-700 mb-1 block">Priority</label>
-                                        <select 
-                                            value={filters.priority} 
+                                        <select
+                                            value={filters.priority}
                                             onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
                                             className="w-full text-xs border border-gray-300 bg-white rounded px-2 py-1 shadow-sm"
                                         >
@@ -732,12 +692,12 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                                             <option value="low">Low</option>
                                         </select>
                                     </div>
-                                    
+
                                     {/* Assignee Filter */}
                                     <div className="px-2 py-2">
                                         <label className="text-xs font-medium text-gray-700 mb-1 block">Assignee</label>
-                                        <select 
-                                            value={filters.assignee} 
+                                        <select
+                                            value={filters.assignee}
                                             onChange={(e) => setFilters(prev => ({ ...prev, assignee: e.target.value }))}
                                             className="w-full text-xs border border-gray-300 bg-white rounded px-2 py-1 shadow-sm"
                                         >
@@ -748,12 +708,12 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                                             ))}
                                         </select>
                                     </div>
-                                    
+
                                     {/* Due Date Filter */}
                                     <div className="px-2 py-2">
                                         <label className="text-xs font-medium text-gray-700 mb-1 block">Due Date</label>
-                                        <select 
-                                            value={filters.dueDate} 
+                                        <select
+                                            value={filters.dueDate}
                                             onChange={(e) => setFilters(prev => ({ ...prev, dueDate: e.target.value }))}
                                             className="w-full text-xs border border-gray-300 bg-white rounded px-2 py-1 shadow-sm"
                                         >
@@ -763,7 +723,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                                             <option value="week">Due This Week</option>
                                         </select>
                                     </div>
-                                    
+
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => setFilters({ status: 'all', priority: 'all', assignee: 'all', dueDate: 'all' })} className="text-xs">
                                         Clear All Filters
@@ -779,7 +739,7 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
             {viewMode === 'board' ? (
                 <div className="p-4 bg-gradient-to-br from-gray-100/80 via-white/50 to-indigo-50/30 min-h-[calc(100vh-120px)]">
                     {canEditTasks ? (
-                        <DragDropContext 
+                        <DragDropContext
                             onDragStart={() => setIsDragging(true)}
                             onDragEnd={handleDragEnd}
                         >
@@ -855,11 +815,9 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                     console.log('🔄 onTaskUpdate called:', {
                         taskId: updatedTask.id,
                         attachmentCount: updatedTask.attachments?.length || 0,
-                        pendingMove: !!pendingMove,
-                        hasAttachments: updatedTask.attachments && updatedTask.attachments.length > 0,
                         isArchived: !!updatedTask.archived_at
                     });
-                    
+
                     // If task is archived, remove it from local state immediately
                     if (updatedTask.archived_at) {
                         console.log('🗑️ Removing archived task from UI:', updatedTask.id);
@@ -870,23 +828,10 @@ export default function ClickUpTasks({ project, tasks, taskGroups, teamMembers }
                         // Normal task update
                         setLocalTasks(prev => prev.map(t => t.id === updatedTask.id ? { ...t, ...updatedTask } : t));
                     }
-                    
-                    // If this was a pending move and attachments were added, complete the move
-                    if (pendingMove && updatedTask.attachments && updatedTask.attachments.length > 0) {
-                        console.log('✅ Completing pending move due to attachments:', {
-                            taskId: updatedTask.id,
-                            attachmentCount: updatedTask.attachments.length
-                        });
-                        completePendingMove();
-                    }
                 }}
                 teamMembers={assignableMembers}
                 taskGroups={localGroups}
                 projectId={project?.id}
-                requireAttachment={requireAttachment}
-                onAttachmentRequired={() => setRequireAttachment(false)}
-                pendingMove={pendingMove}
-                isDragging={isDragging}
                 currentUser={user}
                 userRole={userRole}
             />

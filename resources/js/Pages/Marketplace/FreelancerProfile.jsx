@@ -142,6 +142,10 @@ export default function FreelancerProfilePage({ profile, reviews, hasExistingCha
                                     <span className="font-medium text-white">{profile.total_projects}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
+                                    <span className="text-gray-400">Collaborations</span>
+                                    <span className="font-medium text-white">{profile.workspaces_count || 0}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
                                     <span className="text-gray-400">Avg Rating</span>
                                     <span className="font-medium text-white">{Number(profile.avg_rating).toFixed(1)}/5.0</span>
                                 </div>

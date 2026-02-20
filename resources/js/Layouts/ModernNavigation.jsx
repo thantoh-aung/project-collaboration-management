@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { 
-  Home, 
-  Briefcase, 
-  FolderOpen, 
-  Users, 
-  BarChart3, 
-  Settings, 
-  MessageSquare, 
+import {
+  Home,
+  Briefcase,
+  FolderOpen,
+  Users,
+  BarChart3,
+  Settings,
+  MessageSquare,
   User,
   Bell,
   ChevronDown,
@@ -35,7 +35,7 @@ export default function ModernNavigation({ children }) {
   const { auth } = page.props;
   const user = auth?.user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   // Debug: Log user avatar data
   console.log('🔍 ModernNavigation Debug - User:', {
     id: user?.id,
@@ -51,18 +51,19 @@ export default function ModernNavigation({ children }) {
   // Simplified primary navigation
   const primaryNav = [
     {
-      name: 'Dashboard',
-      href: '/dashboard',
-      icon: Home,
-      active: window.location.pathname === '/dashboard',
-      show: isWorkspace
-    },
-    {
       name: 'Marketplace',
       href: '/marketplace',
       icon: Store,
       active: isMarketplace && window.location.pathname === '/marketplace',
       show: true
+    },
+    {
+      name: 'Messages',
+      href: '/marketplace/chats',
+      icon: MessageSquare,
+      active: window.location.pathname.startsWith('/marketplace/chats'),
+      show: true,
+      badge: unread_message_count
     },
     {
       name: 'Workspaces',
@@ -72,20 +73,19 @@ export default function ModernNavigation({ children }) {
       show: true
     },
     {
+      name: 'Dashboard',
+      href: '/dashboard',
+      icon: Home,
+      active: window.location.pathname === '/dashboard',
+      show: isWorkspace
+    },
+    {
       name: 'Projects',
       href: '/projects',
       icon: FolderOpen,
       active: window.location.pathname.startsWith('/projects'),
       show: isWorkspace && currentWorkspace
     },
-    {
-      name: 'Messages',
-      href: '/marketplace/chats',
-      icon: MessageSquare,
-      active: window.location.pathname.startsWith('/marketplace/chats'),
-      show: true,
-      badge: unread_message_count
-    }
   ];
 
   // Secondary navigation (in dropdown)
@@ -102,7 +102,7 @@ export default function ModernNavigation({ children }) {
       icon: Briefcase,
       show: isWorkspace && currentWorkspace
     },
-        {
+    {
       name: 'Settings',
       href: isWorkspace ? '/workspaces/current/settings' : '/marketplace/profile',
       icon: Settings,
@@ -116,7 +116,7 @@ export default function ModernNavigation({ children }) {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            
+
             {/* Left: Logo + Primary Nav */}
             <div className="flex items-center gap-8">
               {/* Logo */}
@@ -181,7 +181,7 @@ export default function ModernNavigation({ children }) {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                
+
                 <DropdownMenuContent align="end" className="w-56">
                   {/* User Info */}
                   <DropdownMenuLabel className="flex flex-col items-start">
@@ -191,7 +191,7 @@ export default function ModernNavigation({ children }) {
                       {user?.usage_type?.replace('_', ' ') || 'User'}
                     </Badge>
                   </DropdownMenuLabel>
-                  
+
                   <DropdownMenuSeparator />
 
                   {/* Secondary Navigation */}
@@ -206,7 +206,7 @@ export default function ModernNavigation({ children }) {
                       </DropdownMenuItem>
                     );
                   })}
-                  
+
                   <DropdownMenuSeparator />
 
                   {/* Profile & Account */}
@@ -216,7 +216,7 @@ export default function ModernNavigation({ children }) {
                       My Profile
                     </Link>
                   </DropdownMenuItem>
-                  
+
                   <DropdownMenuSeparator />
 
                   {/* Logout */}
@@ -268,7 +268,7 @@ export default function ModernNavigation({ children }) {
                   </Link>
                 );
               })}
-              
+
               <div className="border-t border-gray-200 my-2 pt-2">
                 {secondaryNav.filter(item => item.show).map((item) => {
                   const Icon = item.icon;

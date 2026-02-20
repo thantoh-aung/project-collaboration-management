@@ -227,34 +227,8 @@ export default function EnhancedTaskDetailDrawer({
         }
 
         const isComplete = group.name === 'Complete';
-        const requiresAttachment = (group.name === 'In Progress' || isComplete);
-        const hasAttachments = localTask.attachments && localTask.attachments.length > 0;
 
-        // Attachment validation for status changes
-        if (requiresAttachment && !hasAttachments) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'fixed top-4 right-4 z-50 border rounded-lg shadow-xl p-3 max-w-sm animate-in slide-in-from-right bg-amber-100 border-amber-300';
-            errorDiv.innerHTML = `
-                <div class="flex items-start gap-2">
-                    <div class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-amber-800">Attachment required</p>
-                        <p class="text-xs text-amber-700 mt-1">Please add at least one file before moving to "${group.name}".</p>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(errorDiv);
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 4000);
-
-            return;
-        }
-
+        // Proceed directly — no attachment required
         const updated = { ...localTask, group_id: gid, completed: isComplete };
         setLocalTask(updated);
         onTaskUpdate?.(updated);
@@ -502,43 +476,6 @@ export default function EnhancedTaskDetailDrawer({
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
-
-                {/* Attachment Requirement Warning */}
-                {requireAttachment && (
-                    <div className="mx-5 mt-3 p-3 bg-amber-900/30 border border-amber-700 rounded-lg">
-                        <div className="flex items-start gap-2">
-                            <div className="w-5 h-5 bg-amber-600/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Paperclip className="h-3 w-3 text-amber-400" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-medium text-amber-300">
-                                    {pendingMove ? 'Complete Task Move' : 'Attachment Required'}
-                                </p>
-                                <p className="text-xs text-amber-400 mt-0.5">
-                                    {pendingMove
-                                        ? `Add at least one attachment to complete moving this task to "${taskGroups.find(g => g.id === pendingMove.newGroupId)?.name}".`
-                                        : 'This task needs at least one attachment before it can be moved to "In Progress" or "Complete".'}
-                                </p>
-                                {pendingMove && (
-                                    <div className="mt-2 flex gap-2">
-                                        <button
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="text-xs bg-amber-600/20 text-amber-300 px-2 py-1 rounded hover:bg-amber-600/30 transition-colors"
-                                        >
-                                            Add Attachment
-                                        </button>
-                                        <button
-                                            onClick={onClose}
-                                            className="text-xs text-amber-400 hover:text-amber-200 transition-colors"
-                                        >
-                                            Cancel Move
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {/* Tabs */}
                 <div className="flex border-b px-5 bg-slate-700/50 border-slate-700">
