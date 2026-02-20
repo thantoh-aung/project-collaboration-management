@@ -292,7 +292,7 @@ class ProjectController extends Controller
                     'workspace_role' => $user->workspace_role
                 ];
             })->toArray(),
-            'current_team_members' => $project->teamMembers()->pluck('id')->toArray(),
+            'current_team_members' => $project->teamMembers()->pluck('users.id')->toArray(),
             'current_user_id' => Auth::id(),
             'current_user_role' => $userRole,
         ]);
@@ -375,51 +375,46 @@ class ProjectController extends Controller
         $validated = $request->only(['name', 'description', 'status', 'start_date', 'due_date', 'members']);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($request, $project, $validated) {
-            // 2. Update the Project model (persists name, status, etc.)
+            // 1. Update project attributes
             $project->update([
-                'name' => $validated['name'],
+                'name'        => $validated['name'],
                 'description' => $validated['description'] ?? null,
-                'status' => $validated['status'] ?? 'active',
-                'start_date' => $validated['start_date'] ?? null,
-                'due_date' => $validated['due_date'] ?? null,
+                'status'      => $validated['status'] ?? 'active',
+                'start_date'  => $validated['start_date'] ?? null,
+                'due_date'    => $validated['due_date'] ?? null,
             ]);
 
-            // 3. Sync the relationship (persists the members array [16, 18])
+            // 2. The Logic Fix: Direct Reconciliation
             if ($request->has('members')) {
-                $newMemberIds = $request->input('members', []);
-                
-                // Identify persistent roles to preserve (admin, client)
-                $persistentMembers = \Illuminate\Support\Facades\DB::table('project_user_access')
+                // Normalize IDs to integers from the React payload [16, 18]
+                $submittedIds = collect($request->input('members'))->map(fn($id) => (int)$id);
+
+                // Fetch existing roles ONLY for the IDs being submitted 
+                // to ensure we don't accidentally demote an admin to a member.
+                $existingRoles = \Illuminate\Support\Facades\DB::table('project_user_access')
                     ->where('project_id', $project->id)
-                    ->whereIn('role', ['admin', 'client'])
-                    ->get();
-                    
+                    ->whereIn('user_id', $submittedIds)
+                    ->pluck('role', 'user_id');
+
                 $syncData = [];
-                
-                // Re-add persistent members with their original roles
-                foreach ($persistentMembers as $member) {
-                    $syncData[$member->user_id] = ['role' => $member->role];
-                }
-                
-                // Add new members with 'member' role if they don't have a persistent role
-                foreach ($newMemberIds as $memberId) {
-                    $mId = (int) $memberId;
-                    if (!isset($syncData[$mId])) {
-                        $syncData[$mId] = ['role' => 'member'];
-                    }
-                }
-                
-                // Always ensure the creator remains an admin
-                if ($project->created_by && !isset($syncData[$project->created_by])) {
-                    $syncData[$project->created_by] = ['role' => 'admin'];
+                foreach ($submittedIds as $userId) {
+                    // Keep existing role (admin/client) or default to 'member'
+                    $role = $existingRoles->get($userId) ?? 'member';
+                    $syncData[$userId] = ['role' => $role];
                 }
 
-                // Actually sync with the pivot table
+                // 3. Safety Lock: Force Creator to stay Admin
+                if ($project->created_by) {
+                    $syncData[(int)$project->created_by] = ['role' => 'admin'];
+                }
+
+                // 4. THE ATOMIC SYNC: 
+                // This will DELETE anyone not in the list and ADD anyone new.
                 $project->members()->sync($syncData);
 
-                \Log::info('Project members synced successfully', [
+                \Log::info('Project members reconciled successfully', [
                     'project_id' => $project->id,
-                    'synced_members' => array_keys($syncData),
+                    'sync_data' => $syncData
                 ]);
             }
         });

@@ -54,11 +54,11 @@ function ProjectCreateContent() {
     return (
       <MainLayout title="Create Project">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-red-600" />
+          <div className="mx-auto w-24 h-24 bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-red-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Workspace Error</h3>
-          <p className="text-gray-500 mb-4">
+          <h3 className="text-lg font-medium text-white mb-2">Workspace Error</h3>
+          <p className="text-gray-400 mb-4">
             {error.message || 'Failed to load workspace information.'}
           </p>
           <Button onClick={() => window.location.reload()}>
@@ -146,11 +146,11 @@ function ProjectCreateContent() {
     return (
       <MainLayout title="Create Project">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-24 h-24 bg-gray-900/30 rounded-full flex items-center justify-center mb-4">
             <Briefcase className="h-12 w-12 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspace Selected</h3>
-          <p className="text-gray-500">Please select a workspace to create projects.</p>
+          <h3 className="text-lg font-medium text-white mb-2">No Workspace Selected</h3>
+          <p className="text-gray-400">Please select a workspace to create projects.</p>
         </div>
       </MainLayout>
     );
@@ -161,11 +161,11 @@ function ProjectCreateContent() {
       <MainLayout title="Create Project">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <div className="mx-auto w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-              <AlertCircle className="h-12 w-12 text-yellow-600" />
+            <div className="mx-auto w-24 h-24 bg-yellow-900/30 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="h-12 w-12 text-yellow-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
-            <p className="text-gray-500 mb-4">Only workspace admins can create projects.</p>
+            <h3 className="text-lg font-medium text-white mb-2">Access Denied</h3>
+            <p className="text-gray-400 mb-4">Only workspace admins can create projects.</p>
             <Button onClick={() => router.visit('/projects')}>
               Back to Projects
             </Button>
@@ -191,31 +191,31 @@ function ProjectCreateContent() {
               Back to Projects
             </Link>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Create New Project</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">Create New Project</h1>
+              <p className="text-sm text-gray-400">
                 Set up a new project in {currentWorkspace.name}
               </p>
             </div>
           </div>
 
           {/* Form */}
-          <Card className="bg-white border-gray-200 shadow-lg shadow-indigo-500/10">
-            <CardHeader className="border-b border-gray-100">
+          <Card className="bg-slate-800 border-slate-700 shadow-lg shadow-blue-600/20">
+            <CardHeader className="border-b border-slate-600">
               <CardTitle className="text-gray-900">Project Details</CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-gray-400">
                 Fill in the basic information for your project
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
               <form onSubmit={submit} className="space-y-6">
                 {/* Essential Information */}
-                <div className="border-l-4 border-l-indigo-500 pl-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Essential Information</h3>
+                <div className="border-l-4 border-l-blue-600 pl-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">Essential Information</h3>
                   <div className="space-y-4">
                     {/* Project Name */}
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                        Project Name <span className="text-red-500">*</span>
+                      <Label htmlFor="name" className="text-sm font-medium text-gray-300">
+                        Project Name <span className="text-red-400">*</span>
                       </Label>
                       <Input
                         id="name"
@@ -223,21 +223,21 @@ function ProjectCreateContent() {
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         placeholder="Enter project name"
-                        className={`h-11 bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 ${errors.name ? 'border-red-500 focus:ring-red-500/20' : ''}`}
+                        className={`h-11 bg-slate-700 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-white ${errors.name ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                         required
                       />
                       {errors.name && (
-                        <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+                        <p className="text-sm text-red-400 mt-1">{errors.name}</p>
                       )}
-                      <p className="text-xs text-gray-500">Give your project a clear, descriptive name</p>
+                      <p className="text-xs text-gray-400">Give your project a clear, descriptive name</p>
                     </div>
 
                     {/* Timeline */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Start Date */}
                       <div className="space-y-2">
-                        <Label htmlFor="start_date" className="text-sm font-medium text-gray-700">
-                          Start Date <span className="text-red-500">*</span>
+                        <Label htmlFor="start_date" className="text-sm font-medium text-gray-300">
+                          Start Date <span className="text-red-400">*</span>
                         </Label>
                         <Input
                           id="start_date"
@@ -251,19 +251,19 @@ function ProjectCreateContent() {
                             }
                           }}
                           min={new Date().toISOString().split('T')[0]} // Can't select past dates
-                          className={`h-11 bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 ${errors.start_date ? 'border-red-500 focus:ring-red-500/20' : ''}`}
+                          className={`h-11 bg-slate-700 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-white ${errors.start_date ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                           required
                         />
                         {errors.start_date && (
-                          <p className="text-sm text-red-600 mt-1">{errors.start_date}</p>
+                          <p className="text-sm text-red-400 mt-1">{errors.start_date}</p>
                         )}
                         <p className="text-xs text-gray-500">When the project begins</p>
                       </div>
 
                       {/* Due Date */}
                       <div className="space-y-2">
-                        <Label htmlFor="due_date" className="text-sm font-medium text-gray-700">
-                          Due Date <span className="text-red-500">*</span>
+                        <Label htmlFor="due_date" className="text-sm font-medium text-gray-300">
+                          Due Date <span className="text-red-400">*</span>
                         </Label>
                         <Input
                           id="due_date"
@@ -271,13 +271,13 @@ function ProjectCreateContent() {
                           value={data.due_date}
                           onChange={(e) => setData('due_date', e.target.value)}
                           min={data.start_date || new Date().toISOString().split('T')[0]} // Must be after start date
-                          className={`h-11 bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 ${errors.due_date ? 'border-red-500 focus:ring-red-500/20' : ''}`}
+                          className={`h-11 bg-slate-700 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-white ${errors.due_date ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                           required
                         />
                         {errors.due_date && (
-                          <p className="text-sm text-red-600 mt-1">{errors.due_date}</p>
+                          <p className="text-sm text-red-400 mt-1">{errors.due_date}</p>
                         )}
-                        <p className="text-xs text-gray-500">Project completion target</p>
+                        <p className="text-xs text-gray-400">Project completion target</p>
                       </div>
                     </div>
                   </div>
@@ -285,7 +285,7 @@ function ProjectCreateContent() {
 
                 {/* Optional Information */}
                 <div className="border-l-4 border-l-gray-300 pl-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">
                     Optional Information 
                     <Badge variant="outline" className="ml-2 text-xs">Can be added later</Badge>
                   </h3>
@@ -301,34 +301,34 @@ function ProjectCreateContent() {
                         onChange={(e) => setData('description', e.target.value)}
                         placeholder="Describe the project goals, objectives, and scope"
                         rows={4}
-                        className={`bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 resize-none ${errors.description ? 'border-red-500 focus:ring-red-500/20' : ''}`}
+                        className={`bg-slate-700 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-white resize-none ${errors.description ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                       />
                       {errors.description && (
-                        <p className="text-sm text-red-600 mt-1">{errors.description}</p>
+                        <p className="text-sm text-red-400 mt-1">{errors.description}</p>
                       )}
                       <p className="text-xs text-gray-500">Help team members understand the project purpose</p>
                     </div>
 
                     {/* Status */}
                     <div className="space-y-2">
-                      <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+                      <Label htmlFor="status" className="text-sm font-medium text-gray-300">
                         Status
                       </Label>
                       <Select
                         value={data.status}
                         onValueChange={(value) => setData('status', value)}
                       >
-                        <SelectTrigger className="h-11 bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300">
+                        <SelectTrigger className="h-11 bg-slate-700 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-white">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-gray-200 shadow-lg shadow-indigo-500/10">
-                          <SelectItem value="active" className="hover:bg-gray-50">🟢 Active</SelectItem>
-                          <SelectItem value="on_hold" className="hover:bg-gray-50">⏸️ On Hold</SelectItem>
-                          <SelectItem value="planning" className="hover:bg-gray-50">📋 Planning</SelectItem>
+                        <SelectContent className="bg-slate-800 border-slate-600 shadow-lg shadow-blue-600/20">
+                          <SelectItem value="active" className="hover:bg-slate-700/50 text-white">🟢 Active</SelectItem>
+                          <SelectItem value="on_hold" className="hover:bg-slate-700/50 text-white">⏸️ On Hold</SelectItem>
+                          <SelectItem value="planning" className="hover:bg-slate-700/50 text-white">📋 Planning</SelectItem>
                         </SelectContent>
                       </Select>
                       {errors.status && (
-                        <p className="text-sm text-red-600 mt-1">{errors.status}</p>
+                        <p className="text-sm text-red-400 mt-1">{errors.status}</p>
                       )}
                       <p className="text-xs text-gray-500">Current project status</p>
                     </div>
@@ -342,10 +342,10 @@ function ProjectCreateContent() {
                     Team Setup
                     <Badge variant="outline" className="text-xs">Optional</Badge>
                   </Label>
-                  <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
+                  <div className="border border-slate-600 rounded-xl p-4 space-y-3 bg-slate-700/30">
                     <div className="flex flex-wrap gap-2">
                       {selectedMembers.map((member) => (
-                        <Badge key={member.id} variant="secondary" className="flex items-center gap-1 bg-white border-gray-200">
+                        <Badge key={member.id} variant="secondary" className="flex items-center gap-1 bg-slate-800 border-slate-600">
                           <Avatar className="h-4 w-4">
                             <AvatarImage src={member.avatar} />
                             <AvatarFallback className="text-xs bg-gray-100">
@@ -356,7 +356,7 @@ function ProjectCreateContent() {
                           <button
                             type="button"
                             onClick={() => removeMember(member.id)}
-                            className="ml-1 hover:text-red-500 transition-colors"
+                            className="ml-1 hover:text-red-400 transition-colors"
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -367,19 +367,19 @@ function ProjectCreateContent() {
                       const user = members.find(u => u.id === parseInt(value));
                       if (user) addMember(user);
                     }}>
-                      <SelectTrigger className="h-11 bg-white border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300">
+                      <SelectTrigger className="h-11 bg-slate-700 border-slate-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-white">
                         <SelectValue placeholder="Add team member..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-white border-gray-200 shadow-lg shadow-indigo-500/10">
+                      <SelectContent className="bg-slate-800 border-slate-600 shadow-lg shadow-blue-600/20">
                         {members
                           .filter(m => !selectedMembers.find(sm => sm.id === m.id))
                           .filter(m => m.id !== auth?.user?.id) // Exclude current user (creator)
                           .map((member) => (
-                            <SelectItem key={member.id} value={member.id.toString()} className="hover:bg-gray-50">
+                            <SelectItem key={member.id} value={member.id.toString()} className="hover:bg-slate-700/50">
                               <div className="flex items-center gap-2">
                                 <Avatar className="h-4 w-4">
                                   <AvatarImage src={member.avatar} />
-                                  <AvatarFallback className="text-xs bg-gray-100">
+                                  <AvatarFallback className="text-xs bg-slate-700">
                                     {member.name.split(' ').map(n => n[0]).join('')}
                                   </AvatarFallback>
                                 </Avatar>
@@ -389,19 +389,19 @@ function ProjectCreateContent() {
                           ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-gray-500">Add team members who will work on this project</p>
+                    <p className="text-xs text-gray-400">Add team members who will work on this project</p>
                   </div>
                 </div>
 
                 
                 {/* Submit Button */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+                <div className="flex justify-end gap-3 pt-6 border-t border-slate-600">
                   <Link href="/projects">
-                    <Button type="button" variant="outline" className="border-gray-200 text-gray-700 hover:bg-gray-50">
+                    <Button type="button" variant="outline" className="border-slate-600 text-gray-400 hover:bg-slate-700">
                       Cancel
                     </Button>
                   </Link>
-                  <Button type="submit" disabled={processing} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button type="submit" disabled={processing} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                     {processing ? 'Creating...' : 'Create Project'}
                   </Button>
                 </div>

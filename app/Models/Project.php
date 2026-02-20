@@ -108,8 +108,7 @@ class Project extends Model implements Auditable
     {
         return $this->belongsToMany(User::class, 'project_user_access')
             ->withTimestamps()
-            ->withPivot('role')
-            ->select('users.id', 'users.name', 'users.avatar', 'users.email');
+            ->withPivot('role');
     }
 
     /**

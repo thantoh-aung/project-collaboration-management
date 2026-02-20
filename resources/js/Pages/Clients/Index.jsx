@@ -8,11 +8,11 @@ import { Users, Mail, Shield, Calendar } from 'lucide-react';
 export default function ClientsIndex({ clients, auth, message }) {
   const getRoleBadgeColor = (role) => {
     const colors = {
-      admin: 'bg-red-100 text-red-800',
-      member: 'bg-blue-100 text-blue-800',
-      client: 'bg-green-100 text-green-800',
+      admin: 'bg-red-600/20 text-red-300 border-red-500/30',
+      member: 'bg-blue-600/20 text-blue-300 border-blue-500/30',
+      client: 'bg-emerald-600/20 text-emerald-300 border-emerald-500/30',
     };
-    return colors[role] || 'bg-gray-100 text-gray-800';
+    return colors[role] || 'bg-slate-700 text-slate-300 border-slate-600';
   };
 
   return (
@@ -24,31 +24,31 @@ export default function ClientsIndex({ clients, auth, message }) {
           {message ? (
             <div className="text-center py-12">
               <Users className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">{message}</h3>
+              <h3 className="mt-2 text-sm font-medium text-white">{message}</h3>
             </div>
           ) : (
             <>
               <div className="mb-8">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Clients</h1>
-                <p className="mt-1 text-sm text-gray-500">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">Clients</h1>
+                <p className="mt-1 text-sm text-gray-400">
                   Client users in {auth?.current_workspace?.name}
                 </p>
               </div>
 
               {clients.length > 0 ? (
-                <div className="bg-white shadow rounded-lg overflow-hidden">
+                <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden shadow-lg shadow-blue-600/20">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="font-semibold text-gray-900">Client</TableHead>
-                        <TableHead className="font-semibold text-gray-900">Role</TableHead>
-                        <TableHead className="font-semibold text-gray-900">Permissions</TableHead>
-                        <TableHead className="font-semibold text-gray-900">Joined</TableHead>
+                      <TableRow className="bg-slate-700/50">
+                        <TableHead className="font-semibold text-white">Client</TableHead>
+                        <TableHead className="font-semibold text-white">Role</TableHead>
+                        <TableHead className="font-semibold text-white">Permissions</TableHead>
+                        <TableHead className="font-semibold text-white">Joined</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {clients.map((client) => (
-                        <TableRow key={client.id} className="hover:bg-gray-50">
+                        <TableRow key={client.id} className="hover:bg-slate-700/30 border-b border-slate-700">
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
@@ -58,10 +58,10 @@ export default function ClientsIndex({ clients, auth, message }) {
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-white">
                                   {client.name}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-400">
                                   {client.email}
                                 </p>
                               </div>
@@ -81,12 +81,12 @@ export default function ClientsIndex({ clients, auth, message }) {
                                   </Badge>
                                 ))
                               ) : (
-                                <span className="text-sm text-gray-500">Read Only</span>
+                                <span className="text-sm text-gray-400">Read Only</span>
                               )}
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center text-sm text-gray-500">
+                            <div className="flex items-center text-sm text-gray-400">
                               <Calendar className="w-4 h-4 mr-1.5" />
                               {new Date(client.created_at).toLocaleDateString()}
                             </div>

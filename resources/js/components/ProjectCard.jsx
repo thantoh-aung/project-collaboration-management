@@ -65,12 +65,12 @@ export default function ProjectCard({ project }) {
   // Helper functions (kept as is)
   const getStatusColor = (status) => {
     const colors = {
-      planning: 'from-slate-400 to-gray-500',
-      active: 'from-blue-500 to-indigo-600',
-      on_hold: 'from-amber-500 to-orange-600',
-      completed: 'from-emerald-500 to-green-600',
-      complete: 'from-emerald-500 to-green-600', // Fallback for missing "d"
-      archived: 'from-gray-400 to-slate-500',
+      planning: 'from-slate-600 to-slate-700',
+      active: 'from-blue-600 to-purple-600',
+      on_hold: 'from-amber-600 to-orange-600',
+      completed: 'from-emerald-600 to-green-600',
+      complete: 'from-emerald-600 to-green-600', // Fallback for missing "d"
+      archived: 'from-slate-600 to-slate-700',
     };
     
     // Debug: Check if status is completed
@@ -87,24 +87,24 @@ export default function ProjectCard({ project }) {
 
   const getStatusBgColor = (status) => {
     const colors = {
-      planning: 'bg-slate-50',
-      active: 'bg-blue-50',
-      on_hold: 'bg-amber-50',
-      completed: 'bg-emerald-50',
-      complete: 'bg-emerald-50', // Fallback for missing "d"
-      archived: 'bg-gray-50',
+      planning: 'bg-slate-800',
+      active: 'bg-blue-600/20',
+      on_hold: 'bg-amber-600/20',
+      completed: 'bg-emerald-600/20',
+      complete: 'bg-emerald-600/20', // Fallback for missing "d"
+      archived: 'bg-slate-800',
     };
     return colors[status] || colors.active;
   };
 
   const getStatusTextColor = (status) => {
     const colors = {
-      planning: 'text-slate-700',
-      active: 'text-blue-700',
-      on_hold: 'text-amber-700',
-      completed: 'text-emerald-700',
-      complete: 'text-emerald-700', // Fallback for missing "d"
-      archived: 'text-gray-700',
+      planning: 'text-slate-300',
+      active: 'text-blue-300',
+      on_hold: 'text-amber-300',
+      completed: 'text-emerald-300',
+      complete: 'text-emerald-300', // Fallback for missing "d"
+      archived: 'text-slate-300',
     };
     return colors[status] || colors.active;
   };
@@ -145,11 +145,11 @@ export default function ProjectCard({ project }) {
     <Card 
       className={cn(
         "group relative transition-all duration-500 cursor-pointer", // Removed overflow-hidden to let menu show
-        "bg-white border-0 shadow-lg hover:shadow-2xl",
+        "bg-slate-800 border-slate-700 shadow-lg hover:shadow-2xl hover:shadow-blue-600/20",
         "hover:-translate-y-2 rounded-2xl w-[320px] h-[280px]",
         "before:absolute before:inset-0 before:bg-gradient-to-br",
         `before:from-transparent before:to-${getStatusColor(project.status).split(' ')[0].replace('from-', '')}/5`,
-        "before:opacity-0 group-hover:opacity-100 before:transition-opacity before:rounded-2xl"
+        "before:opacity-20 group-hover:opacity-100 before:transition-opacity before:rounded-2xl"
       )}
       onClick={() => router.visit(project.tasksPageUrl || `/projects/${project.id}/tasks`)}
     >
@@ -183,10 +183,10 @@ export default function ProjectCard({ project }) {
 
       <CardContent className="p-4 space-y-3 relative">
         <div className="space-y-1">
-          <h3 className="font-semibold text-gray-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">
+          <h3 className="font-semibold text-white text-sm line-clamp-1 group-hover:text-blue-400 transition-colors">
             {project.name}
           </h3>
-          <p className="text-xs text-gray-500 line-clamp-2">
+          <p className="text-xs text-gray-400 line-clamp-2">
             {project.description || 'No description available'}
           </p>
         </div>
@@ -194,17 +194,17 @@ export default function ProjectCard({ project }) {
         {project.tasks_count > 0 && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600">Progress</span>
-              <span className="font-medium text-gray-900">{completionPercentage}%</span>
+              <span className="text-gray-400">Progress</span>
+              <span className="font-medium text-white">{completionPercentage}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+            <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
               <div 
                 className={cn(
                   "h-full rounded-full transition-all duration-500",
-                  completionPercentage === 100 ? "bg-gradient-to-r from-emerald-500 to-green-600" :
-                  completionPercentage >= 75 ? "bg-gradient-to-r from-blue-500 to-indigo-600" :
-                  completionPercentage >= 50 ? "bg-gradient-to-r from-amber-500 to-orange-600" :
-                  "bg-gradient-to-r from-gray-400 to-slate-500"
+                  completionPercentage === 100 ? "bg-gradient-to-r from-emerald-600 to-green-600" :
+                  completionPercentage >= 75 ? "bg-gradient-to-r from-blue-600 to-purple-600" :
+                  completionPercentage >= 50 ? "bg-gradient-to-r from-amber-600 to-orange-600" :
+                  "bg-gradient-to-r from-slate-600 to-slate-700"
                 )}
                 style={{ width: `${completionPercentage}%` }}
               />

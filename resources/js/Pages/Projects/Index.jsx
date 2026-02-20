@@ -64,11 +64,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
     return (
       <MainLayout title="Projects">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-red-600" />
+          <div className="mx-auto w-24 h-24 bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-red-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Workspace Error</h3>
-          <p className="text-gray-500 mb-4">
+          <h3 className="text-lg font-medium text-white mb-2">Workspace Error</h3>
+          <p className="text-gray-400 mb-4">
             {error.message || 'Failed to load workspace information.'}
           </p>
           <Button onClick={() => window.location.reload()}>
@@ -115,11 +115,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
     return (
       <MainLayout title="Projects">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-yellow-600" />
+          <div className="mx-auto w-24 h-24 bg-yellow-900/30 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-yellow-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspace Selected</h3>
-          <p className="text-gray-500 mb-4">Please select a workspace to view projects.</p>
+          <h3 className="text-lg font-medium text-white mb-2">No Workspace Selected</h3>
+          <p className="text-gray-400 mb-4">Please select a workspace to view projects.</p>
           <Button onClick={() => router.visit('/dashboard')}>
             Go to Dashboard
           </Button>
@@ -134,11 +134,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
     return (
       <MainLayout title="Projects">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-red-600" />
+          <div className="mx-auto w-24 h-24 bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-red-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Data Error</h3>
-          <p className="text-gray-500 mb-4">
+          <h3 className="text-lg font-medium text-white mb-2">Data Error</h3>
+          <p className="text-gray-400 mb-4">
             Failed to load projects data. Please try again.
           </p>
           <Button onClick={() => window.location.reload()}>
@@ -151,11 +151,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
 
   const getStatusColor = (status) => {
     const colors = {
-      planning: 'bg-gray-100 text-gray-700 border-0',
-      active: 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 shadow-sm shadow-indigo-500/30',
-      on_hold: 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white border-0 shadow-sm shadow-yellow-500/30',
-      completed: 'bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0 shadow-sm shadow-emerald-500/30',
-      archived: 'bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 shadow-sm shadow-red-500/30',
+      planning: 'bg-slate-700 text-slate-300 border-0',
+      active: 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-sm shadow-blue-600/30',
+      on_hold: 'bg-gradient-to-r from-yellow-600 to-amber-600 text-white border-0 shadow-sm shadow-yellow-600/30',
+      completed: 'bg-gradient-to-r from-emerald-600 to-green-600 text-white border-0 shadow-sm shadow-emerald-600/30',
+      archived: 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-0 shadow-sm shadow-red-600/30',
     };
     return colors[status] || colors.planning;
   };
@@ -174,8 +174,8 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Projects</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">Projects</h1>
+            <p className="text-sm text-gray-400 mt-1">
               Manage and track all your team projects
             </p>
           </div>
@@ -186,7 +186,7 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
                 setTimeout(() => {
                   router.visit('/projects/create');
                 }, 0);
-              }} className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 border-0 transition-all duration-300">
+              }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 border-0 transition-all duration-300">
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
               </Button>
@@ -211,7 +211,7 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 shadow-md shadow-indigo-500/30' : 'hover:border-indigo-300 hover:bg-indigo-50'}
+              className={viewMode === 'grid' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-md shadow-blue-600/30' : 'hover:border-blue-500 hover:bg-blue-900/30'}
             >
               <Grid3X3 className="h-4 w-4 mr-1.5" />
               Grid
@@ -220,7 +220,7 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 shadow-md shadow-indigo-500/30' : 'hover:border-indigo-300 hover:bg-indigo-50'}
+              className={viewMode === 'list' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-md shadow-blue-600/30' : 'hover:border-blue-500 hover:bg-blue-900/30'}
             >
               <List className="h-4 w-4 mr-1.5" />
               List
@@ -244,10 +244,10 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
             </div>
           )
         ) : (
-          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="mx-auto w-16 w-16 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-full p-4 text-purple-600 dark:text-purple-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No Projects Found</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+          <div className="text-center py-16 bg-slate-800 rounded-lg border border-slate-700">
+            <div className="mx-auto w-16 w-16 bg-gradient-to-br from-purple-600/20 to-violet-600/20 rounded-full p-4 text-purple-400" />
+            <h3 className="text-lg font-semibold text-white mb-2">No Projects Found</h3>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
               {searchTerm
                 ? 'Try adjusting your search terms'
                 : hasPermission('create_projects')
@@ -273,24 +273,24 @@ function ProjectListItem({ project }) {
 
   const getStatusColor = (status) => {
     const colors = {
-      planning: 'bg-gray-100 text-gray-800',
-      active: 'bg-purple-100 text-purple-800',
-      on_hold: 'bg-yellow-100 text-yellow-800',
-      completed: 'bg-green-100 text-green-800',
-      archived: 'bg-red-100 text-red-800',
+      planning: 'bg-slate-700 text-slate-300',
+      active: 'bg-blue-600/20 text-blue-300',
+      on_hold: 'bg-yellow-600/20 text-yellow-300',
+      completed: 'bg-emerald-600/20 text-emerald-300',
+      archived: 'bg-red-600/20 text-red-300',
     };
     return colors[status] || colors.active;
   };
   return (
     <Card
-      className="hover:shadow-md transition-shadow cursor-pointer"
+      className="hover:shadow-lg hover:shadow-blue-600/20 transition-shadow cursor-pointer bg-slate-800 border-slate-700"
       onClick={() => router.visit(`/projects/${project.id}/tasks`)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FolderOpen className="h-5 w-5 text-purple-600" />
+            <div className="h-10 w-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
+              <FolderOpen className="h-5 w-5 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg">{project.name}</CardTitle>

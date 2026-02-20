@@ -70,14 +70,14 @@ export default function InviteAccept({ auth, invitation, error }) {
     return (
       <>
         <Head title="Invalid Invitation" />
-        <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white">
+        <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-900">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <div className="text-center mb-8">
-              <AlertCircle className="mx-auto h-12 w-12 text-red-600" />
-              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Invalid Invitation</h2>
-              <p className="mt-2 text-sm text-gray-600">{error}</p>
+              <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
+              <h2 className="mt-6 text-3xl font-extrabold text-white">Invalid Invitation</h2>
+              <p className="mt-2 text-sm text-gray-400">{error}</p>
             </div>
-            <Card className="shadow-lg border-gray-200">
+            <Card className="shadow-lg border-slate-700 bg-slate-800">
               <CardContent className="pt-6">
                 <Button variant="secondary" className="w-full" asChild>
                   <Link href={route('login')}>
@@ -97,50 +97,50 @@ export default function InviteAccept({ auth, invitation, error }) {
     <>
       <Head title={`Invitation to ${invitation.workspace.name}`} />
 
-      <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white">
+      <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-900">
         <div className="sm:mx-auto sm:w-full sm:max-w-lg">
           <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30">
               <Building className="h-8 w-8 text-white" />
             </div>
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            <h2 className="mt-6 text-3xl font-extrabold text-white">
               You're Invited!
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-400">
               Join <span className="font-semibold">{invitation.workspace.name}</span> on CollabTool
             </p>
           </div>
 
-          <Card className="shadow-lg border-gray-200">
+          <Card className="shadow-lg border-slate-700 bg-slate-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Building className="h-5 w-5" />
                 {invitation.workspace.name}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 {invitation.workspace.description || 'No description provided.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Invited by:</span>
-                  <span className="font-medium">{invitation.inviter.name}</span>
+                  <User className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-400">Invited by:</span>
+                  <span className="font-medium text-white">{invitation.inviter.name}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Email:</span>
-                  <span className="font-medium">{invitation.email}</span>
+                  <Mail className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-400">Email:</span>
+                  <span className="font-medium text-white">{invitation.email}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary">{invitation.role}</Badge>
-                  <span className="text-muted-foreground">role</span>
+                  <span className="text-gray-400">role</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Expires:</span>
-                  <span className="font-medium">{new Date(invitation.expires_at).toLocaleDateString()}</span>
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-400">Expires:</span>
+                  <span className="font-medium text-white">{new Date(invitation.expires_at).toLocaleDateString()}</span>
                 </div>
               </div>
 
@@ -148,20 +148,20 @@ export default function InviteAccept({ auth, invitation, error }) {
 
               {!auth?.user ? (
                 <div className="text-center space-y-3">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-400">
                     You need to create an account to join this workspace
                   </p>
-                  <Button className="w-full" onClick={handleAccept}>
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" onClick={handleAccept}>
                     Create Account to Join
                   </Button>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-400">
                     Already have an account? You'll be able to sign in instead.
                   </p>
                 </div>
               ) : auth.user.email === invitation.email ? (
                 <div className="text-center space-y-3">
                   <Button
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                     onClick={handleAccept}
                     disabled={loading}
                     size="lg"
@@ -171,7 +171,7 @@ export default function InviteAccept({ auth, invitation, error }) {
                 </div>
               ) : (
                 <div className="text-center space-y-3">
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-red-400">
                     This invitation is for <strong>{invitation.email}</strong>, but you're logged in as <strong>{auth.user.email}</strong>.
                   </p>
                   <Button variant="secondary" className="w-full" asChild>
@@ -183,12 +183,12 @@ export default function InviteAccept({ auth, invitation, error }) {
               )}
 
               {message && (
-                <Alert className={messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+                <Alert className={messageType === 'success' ? 'border-emerald-700 bg-emerald-900/30' : 'border-red-700 bg-red-900/30'}>
                   <div className="flex items-center">
                     {messageType === 'success' ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 text-emerald-400" />
                     ) : (
-                      <AlertCircle className="h-4 w-4 text-red-600" />
+                      <AlertCircle className="h-4 w-4 text-red-400" />
                     )}
                     <AlertDescription className="ml-2">{message}</AlertDescription>
                   </div>

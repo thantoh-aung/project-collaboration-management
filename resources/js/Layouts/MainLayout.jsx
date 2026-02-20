@@ -67,13 +67,19 @@ const MainLayoutContent = ({ title, children }) => {
   // Show loading state while workspace context is loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+        {/* Animated Background Elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        </div>
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg animate-pulse shadow-blue-600/30">
             <Building className="h-6 w-6 text-white" />
           </div>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="text-sm text-gray-500 font-medium">Loading workspace...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="text-sm text-gray-400 font-medium">Loading workspace...</p>
         </div>
       </div>
     );
@@ -82,14 +88,20 @@ const MainLayoutContent = ({ title, children }) => {
   // Redirect to workspace selection if no workspace
   if (!currentWorkspace) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center bg-white rounded-2xl p-10 shadow-xl shadow-indigo-500/10 border border-gray-200">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6">
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+        {/* Animated Background Elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        </div>
+        <div className="relative z-10 text-center bg-slate-800 rounded-2xl p-10 shadow-xl shadow-blue-600/20 border border-slate-700">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 shadow-blue-600/30">
             <Building className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Workspace Selected</h2>
-          <p className="text-gray-600 mb-6">Please join or select a workspace to continue.</p>
-          <Button onClick={() => window.location.href = '/workspaces/select'} className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl border-0">
+          <h2 className="text-2xl font-bold text-white mb-2">No Workspace Selected</h2>
+          <p className="text-gray-400 mb-6">Please join or select a workspace to continue.</p>
+          <Button onClick={() => window.location.href = '/workspaces/select'} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/30 hover:shadow-xl border-0">
             Select Workspace
           </Button>
         </div>
@@ -152,15 +164,15 @@ const MainLayoutContent = ({ title, children }) => {
               className={cn(
                 "group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300",
                 item.current
-                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30"
-                  : "text-gray-600 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700"
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/30"
+                  : "text-gray-400 hover:bg-gradient-to-r hover:from-blue-900/30 hover:to-purple-900/30 hover:text-white"
               )}
             >
               <Icon className={cn(
                 "h-5 w-5 flex-shrink-0 transition-colors duration-300",
                 item.current
                   ? "text-white"
-                  : "text-gray-400 group-hover:text-indigo-600"
+                  : "text-gray-500 group-hover:text-blue-400"
               )} />
               <span className="flex-1">{item.title}</span>
             </a>
@@ -228,8 +240,8 @@ const MainLayoutContent = ({ title, children }) => {
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto bg-white border-gray-300 shadow-xl">
-          <DropdownMenuLabel className="flex items-center justify-between">
+        <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto bg-slate-800 border-slate-700 shadow-xl shadow-blue-600/20">
+          <DropdownMenuLabel className="flex items-center justify-between text-white">
             <span>Notifications</span>
             {unread > 0 && (
               <button onClick={(e) => { e.stopPropagation(); markAllRead(); }} className="text-xs text-purple-600 hover:underline font-normal">
@@ -247,7 +259,7 @@ const MainLayoutContent = ({ title, children }) => {
             notifs.slice(0, 8).map((n) => (
               <DropdownMenuItem
                 key={n.id}
-                className={cn("cursor-pointer", !n.read_at && "bg-purple-100")}
+                className={cn("cursor-pointer", !n.read_at && "bg-blue-900/30")}
                 onClick={() => {
                   if (!n.read_at) markRead(n.id);
                   const d = typeof n.data === 'string' ? JSON.parse(n.data) : (n.data || {});
@@ -256,11 +268,11 @@ const MainLayoutContent = ({ title, children }) => {
               >
                 <div className="flex items-start gap-3 w-full">
                   <div className={cn("h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0",
-                    n.type === 'comment_added' ? 'bg-blue-200' : n.type === 'attachment_added' ? 'bg-green-200' : n.type === 'status_changed' ? 'bg-orange-200' : 'bg-purple-200'
+                    n.type === 'comment_added' ? 'bg-blue-600/20' : n.type === 'attachment_added' ? 'bg-emerald-600/20' : n.type === 'status_changed' ? 'bg-orange-600/20' : 'bg-purple-600/20'
                   )}>
-                    {n.type === 'comment_added' ? <MessageSquare className="h-4 w-4 text-blue-700" /> :
-                     n.type === 'status_changed' ? <CheckSquare className="h-4 w-4 text-orange-700" /> :
-                     <CheckSquare className="h-4 w-4 text-purple-700" />}
+                    {n.type === 'comment_added' ? <MessageSquare className="h-4 w-4 text-blue-400" /> :
+                     n.type === 'status_changed' ? <CheckSquare className="h-4 w-4 text-orange-400" /> :
+                     <CheckSquare className="h-4 w-4 text-purple-400" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{n.title}</p>
@@ -282,7 +294,7 @@ const MainLayoutContent = ({ title, children }) => {
   };
 
   const TopBar = () => (
-    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200/80 bg-white/80 backdrop-blur-xl px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-x-4 border-b border-slate-700 bg-slate-800/90 backdrop-blur-xl px-4 shadow-lg shadow-blue-600/20 sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile menu button */}
       <Button
         variant="ghost"
@@ -296,15 +308,15 @@ const MainLayoutContent = ({ title, children }) => {
       {/* Workspace Switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2 h-9 px-3 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-300">
+          <Button variant="outline" className="flex items-center gap-2 h-9 px-3 border-slate-600 hover:border-blue-500 hover:bg-blue-900/30 transition-all duration-300 text-white">
             <div className="h-5 w-5 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded flex items-center justify-center">
               <Building className="h-3 w-3 text-white" />
             </div>
-            <span className="font-semibold text-gray-800">{currentWorkspace?.name || 'Select Workspace'}</span>
+            <span className="font-semibold text-white">{currentWorkspace?.name || 'Select Workspace'}</span>
             <ChevronDown className="h-4 w-4 text-gray-400" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-64 shadow-xl shadow-indigo-500/10 border-gray-200/90 bg-white/98">
+        <DropdownMenuContent align="start" className="w-64 shadow-xl shadow-blue-600/20 border-slate-700 bg-slate-800">
           <DropdownMenuLabel className="text-xs uppercase tracking-wider text-gray-500 font-semibold">Workspaces</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {workspaces.map((workspace) => (
@@ -314,24 +326,24 @@ const MainLayoutContent = ({ title, children }) => {
               className={cn(
                 "flex items-center gap-3 cursor-pointer rounded-lg mx-1 transition-all duration-200",
                 workspace.id === currentWorkspace?.id 
-                  ? "bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 shadow-sm" 
-                  : "hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/50 hover:border-indigo-200/50"
+                  ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 shadow-sm" 
+                  : "hover:bg-gradient-to-r hover:from-blue-900/30 hover:to-purple-900/30 hover:border-blue-500/30"
               )}
             >
               <div className={cn(
                 "h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200",
                 workspace.id === currentWorkspace?.id
-                  ? "bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-md"
-                  : "bg-gray-100 group-hover:bg-gradient-to-r group-hover:from-indigo-100 group-hover:to-purple-100"
+                  ? "bg-gradient-to-tr from-blue-600 to-purple-600 shadow-md"
+                  : "bg-slate-700 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600"
               )}>
-                <Building className={cn("h-4 w-4", workspace.id === currentWorkspace?.id ? "text-white" : "text-gray-500")} />
+                <Building className={cn("h-4 w-4", workspace.id === currentWorkspace?.id ? "text-white" : "text-gray-400")} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm truncate">{workspace.name}</div>
-                <div className="text-xs text-gray-500 capitalize">{workspace.user_role}</div>
+                <div className="font-semibold text-sm truncate text-white">{workspace.name}</div>
+                <div className="text-xs text-gray-400 capitalize">{workspace.user_role}</div>
               </div>
               {workspace.id === currentWorkspace?.id && (
-                <Check className="h-4 w-4 text-indigo-600 flex-shrink-0" />
+                <Check className="h-4 w-4 text-blue-400 flex-shrink-0" />
               )}
             </DropdownMenuItem>
           ))}
@@ -392,7 +404,13 @@ const MainLayoutContent = ({ title, children }) => {
     </header>
   );
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">
+      <div className="min-h-screen bg-slate-900 text-white">
+        {/* Animated Background Elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        </div>
       <Head title={title} />
 
       {/* Flash Notifications */}
@@ -404,18 +422,18 @@ const MainLayoutContent = ({ title, children }) => {
       <div className="flex h-screen">
         {/* Sidebar */}
         <aside className={cn(
-          "hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:z-40 lg:bg-white lg:border-r lg:border-gray-100 lg:shadow-lg lg:shadow-gray-200/50",
+          "hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:z-40 lg:bg-slate-800 lg:border-r lg:border-slate-700 lg:shadow-lg lg:shadow-blue-600/20",
           sidebarOpen && "lg:block"
         )}>
           {/* Sidebar Header */}
-          <div className="flex h-16 shrink-0 items-center gap-x-4 px-6 border-b border-gray-100">
+          <div className="flex h-16 shrink-0 items-center gap-x-4 px-6 border-b border-slate-700">
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <Building className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">CollabTool</h1>
-                <p className="text-xs text-gray-500 truncate max-w-[140px]">{currentWorkspace?.name}</p>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">CollabTool</h1>
+                <p className="text-xs text-gray-400 truncate max-w-[140px]">{currentWorkspace?.name}</p>
               </div>
             </div>
           </div>
@@ -424,7 +442,7 @@ const MainLayoutContent = ({ title, children }) => {
           <SidebarNavigation />
 
           {/* Sidebar Footer */}
-          <div className="p-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-indigo-50/30">
+          <div className="p-4 border-t border-slate-700 bg-gradient-to-r from-slate-700 to-blue-900/30">
             <div 
               className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/80 transition-all duration-300 cursor-pointer"
               onClick={() => {
@@ -438,17 +456,17 @@ const MainLayoutContent = ({ title, children }) => {
                 }
               }}
             >
-              <Avatar className="h-9 w-9 ring-2 ring-indigo-100 shadow-md">
+              <Avatar className="h-9 w-9 ring-2 ring-blue-500/30 shadow-md">
                 <AvatarImage src={props.auth?.user?.avatar_url ? `${props.auth?.user?.avatar_url}?t=${Date.now()}` : undefined} alt={props.auth?.user?.name} />
                 <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm font-semibold">
                   {props.auth?.user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
+                <p className="text-sm font-semibold text-white truncate">
                   {props.auth?.user?.name}
                 </p>
-                <p className="text-xs text-indigo-600 capitalize truncate font-medium">
+                <p className="text-xs text-blue-400 capitalize truncate font-medium">
                   {userRole || 'Member'}
                 </p>
               </div>
@@ -462,7 +480,7 @@ const MainLayoutContent = ({ title, children }) => {
           <TopBar />
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/80 via-white to-indigo-50/20 custom-scrollbar">
+          <main className="flex-1 overflow-y-auto bg-slate-900 custom-scrollbar">
             <div className="p-6 lg:p-8">
               {children}
             </div>
@@ -474,15 +492,15 @@ const MainLayoutContent = ({ title, children }) => {
       {isMobile && sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl shadow-indigo-500/10">
-            <div className="flex h-16 shrink-0 items-center gap-x-4 px-6 border-b border-gray-100">
+          <div className="fixed left-0 top-0 h-full w-64 bg-slate-800 shadow-2xl shadow-blue-600/20">
+            <div className="flex h-16 shrink-0 items-center gap-x-4 px-6 border-b border-slate-700">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
                   <Building className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">CollabTool</h1>
-                  <p className="text-xs text-gray-500">{currentWorkspace?.name}</p>
+                  <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">CollabTool</h1>
+                  <p className="text-xs text-gray-400">{currentWorkspace?.name}</p>
                 </div>
               </div>
               <Button
@@ -496,9 +514,9 @@ const MainLayoutContent = ({ title, children }) => {
 
             <SidebarNavigation />
 
-            <div className="p-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-indigo-50/30">
+            <div className="p-4 border-t border-slate-700 bg-gradient-to-r from-slate-700 to-blue-900/30">
               <div 
-                className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/80 transition-all duration-300 cursor-pointer"
+                className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-700/80 transition-all duration-300 cursor-pointer"
                 onClick={() => {
                   // Route to correct profile based on user type
                   if (props.auth?.user?.usage_type === 'team_member') {

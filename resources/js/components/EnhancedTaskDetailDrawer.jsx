@@ -479,24 +479,24 @@ export default function EnhancedTaskDetailDrawer({
 
             {/* Drawer */}
             <div className={cn(
-                "fixed inset-y-0 right-0 z-50 w-full sm:w-[640px] bg-white shadow-2xl transform transition-transform duration-200 ease-out overflow-hidden flex flex-col",
+                "fixed inset-y-0 right-0 z-50 w-full sm:w-[640px] bg-slate-800 shadow-2xl transform transition-transform duration-200 ease-out overflow-hidden flex flex-col",
                 open ? "translate-x-0" : "translate-x-full"
             )}>
                 {/* Loading Overlay */}
                 {isDragging && (
-                    <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-slate-900/80 z-50 flex items-center justify-center">
                         <div className="flex flex-col items-center gap-3">
-                            <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
-                            <p className="text-sm text-gray-600">Updating task...</p>
+                            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+                            <p className="text-sm text-gray-400">Updating task...</p>
                         </div>
                     </div>
                 )}
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b bg-white">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700 bg-slate-800">
                     <div className="flex items-center gap-2">
-                        <Activity className={cn('h-5 w-5', currentGroupName === 'Complete' ? 'text-green-500' : 'text-gray-400')} />
-                        <h2 className="text-base font-semibold text-gray-900 truncate max-w-[400px]">{localTask.name}</h2>
+                        <Activity className={cn('h-5 w-5', currentGroupName === 'Complete' ? 'text-emerald-400' : 'text-gray-400')} />
+                        <h2 className="text-base font-semibold text-white truncate max-w-[400px]">{localTask.name}</h2>
                     </div>
                     <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
                         <X className="h-4 w-4" />
@@ -505,16 +505,16 @@ export default function EnhancedTaskDetailDrawer({
 
                 {/* Attachment Requirement Warning */}
                 {requireAttachment && (
-                    <div className="mx-5 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="mx-5 mt-3 p-3 bg-amber-900/30 border border-amber-700 rounded-lg">
                         <div className="flex items-start gap-2">
-                            <div className="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Paperclip className="h-3 w-3 text-amber-600" />
+                            <div className="w-5 h-5 bg-amber-600/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <Paperclip className="h-3 w-3 text-amber-400" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-amber-800">
+                                <p className="text-sm font-medium text-amber-300">
                                     {pendingMove ? 'Complete Task Move' : 'Attachment Required'}
                                 </p>
-                                <p className="text-xs text-amber-700 mt-0.5">
+                                <p className="text-xs text-amber-400 mt-0.5">
                                     {pendingMove
                                         ? `Add at least one attachment to complete moving this task to "${taskGroups.find(g => g.id === pendingMove.newGroupId)?.name}".`
                                         : 'This task needs at least one attachment before it can be moved to "In Progress" or "Complete".'}
@@ -523,13 +523,13 @@ export default function EnhancedTaskDetailDrawer({
                                     <div className="mt-2 flex gap-2">
                                         <button
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 transition-colors"
+                                            className="text-xs bg-amber-600/20 text-amber-300 px-2 py-1 rounded hover:bg-amber-600/30 transition-colors"
                                         >
                                             Add Attachment
                                         </button>
                                         <button
                                             onClick={onClose}
-                                            className="text-xs text-amber-700 hover:text-amber-900 transition-colors"
+                                            className="text-xs text-amber-400 hover:text-amber-200 transition-colors"
                                         >
                                             Cancel Move
                                         </button>
@@ -541,15 +541,15 @@ export default function EnhancedTaskDetailDrawer({
                 )}
 
                 {/* Tabs */}
-                <div className="flex border-b px-5 bg-gray-50/50">
+                <div className="flex border-b px-5 bg-slate-700/50 border-slate-700">
                     {['details', 'activity'].map(tab => (
                         <button
                             key={tab}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize",
                                 activeTab === tab
-                                    ? "border-indigo-600 text-indigo-700"
-                                    : "border-transparent text-gray-500 hover:text-gray-700"
+                                    ? "border-blue-600 text-blue-400"
+                                    : "border-transparent text-gray-400 hover:text-gray-200"
                             )}
                             onClick={() => setActiveTab(tab)}
                         >
@@ -583,7 +583,7 @@ export default function EnhancedTaskDetailDrawer({
                                 {/* Status */}
                                 <div>
                                     <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-                                        <Clock className="h-3 w-3 inline mr-1" />Status
+                                        <Clock className="h-3 w-3 inline mr-1 text-gray-400" />Status
                                     </label>
                                     {!canUpdateStatus ? (
                                         <>
@@ -595,7 +595,7 @@ export default function EnhancedTaskDetailDrawer({
                                             {console.log('✅ Status enabled - canUpdateStatus:', canUpdateStatus, 'isAssignedMember:', isAssignedMember, 'isAdmin:', isAdmin)}
                                             <Select value={localTask.group_id?.toString()} onValueChange={handleStatusChange}>
                                                 <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                                <SelectContent className="bg-white border-gray-300 shadow-xl">
+                                                <SelectContent className="bg-slate-800 border-slate-700 shadow-xl shadow-blue-600/20">
                                                     {taskGroups.map(g => (
                                                         <SelectItem key={g.id} value={g.id.toString()}>{g.name}</SelectItem>
                                                     ))}

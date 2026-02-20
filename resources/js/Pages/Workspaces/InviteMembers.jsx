@@ -152,31 +152,31 @@ export default function InviteMembers() {
     <MainLayout>
       <Head title="Invite Team Members" />
       
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-slate-900 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="h-12 w-12 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <div className="h-12 w-12 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
                 <UserPlus className="h-6 w-6 text-white" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Invite Team Members</h1>
-            <p className="text-gray-500">Add team members to help you complete projects. Clients are automatically included when you create workspaces in the marketplace, so no need to invite them here.</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Invite Team Members</h1>
+            <p className="text-gray-400">Add team members to help you complete projects. Clients are automatically included when you create workspaces in the marketplace, so no need to invite them here.</p>
           </div>
 
           {/* Main Content */}
-          <Card className="shadow-lg">
+          <Card className="bg-slate-800 border-slate-700 shadow-lg shadow-blue-600/20">
             <CardContent className="p-8">
               <div className="space-y-6">
                 {/* Error/Success Display */}
                 {errors.general && (
                   <div className={`p-4 rounded-lg border ${
                     errors.general.includes('successfully') 
-                      ? 'bg-green-50 border-green-200' 
-                      : 'bg-red-50 border-red-200'
+                      ? 'bg-emerald-900/30 border-emerald-700' 
+                      : 'bg-red-900/30 border-red-700'
                   }`}>
-                    <p className={errors.general.includes('successfully') ? 'text-green-700' : 'text-red-700'}>
+                    <p className={errors.general.includes('successfully') ? 'text-emerald-300' : 'text-red-300'}>
                       {errors.general}
                     </p>
                   </div>
@@ -185,20 +185,20 @@ export default function InviteMembers() {
                 {/* Current Workspace Members */}
                 {workspaceUsers && workspaceUsers.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="text-md font-medium text-gray-800 mb-3">Current Team Members (Admins & Members)</h4>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h4 className="text-md font-medium text-white mb-3">Current Team Members (Admins & Members)</h4>
+                    <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
                       <div className="space-y-2">
                         {workspaceUsers.map((member) => (
-                          <div key={member.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                          <div key={member.id} className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-600">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <span className="text-blue-600 font-medium text-sm">
+                              <div className="w-8 h-8 bg-blue-600/20 rounded-full flex items-center justify-center">
+                                <span className="text-blue-300 font-medium text-sm">
                                   {member.name.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900">{member.name}</div>
-                                <div className="text-sm text-gray-500">{member.email}</div>
+                                <div className="font-medium text-white">{member.name}</div>
+                                <div className="text-sm text-gray-400">{member.email}</div>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -225,14 +225,14 @@ export default function InviteMembers() {
                 
                 {/* Invitations Section */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Users className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-blue-400" />
                     Invite Team Members
                   </h3>
                   
                   <div className="space-y-4">
                     {invitations.map((invitation, index) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
                         <div className="flex gap-4">
                           <div className="flex-1">
                             <Input
@@ -242,7 +242,7 @@ export default function InviteMembers() {
                               placeholder="colleague@example.com"
                             />
                             {errors[`invitations.${index}.email`] && (
-                              <p className="text-red-500 text-xs mt-1">{errors[`invitations.${index}.email`]}</p>
+                              <p className="text-red-400 text-xs mt-1">{errors[`invitations.${index}.email`]}</p>
                             )}
                           </div>
                           {invitations.length > 1 && (
@@ -251,7 +251,7 @@ export default function InviteMembers() {
                               variant="outline"
                               size="icon"
                               onClick={() => removeInvitation(index)}
-                              className="text-red-600 hover:bg-red-50"
+                              className="text-red-400 hover:bg-red-900/30"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -275,7 +275,7 @@ export default function InviteMembers() {
             </CardContent>
 
             {/* Footer */}
-            <div className="px-8 py-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+            <div className="px-8 py-6 border-t border-slate-700 bg-slate-700/30 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <Button
