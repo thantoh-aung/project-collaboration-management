@@ -40,29 +40,7 @@ export default function FreelancerProfileOnboarding({ profile }) {
     const [cvFileName, setCvFileName] = useState('');
     const cvInputRef = useRef(null);
 
-    // Simple CSRF token refresh on component mount
-    useEffect(() => {
-        if (typeof window !== 'undefined' && window.axios) {
-            // Refresh CSRF token on mount to ensure it's valid
-            window.axios.get('/sanctum/csrf-cookie')
-                .then(() => {
-                    // Update meta tag with fresh token
-                    const token = document.cookie
-                        .split('; ')
-                        .find(row => row.startsWith('XSRF-TOKEN='))
-                        ?.split('=')[1];
-                    if (token) {
-                        const metaTag = document.querySelector('meta[name="csrf-token"]');
-                        if (metaTag) {
-                            metaTag.setAttribute('content', decodeURIComponent(token));
-                        }
-                    }
-                })
-                .catch(() => {
-                    // Silently ignore CSRF refresh errors
-                });
-        }
-    }, []);
+
 
 
 
@@ -140,36 +118,8 @@ export default function FreelancerProfileOnboarding({ profile }) {
         }
     };
 
-    const submit = async (e) => {
+    const submit = (e) => {
         e.preventDefault();
-
-        // Refresh CSRF token and meta tag before submission
-        if (typeof window !== 'undefined' && window.axios) {
-            try {
-                // Refresh CSRF token and wait for it to complete
-                await window.axios.get('/sanctum/csrf-cookie');
-
-                // Small delay to ensure cookie is set
-                await new Promise(resolve => setTimeout(resolve, 100));
-
-                // Update the meta tag with fresh token from cookie
-                const newToken = document.cookie
-                    .split('; ')
-                    .find(row => row.startsWith('XSRF-TOKEN='))
-                    ?.split('=')[1];
-                if (newToken) {
-                    const metaTag = document.querySelector('meta[name="csrf-token"]');
-                    if (metaTag) {
-                        metaTag.setAttribute('content', decodeURIComponent(newToken));
-                    }
-                } else {
-                    console.warn('CSRF token not found in cookie after refresh');
-                }
-            } catch (error) {
-                console.warn('CSRF token refresh failed:', error);
-                // Continue even if CSRF refresh fails
-            }
-        }
 
         // Client-side validation for essential fields
         const errors = {};
@@ -279,7 +229,7 @@ export default function FreelancerProfileOnboarding({ profile }) {
             return;
         }
 
-        // Ensure CSRF token is included in form data
+        // Build form data for submission
         const formData = new FormData();
         Object.keys(data).forEach(key => {
             if (data[key] !== null && data[key] !== undefined) {
@@ -298,20 +248,6 @@ export default function FreelancerProfileOnboarding({ profile }) {
                 }
             }
         });
-
-        // Add CSRF token to FormData (get fresh from cookie)
-        const getFreshCsrfToken = () => {
-            const cookieValue = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('XSRF-TOKEN='))
-                ?.split('=')[1];
-            return cookieValue ? decodeURIComponent(cookieValue) : null;
-        };
-
-        const csrfToken = getFreshCsrfToken();
-        if (csrfToken) {
-            formData.append('_token', csrfToken);
-        }
 
         // Use direct post with proper error handling and file upload support
         post(route('onboarding.profile.save'), formData, {

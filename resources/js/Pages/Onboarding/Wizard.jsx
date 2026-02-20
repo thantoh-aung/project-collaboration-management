@@ -7,12 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { 
-  Building2, 
-  FolderPlus, 
-  Users, 
-  ArrowRight, 
-  ArrowLeft, 
+import {
+  Building2,
+  FolderPlus,
+  Users,
+  ArrowRight,
+  ArrowLeft,
   Check,
   Plus,
   X,
@@ -25,37 +25,20 @@ function OnboardingWizardInner() {
   const { props } = usePage();
   const { currentWorkspace } = useWorkspace();
   const { workspaceUsers } = props;
-  
+
   // Form data for each step
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Enhanced CSRF token handling to prevent 419 errors
-  useEffect(() => {
-    const refreshCSRF = async () => {
-      try {
-        await window.axios.get('/sanctum/csrf-cookie');
-      } catch (error) {
-        console.warn('CSRF refresh failed:', error);
-      }
-    };
 
-    // Refresh immediately on mount
-    refreshCSRF();
-    
-    // Refresh every 90 seconds (more frequent to prevent timeouts)
-    const interval = setInterval(refreshCSRF, 90 * 1000);
-
-    return () => clearInterval(interval);
-  }, []);
   const [errors, setErrors] = useState({});
-  
+
   // Step 1: Workspace data
   const [workspaceData, setWorkspaceData] = useState({
     name: currentWorkspace?.name || '',
     description: currentWorkspace?.description || '',
   });
-  
+
   // Step 2: Team invitations
   const [invitations, setInvitations] = useState([
     { email: '', role: 'member' }
@@ -64,7 +47,7 @@ function OnboardingWizardInner() {
   const roleOptions = [
     { value: 'member', label: 'Member', description: 'Can create and complete tasks' }
   ];
-  
+
   const totalSteps = 2;
 
   useEffect(() => {
@@ -91,7 +74,7 @@ function OnboardingWizardInner() {
 
   const validateStep = (currentStep) => {
     const newErrors = {};
-    
+
     if (currentStep === 1) {
       if (!workspaceData.name.trim()) {
         newErrors.workspace_name = 'Workspace name is required';
@@ -106,24 +89,21 @@ function OnboardingWizardInner() {
         }
       });
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const saveWorkspaceAndGoToInvitations = async () => {
     if (!validateStep(1)) return;
-    
+
     // Check if workspace data actually changed
-    const hasChanges = workspaceData.name !== currentWorkspace?.name || 
-                      workspaceData.description !== currentWorkspace?.description;
-    
+    const hasChanges = workspaceData.name !== currentWorkspace?.name ||
+      workspaceData.description !== currentWorkspace?.description;
+
     if (hasChanges) {
       setLoading(true);
       try {
-        // Refresh CSRF token before submission
-        await window.axios.get('/sanctum/csrf-cookie');
-        
         await router.patch(`/workspaces/${currentWorkspace.id}/settings`, {
           name: workspaceData.name,
           description: workspaceData.description
@@ -149,22 +129,19 @@ function OnboardingWizardInner() {
 
   const saveWorkspace = async () => {
     if (!validateStep(1)) return;
-    
+
     // Check if workspace data actually changed
-    const hasChanges = workspaceData.name !== currentWorkspace?.name || 
-                      workspaceData.description !== currentWorkspace?.description;
-    
+    const hasChanges = workspaceData.name !== currentWorkspace?.name ||
+      workspaceData.description !== currentWorkspace?.description;
+
     if (!hasChanges) {
       // No changes, just advance to next step
       setStep(2);
       return;
     }
-    
+
     setLoading(true);
     try {
-      // Refresh CSRF token before submission
-      await window.axios.get('/sanctum/csrf-cookie');
-      
       await router.patch(`/workspaces/${currentWorkspace.id}`, {
         name: workspaceData.name,
         description: workspaceData.description,
@@ -186,27 +163,25 @@ function OnboardingWizardInner() {
 
   const sendInvitations = async () => {
     if (!validateStep(2)) return;
-    
+
     setLoading(true);
     try {
       // First, save workspace data if changed
-      const hasChanges = workspaceData.name !== currentWorkspace?.name || 
-                        workspaceData.description !== currentWorkspace?.description;
-      
+      const hasChanges = workspaceData.name !== currentWorkspace?.name ||
+        workspaceData.description !== currentWorkspace?.description;
+
       if (hasChanges) {
         await router.patch(`/workspaces/${currentWorkspace.id}/settings`, {
           name: workspaceData.name,
           description: workspaceData.description
         });
       }
-      
+
       // Then send invitations
       const validInvitations = invitations.filter(inv => inv.email.trim());
-      
+
       if (validInvitations.length > 0) {
-        // Refresh CSRF token before submission
-        await window.axios.get('/sanctum/csrf-cookie');
-        
+
         await router.post(`/workspaces/${currentWorkspace.id}/invite`, {
           invitations: validInvitations
         }, {
@@ -253,7 +228,7 @@ function OnboardingWizardInner() {
     if (!confirm('Are you sure you want to remove this team member from the workspace?')) {
       return;
     }
-    
+
     try {
       await router.delete(`/workspaces/${currentWorkspace.id}/users/${userId}`, {
         onSuccess: () => {
@@ -292,12 +267,12 @@ function OnboardingWizardInner() {
   return (
     <>
       <Head title="Manage Workspace - CollabTool" />
-      
+
       {/* Modal Overlay */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         {/* Backdrop */}
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-        
+
         {/* Modal Container */}
         <div className="relative w-full max-w-4xl h-[85vh] max-h-[90vh] flex flex-col">
           {/* Modal Content */}
@@ -332,11 +307,11 @@ function OnboardingWizardInner() {
                   <>
                     <div className={cn(
                       'flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all duration-300',
-                      step > s.id 
-                        ? 'bg-emerald-500 text-white' 
-                        : step === s.id 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white ring-4 ring-blue-500/20' 
-                        : 'bg-slate-600 text-gray-400'
+                      step > s.id
+                        ? 'bg-emerald-500 text-white'
+                        : step === s.id
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white ring-4 ring-blue-500/20'
+                          : 'bg-slate-600 text-gray-400'
                     )}>
                       {step > s.id ? (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +363,7 @@ function OnboardingWizardInner() {
                           <p className="text-red-400 text-sm mt-1">{errors.name}</p>
                         )}
                       </div>
-                      
+
                       <div>
                         <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
                           Description
@@ -417,7 +392,7 @@ function OnboardingWizardInner() {
                     <p className="text-gray-400 mb-6">
                       Add team members to help you complete projects. Clients are automatically included when you create workspaces in the marketplace, so no need to invite them here.
                     </p>
-                    
+
                     {/* Current Workspace Members */}
                     {workspaceUsers && workspaceUsers.length > 0 && (
                       <div className="mb-6">
@@ -458,7 +433,7 @@ function OnboardingWizardInner() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="space-y-4">
                       {invitations.map((invitation, index) => (
                         <div key={index} className="bg-slate-700 rounded-lg p-4 border border-slate-600">
@@ -495,7 +470,7 @@ function OnboardingWizardInner() {
                           </div>
                         </div>
                       ))}
-                      
+
                       <Button
                         type="button"
                         variant="outline"
@@ -527,7 +502,7 @@ function OnboardingWizardInner() {
                     </Button>
                   )}
                 </div>
-                
+
                 <div className="flex gap-3">
                   {step === 1 && (
                     <Button
@@ -539,7 +514,7 @@ function OnboardingWizardInner() {
                       Skip for now
                     </Button>
                   )}
-                  
+
                   <Button
                     onClick={nextStep}
                     disabled={loading}
