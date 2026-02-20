@@ -13,7 +13,10 @@ class MarketplaceController extends Controller
 {
     public function home(Request $request)
     {
-        $tab = $request->get('tab', 'freelancers');
+        $user = $request->user();
+        // Freelancers want to browse projects; clients want to browse freelancers
+        $defaultTab = $user?->usage_type === 'freelancer' ? 'projects' : 'freelancers';
+        $tab = $request->get('tab', $defaultTab);
 
         // --- Freelancers query ---
         $freelancerQuery = FreelancerProfile::published()

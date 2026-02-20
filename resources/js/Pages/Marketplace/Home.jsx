@@ -30,17 +30,17 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
         }
-        
+
         if (searchTerm !== '') {
             setIsSearching(true);
         }
-        
+
         debounceRef.current = setTimeout(() => {
-            router.get(route('marketplace.home'), { 
-                tab, 
-                search: searchTerm || undefined 
-            }, { 
-                preserveState: true, 
+            router.get(route('marketplace.home'), {
+                tab,
+                search: searchTerm || undefined
+            }, {
+                preserveState: true,
                 preserveScroll: true,
                 onStart: () => setIsSearching(true),
                 onFinish: () => setIsSearching(false),
@@ -86,11 +86,10 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                         <a
                             key={i}
                             href={link.url}
-                            className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                link.active
+                            className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${link.active
                                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/30'
                                     : 'bg-slate-700 border border-slate-600 text-gray-300 hover:bg-slate-600 hover:border-blue-500/30'
-                            }`}
+                                }`}
                             dangerouslySetInnerHTML={{ __html: link.label }}
                         />
                     );
@@ -154,29 +153,34 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                     )}
                 </div>
 
-                {/* Tabs */}
-                <div className="flex items-center gap-1 bg-slate-800 rounded-xl p-1 mb-8 max-w-xs border border-slate-700">
-                    <button
-                        onClick={() => switchTab('freelancers')}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                            tab === 'freelancers'
-                                ? 'bg-slate-700 text-blue-400 shadow-sm'
-                                : 'text-gray-400 hover:text-gray-300'
-                        }`}
-                    >
-                        <Users className="h-4 w-4" /> Freelancers
-                    </button>
-                    <button
-                        onClick={() => switchTab('projects')}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                            tab === 'projects'
-                                ? 'bg-slate-700 text-emerald-400 shadow-sm'
-                                : 'text-gray-400 hover:text-gray-300'
-                        }`}
-                    >
-                        <Briefcase className="h-4 w-4" /> Projects
-                    </button>
-                </div>
+                {/* Tabs — order based on user type */}
+                {(() => {
+                    const tabs = isFreelancer
+                        ? [
+                            { key: 'projects', label: 'Projects', icon: Briefcase, activeColor: 'text-emerald-400' },
+                            { key: 'freelancers', label: 'Freelancers', icon: Users, activeColor: 'text-blue-400' },
+                        ]
+                        : [
+                            { key: 'freelancers', label: 'Freelancers', icon: Users, activeColor: 'text-blue-400' },
+                            { key: 'projects', label: 'Projects', icon: Briefcase, activeColor: 'text-emerald-400' },
+                        ];
+                    return (
+                        <div className="flex items-center gap-1 bg-slate-800 rounded-xl p-1 mb-8 max-w-xs border border-slate-700">
+                            {tabs.map(({ key, label, icon: Icon, activeColor }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => switchTab(key)}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${tab === key
+                                            ? `bg-slate-700 ${activeColor} shadow-sm`
+                                            : 'text-gray-400 hover:text-gray-300'
+                                        }`}
+                                >
+                                    <Icon className="h-4 w-4" /> {label}
+                                </button>
+                            ))}
+                        </div>
+                    );
+                })()}
 
                 {/* Freelancers Tab */}
                 {tab === 'freelancers' && (
@@ -258,8 +262,8 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
 
             {/* Profile Drawers */}
             {drawerFreelancer && (
-                <FreelancerDrawer 
-                    slug={drawerFreelancer} 
+                <FreelancerDrawer
+                    slug={drawerFreelancer}
                     onClose={() => {
                         setDrawerFreelancer(null);
                         setSelectedUserId(null);
@@ -267,8 +271,8 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
                 />
             )}
             {drawerProject && (
-                <ProjectDrawer 
-                    projectId={drawerProject} 
+                <ProjectDrawer
+                    projectId={drawerProject}
                     onClose={() => {
                         setDrawerProject(null);
                         setSelectedUserId(null);
