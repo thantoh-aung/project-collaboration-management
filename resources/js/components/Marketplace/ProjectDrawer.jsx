@@ -3,6 +3,7 @@ import { router, usePage } from '@inertiajs/react';
 import { X, Calendar, DollarSign, MessageCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SkillBadge from './SkillBadge';
+import UserProfileLink from '../UserProfileLink';
 
 const budgetTypeMap = { fixed: 'Fixed Price', hourly: 'Hourly', milestone: 'Milestone' };
 
@@ -105,15 +106,17 @@ export default function ProjectDrawer({ projectId, onClose }) {
                             {/* Client Info */}
                             <div className="bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] p-4">
                                 <h4 className="text-sm font-semibold text-[#0F172A] mb-3">Client</h4>
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-[#4F46E5] flex items-center justify-center text-white font-bold overflow-hidden">
-                                        {user?.avatar_url ? <img src={user.avatar_url} alt={user.name} className="h-10 w-10 rounded-full object-cover" /> : user?.name?.charAt(0)?.toUpperCase() || 'C'}
+                                <UserProfileLink userId={user?.id}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-full bg-[#4F46E5] flex items-center justify-center text-white font-bold overflow-hidden shadow-sm hover:opacity-90 transition-opacity">
+                                            {user?.avatar_url ? <img src={user.avatar_url} alt={user.name} className="h-10 w-10 rounded-full object-cover" /> : user?.name?.charAt(0)?.toUpperCase() || 'C'}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-[#0F172A] hover:text-[#4F46E5] transition-colors">{user?.name}</h3>
+                                            <p className="text-xs text-[#94A3B8]">{project.client_name || 'Client'}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-[#0F172A]">{user?.name}</h3>
-                                        <p className="text-xs text-[#94A3B8]">{project.client_name || 'Client'}</p>
-                                    </div>
-                                </div>
+                                </UserProfileLink>
                             </div>
 
                             {/* Posted Date */}

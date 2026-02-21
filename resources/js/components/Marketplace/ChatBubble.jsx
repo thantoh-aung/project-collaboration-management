@@ -1,7 +1,8 @@
 import { Download, FileText, Play } from 'lucide-react';
 import ImagePreview from './ImagePreview';
+import UserProfileLink from '../UserProfileLink';
 
-export default function ChatBubble({ message, isOwn, openProfileDrawer }) {
+export default function ChatBubble({ message, isOwn }) {
     const isFile = message.type === 'file';
     const isVoice = message.type === 'voice';
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
@@ -29,28 +30,25 @@ export default function ChatBubble({ message, isOwn, openProfileDrawer }) {
         <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-3`}>
             <div className={`flex items-end gap-2 max-w-[75%] ${isOwn ? 'flex-row-reverse' : ''}`}>
                 {/* Avatar */}
-                <div 
-                    className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-indigo-300 transition-all ${isOwn ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'bg-gray-200 text-gray-600'}`}
-                    onClick={() => {
-                        if (openProfileDrawer && message.sender?.id) {
-                            openProfileDrawer(message.sender.id);
-                        }
-                    }}
-                >
-                    {message.sender?.avatar_url ? (
-                        <img src={`${message.sender.avatar_url}?t=${Date.now()}`} alt={message.sender.name} className="h-7 w-7 rounded-full object-cover" />
-                    ) : (
-                        message.sender?.name?.charAt(0)?.toUpperCase() || 'U'
-                    )}
-                </div>
+                <UserProfileLink userId={message.sender?.id}>
+                    <div
+                        className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-indigo-300 transition-all ${isOwn ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    >
+                        {message.sender?.avatar_url ? (
+                            <img src={`${message.sender.avatar_url}?t=${Date.now()}`} alt={message.sender.name} className="h-7 w-7 rounded-full object-cover" />
+                        ) : (
+                            message.sender?.name?.charAt(0)?.toUpperCase() || 'U'
+                        )}
+                    </div>
+                </UserProfileLink>
 
                 {/* Bubble */}
                 <div>
                     <div className={`rounded-2xl text-sm ${bubbleClass}`}>
                         {isImageMessage ? (
-                            <ImagePreview 
-                                src={`/storage/${message.file_path}`} 
-                                fileName={message.file_name || 'image'} 
+                            <ImagePreview
+                                src={`/storage/${message.file_path}`}
+                                fileName={message.file_name || 'image'}
                             />
                         ) : isFile ? (
                             <a
@@ -65,8 +63,8 @@ export default function ChatBubble({ message, isOwn, openProfileDrawer }) {
                             </a>
                         ) : isVoice ? (
                             <div className="flex items-center gap-3">
-                                <audio 
-                                    controls 
+                                <audio
+                                    controls
                                     className="h-8 max-w-[200px]"
                                     preload="metadata"
                                 >

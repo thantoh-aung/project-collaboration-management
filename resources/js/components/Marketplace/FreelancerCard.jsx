@@ -1,6 +1,7 @@
 import { MapPin, Github, Linkedin, Globe } from 'lucide-react';
 import SkillBadge from './SkillBadge';
 import RatingStars from './RatingStars';
+import UserProfileLink from '../UserProfileLink';
 
 const availabilityMap = {
     available: { label: 'Available', color: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -22,13 +23,15 @@ export default function FreelancerCard({ profile, onClick }) {
             <div className="p-5">
                 {/* Header */}
                 <div className="flex items-start gap-3.5 mb-3">
-                    <div className="h-12 w-12 rounded-full bg-[#4F46E5] flex items-center justify-center text-white font-semibold text-lg flex-shrink-0 overflow-hidden">
-                        {avatarSrc ? (
-                            <img src={avatarSrc} alt={user?.name} className="h-12 w-12 rounded-full object-cover" />
-                        ) : (
-                            user?.name?.charAt(0)?.toUpperCase() || 'F'
-                        )}
-                    </div>
+                    <UserProfileLink userId={user?.id} onClick={(e) => e.stopPropagation()}>
+                        <div className="h-12 w-12 rounded-full bg-[#4F46E5] flex items-center justify-center text-white font-semibold text-lg flex-shrink-0 overflow-hidden">
+                            {avatarSrc ? (
+                                <img src={avatarSrc} alt={user?.name} className="h-12 w-12 rounded-full object-cover" />
+                            ) : (
+                                user?.name?.charAt(0)?.toUpperCase() || 'F'
+                            )}
+                        </div>
+                    </UserProfileLink>
                     <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-[#0F172A] truncate group-hover:text-[#4F46E5] transition-colors">{user?.name}</h3>
                         <p className="text-sm text-[#64748B] truncate">{profile.title || 'Freelancer'}</p>

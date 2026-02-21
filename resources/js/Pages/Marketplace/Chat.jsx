@@ -2,8 +2,8 @@ import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
 import MarketplaceLayout from '@/Layouts/MarketplaceLayout';
 import ChatBubble from '@/Components/Marketplace/ChatBubble';
-import StartProjectModal from '@/Components/Marketplace/StartProjectModal';
-import ProfileDrawer from '@/Components/Marketplace/ProfileDrawer';
+import StartProjectModal from '@/components/Marketplace/StartProjectModal';
+import { useProfile } from '@/Context/ProfileContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Send, Paperclip, Rocket, Lock, Trash2, Mic, Square, X } from 'lucide-react';
 import axios from 'axios';
@@ -16,8 +16,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
     const [sending, setSending] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [showStartProject, setShowStartProject] = useState(false);
-    const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState(null);
+    const { openProfile } = useProfile();
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
     const [audioBlob, setAudioBlob] = useState(null);
@@ -28,8 +27,7 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
     const recordingIntervalRef = useRef(null);
 
     const openProfileDrawer = (userId) => {
-        setSelectedUserId(userId);
-        setProfileDrawerOpen(true);
+        openProfile(userId);
     };
 
     const deleteWorkspace = () => {
@@ -519,11 +517,6 @@ export default function ChatPage({ chat, messages: initialMessages, currentUserI
                 />
             )}
 
-            <ProfileDrawer
-                isOpen={profileDrawerOpen}
-                onClose={() => { setProfileDrawerOpen(false); setSelectedUserId(null); }}
-                userId={selectedUserId}
-            />
         </MarketplaceLayout>
     );
 }

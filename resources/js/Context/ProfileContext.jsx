@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import ProfileDrawer from '@/Components/Marketplace/ProfileDrawer';
+import ProfileDrawer from '@/components/Marketplace/ProfileDrawer';
 
-const ProfileContext = createContext();
+const CONTEXT_KEY = Symbol.for('app.profileContext');
+if (!window[CONTEXT_KEY]) {
+    window[CONTEXT_KEY] = createContext(null);
+}
+const ProfileContext = window[CONTEXT_KEY];
 
 export const ProfileProvider = ({ children }) => {
     const [isOpen, setIsOpen] = useState(false);

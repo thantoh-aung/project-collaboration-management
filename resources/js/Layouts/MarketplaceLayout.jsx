@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { MessageSquare, Bell, Search, User, Users, LogOut, Settings, ChevronDown, Code, Menu, X, Home, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AiChatbot from '@/Components/AiChatbot';
-import ProfileDrawer from '@/Components/Marketplace/ProfileDrawer';
+import ProfileDrawer from '@/components/Marketplace/ProfileDrawer';
 import { useProfile } from '@/Context/ProfileContext';
 
 export default function MarketplaceLayout({ children }) {

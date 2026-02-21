@@ -28,14 +28,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/Context/ThemeContext';
-import NavBarNested from '@/Components/NavBarNested';
-import UserButton from '@/Components/UserButton';
-import Notifications from '@/Components/Notifications';
-import FlashNotification from '@/Components/FlashNotification';
-import AiChatbot from '@/Components/AiChatbot';
+import NavBarNested from '@/components/NavBarNested';
+import UserButton from '@/components/UserButton';
+import Notifications from '@/components/Notifications';
+import FlashNotification from '@/components/FlashNotification';
+import AiChatbot from '@/components/AiChatbot';
 import { useWorkspace } from '@/Context/WorkspaceContext';
 import { useProfile } from '@/Context/ProfileContext';
-import ProfileDrawer from '@/Components/Marketplace/ProfileDrawer';
+import ProfileDrawer from '@/components/Marketplace/ProfileDrawer';
 import {
   DropdownMenu,
   DropdownMenuContent,

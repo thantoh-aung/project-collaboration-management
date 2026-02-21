@@ -3,6 +3,7 @@ import SkillBadge from './SkillBadge';
 import { usePage, router } from '@inertiajs/react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import UserProfileLink from '../UserProfileLink';
 
 const budgetTypeMap = {
     fixed: 'Fixed Price',
@@ -124,16 +125,18 @@ export default function ProjectCard({ project, onClick }) {
                 </div>
 
                 {/* Client Info */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#E2E8F0]">
-                    <div className="h-6 w-6 rounded-full bg-[#14B8A6] flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
-                        {user?.avatar_url ? (
-                            <img src={user.avatar_url} alt={user.name} className="h-6 w-6 rounded-full object-cover" />
-                        ) : (
-                            user?.name?.charAt(0)?.toUpperCase() || 'C'
-                        )}
+                <UserProfileLink userId={project.user_id || user?.id} onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#E2E8F0]">
+                        <div className="h-6 w-6 rounded-full bg-[#14B8A6] flex items-center justify-center text-white text-xs font-medium flex-shrink-0 overflow-hidden shadow-sm hover:opacity-90 transition-opacity">
+                            {user?.avatar_url ? (
+                                <img src={user.avatar_url} alt={user.name} className="h-6 w-6 rounded-full object-cover" />
+                            ) : (
+                                user?.name?.charAt(0)?.toUpperCase() || 'C'
+                            )}
+                        </div>
+                        <span className="text-xs text-[#64748B] truncate hover:text-[#4F46E5] transition-colors">{user?.name || 'Client'}</span>
                     </div>
-                    <span className="text-xs text-[#64748B] truncate">{user?.name || 'Client'}</span>
-                </div>
+                </UserProfileLink>
             </div>
         </div>
     );

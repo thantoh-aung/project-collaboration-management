@@ -16,13 +16,7 @@ export default function Home({ freelancers, projects, filters, activeTab }) {
     const [isSearching, setIsSearching] = useState(false);
     const [drawerFreelancer, setDrawerFreelancer] = useState(null);
     const [drawerProject, setDrawerProject] = useState(null);
-    const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState(null);
 
-    const openProfileDrawer = (userId) => {
-        setSelectedUserId(userId);
-        setProfileDrawerOpen(true);
-    };
     const debounceRef = useRef(null);
 
     const debouncedSearch = (searchTerm) => {

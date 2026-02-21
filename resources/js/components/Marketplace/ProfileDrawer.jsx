@@ -10,6 +10,7 @@ import axios from 'axios';
 import RatingComponent from './RatingComponent';
 import ClientRatingComponent from './ClientRatingComponent';
 import RatingStars from './RatingStars';
+import UserProfileLink from '../UserProfileLink';
 
 export default function ProfileDrawer({ isOpen, onClose, userId }) {
     const [profile, setProfile] = useState(null);
@@ -347,16 +348,18 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                                 {profile.client_reviews.map((review) => (
                                                     <div key={review.id} className="bg-[#F8FAFC] rounded-lg p-3 border border-[#E2E8F0]">
                                                         <div className="flex items-center justify-between mb-1.5">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="h-7 w-7 rounded-full bg-[#F1F5F9] flex items-center justify-center overflow-hidden">
-                                                                    {review.freelancer?.avatar ? (
-                                                                        <img src={review.freelancer.avatar} alt={review.freelancer.name} className="h-full w-full object-cover" />
-                                                                    ) : (
-                                                                        <span className="text-xs font-bold text-[#4F46E5]">{review.freelancer?.name?.charAt(0)?.toUpperCase() || 'F'}</span>
-                                                                    )}
+                                                            <UserProfileLink userId={review.freelancer?.id}>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="h-7 w-7 rounded-full bg-[#F1F5F9] flex items-center justify-center overflow-hidden">
+                                                                        {review.freelancer?.avatar ? (
+                                                                            <img src={review.freelancer.avatar} alt={review.freelancer.name} className="h-full w-full object-cover" />
+                                                                        ) : (
+                                                                            <span className="text-xs font-bold text-[#4F46E5]">{review.freelancer?.name?.charAt(0)?.toUpperCase() || 'F'}</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <span className="text-sm font-medium text-[#0F172A] hover:text-[#4F46E5] transition-colors">{review.freelancer?.name}</span>
                                                                 </div>
-                                                                <span className="text-sm font-medium text-[#0F172A]">{review.freelancer?.name}</span>
-                                                            </div>
+                                                            </UserProfileLink>
                                                             <RatingStars rating={review.rating} />
                                                         </div>
                                                         {review.comment && <p className="text-sm text-[#64748B] italic">"{review.comment}"</p>}
@@ -396,16 +399,18 @@ export default function ProfileDrawer({ isOpen, onClose, userId }) {
                                         {profile.freelancer_profile.reviews.map((review) => (
                                             <div key={review.id} className="bg-[#F8FAFC] rounded-lg p-4 border border-[#E2E8F0]">
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-8 w-8 rounded-full bg-[#F1F5F9] flex items-center justify-center overflow-hidden">
-                                                            {review.client?.avatar ? (
-                                                                <img src={review.client.avatar} alt={review.client.name} className="h-full w-full object-cover" />
-                                                            ) : (
-                                                                <span className="text-xs font-bold text-[#4F46E5]">{review.client?.name?.charAt(0).toUpperCase() || 'C'}</span>
-                                                            )}
+                                                    <UserProfileLink userId={review.client?.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-8 w-8 rounded-full bg-[#F1F5F9] flex items-center justify-center overflow-hidden">
+                                                                {review.client?.avatar ? (
+                                                                    <img src={review.client.avatar} alt={review.client.name} className="h-full w-full object-cover" />
+                                                                ) : (
+                                                                    <span className="text-xs font-bold text-[#4F46E5]">{review.client?.name?.charAt(0).toUpperCase() || 'C'}</span>
+                                                                )}
+                                                            </div>
+                                                            <span className="text-sm font-medium text-[#0F172A] hover:text-[#4F46E5] transition-colors">{review.client?.name || 'Client'}</span>
                                                         </div>
-                                                        <span className="text-sm font-medium text-[#0F172A]">{review.client?.name || 'Client'}</span>
-                                                    </div>
+                                                    </UserProfileLink>
                                                     <RatingStars rating={review.rating} />
                                                 </div>
                                                 {review.comment && <p className="text-sm text-[#64748B] italic">"{review.comment}"</p>}

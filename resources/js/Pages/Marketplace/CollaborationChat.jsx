@@ -2,7 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
 import MarketplaceLayout from '@/Layouts/MarketplaceLayout';
 import ChatBubble from '@/Components/Marketplace/ChatBubble';
-import ProfileDrawer from '@/Components/Marketplace/ProfileDrawer';
+import { useProfile } from '@/Context/ProfileContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Send } from 'lucide-react';
 import axios from 'axios';
@@ -11,13 +11,11 @@ export default function CollaborationChat({ collaboration, messages: initialMess
     const [messages, setMessages] = useState(initialMessages || []);
     const [newMessage, setNewMessage] = useState('');
     const [sending, setSending] = useState(false);
-    const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState(null);
+    const { openProfile } = useProfile();
     const messagesEndRef = useRef(null);
 
     const openProfileDrawer = (userId) => {
-        setSelectedUserId(userId);
-        setProfileDrawerOpen(true);
+        openProfile(userId);
     };
 
     useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -127,11 +125,6 @@ export default function CollaborationChat({ collaboration, messages: initialMess
                 </div>
             </div>
 
-            <ProfileDrawer
-                isOpen={profileDrawerOpen}
-                onClose={() => { setProfileDrawerOpen(false); setSelectedUserId(null); }}
-                userId={selectedUserId}
-            />
         </MarketplaceLayout>
     );
 }

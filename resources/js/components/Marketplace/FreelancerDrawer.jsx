@@ -4,6 +4,7 @@ import { X, MapPin, Star, MessageCircle, Github, Linkedin, Globe, ExternalLink, 
 import { Button } from '@/components/ui/button';
 import SkillBadge from './SkillBadge';
 import RatingStars from './RatingStars';
+import UserProfileLink from '../UserProfileLink';
 
 const availabilityMap = {
     available: { label: 'Available', color: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50' },
@@ -71,13 +72,17 @@ export default function FreelancerDrawer({ slug, onClose }) {
                         <div className="p-6 space-y-6">
                             {/* Profile Header */}
                             <div className="flex items-start gap-4">
-                                <div className="h-16 w-16 rounded-full bg-[#4F46E5] flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden shadow-sm">
-                                    {profile.avatar_url ? (
-                                        <img src={profile.avatar_url} alt={user?.name} className="h-16 w-16 rounded-full object-cover" />
-                                    ) : user?.name?.charAt(0)?.toUpperCase() || 'F'}
-                                </div>
+                                <UserProfileLink userId={user?.id}>
+                                    <div className="h-16 w-16 rounded-full bg-[#4F46E5] flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 overflow-hidden shadow-sm">
+                                        {profile.avatar_url ? (
+                                            <img src={profile.avatar_url} alt={user?.name} className="h-16 w-16 rounded-full object-cover" />
+                                        ) : user?.name?.charAt(0)?.toUpperCase() || 'F'}
+                                    </div>
+                                </UserProfileLink>
                                 <div>
-                                    <h3 className="text-xl font-bold text-[#0F172A]">{user?.name}</h3>
+                                    <UserProfileLink userId={user?.id}>
+                                        <h3 className="text-xl font-bold text-[#0F172A] hover:text-[#4F46E5] transition-colors">{user?.name}</h3>
+                                    </UserProfileLink>
                                     <p className="text-sm text-[#94A3B8]">{profile.title || 'Freelancer'}</p>
                                 </div>
                             </div>
@@ -189,12 +194,14 @@ export default function FreelancerDrawer({ slug, onClose }) {
                                         {reviews.map((review) => (
                                             <div key={review.id} className="bg-[#F8FAFC] rounded-lg p-3 border border-[#E2E8F0]">
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-6 w-6 rounded-full bg-[#E2E8F0] flex items-center justify-center overflow-hidden">
-                                                            {review.client?.avatar ? <img src={review.client.avatar} alt={review.client.name} className="h-full w-full object-cover" /> : <span className="text-[10px] font-bold text-[#64748B]">{review.client?.name?.charAt(0).toUpperCase() || 'C'}</span>}
+                                                    <UserProfileLink userId={review.client?.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-6 w-6 rounded-full bg-[#E2E8F0] flex items-center justify-center overflow-hidden">
+                                                                {review.client?.avatar ? <img src={review.client.avatar} alt={review.client.name} className="h-full w-full object-cover" /> : <span className="text-[10px] font-bold text-[#64748B]">{review.client?.name?.charAt(0).toUpperCase() || 'C'}</span>}
+                                                            </div>
+                                                            <span className="text-xs font-medium text-[#0F172A] hover:text-[#4F46E5] transition-colors">{review.client?.name || 'Client'}</span>
                                                         </div>
-                                                        <span className="text-xs font-medium text-[#0F172A]">{review.client?.name || 'Client'}</span>
-                                                    </div>
+                                                    </UserProfileLink>
                                                     <RatingStars rating={review.rating} />
                                                 </div>
                                                 {review.comment && <p className="text-xs text-[#64748B] italic">"{review.comment}"</p>}
