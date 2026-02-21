@@ -11,97 +11,41 @@ export default function ClientRatingComponent({ clientId, existingRating, onRati
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (rating === 0) {
-            alert('Please select a rating');
-            return;
-        }
-
+        if (rating === 0) { alert('Please select a rating'); return; }
         setIsSubmitting(true);
-
         try {
-            const response = await axios.post('/api/client-reviews', {
-                client_id: clientId,
-                rating: rating,
-                comment: comment
-            });
-
+            const response = await axios.post('/api/client-reviews', { client_id: clientId, rating, comment });
             onRatingSubmitted(response.data);
         } catch (error) {
-            console.error('Failed to submit rating:', error);
-
-            let errorMessage = 'Failed to submit rating. Please try again.';
-
-            if (error.response?.data?.error) {
-                errorMessage = error.response.data.error;
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.response?.status === 403) {
-                errorMessage = error.response?.data?.error || 'You can only review clients you have collaborated with.';
-            } else if (error.response?.status === 422) {
-                errorMessage = 'Invalid rating data. Please check your input.';
-            }
-
-            alert(errorMessage);
-        } finally {
-            setIsSubmitting(false);
-        }
+            let msg = 'Failed to submit rating. Please try again.';
+            if (error.response?.data?.error) msg = error.response.data.error;
+            else if (error.response?.data?.message) msg = error.response.data.message;
+            else if (error.response?.status === 403) msg = error.response?.data?.error || 'You can only review clients you have collaborated with.';
+            else if (error.response?.status === 422) msg = 'Invalid rating data.';
+            alert(msg);
+        } finally { setIsSubmitting(false); }
     };
 
     return (
-        <div className="bg-slate-800 rounded-lg border border-slate-600 p-4 shadow-lg shadow-amber-600/20">
-            <h4 className="font-semibold text-white mb-3">Rate this Client</h4>
-
+        <div className="bg-white rounded-xl border border-[#E2E8F0] p-4 shadow-sm">
+            <h4 className="font-semibold text-[#0F172A] mb-3">Rate this Client</h4>
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Star Rating */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Your Rating
-                    </label>
+                    <label className="block text-sm font-medium text-[#64748B] mb-2">Your Rating</label>
                     <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                                key={star}
-                                type="button"
-                                className="p-1 transition-colors hover:bg-slate-700 rounded"
-                                onClick={() => setRating(star)}
-                                onMouseEnter={() => setHoveredStar(star)}
-                                onMouseLeave={() => setHoveredStar(0)}
-                            >
-                                <Star
-                                    className={`h-6 w-6 transition-colors ${star <= (hoveredStar || rating)
-                                            ? 'text-amber-400 fill-amber-400'
-                                            : 'text-gray-400'
-                                        }`}
-                                />
+                            <button key={star} type="button" className="p-1 transition-colors hover:bg-[#F8FAFC] rounded" onClick={() => setRating(star)} onMouseEnter={() => setHoveredStar(star)} onMouseLeave={() => setHoveredStar(0)}>
+                                <Star className={`h-6 w-6 transition-colors ${star <= (hoveredStar || rating) ? 'text-amber-400 fill-amber-400' : 'text-[#E2E8F0]'}`} />
                             </button>
                         ))}
-                        <span className="ml-2 text-sm text-gray-400">
-                            {rating > 0 ? `${rating}/5` : 'Select rating'}
-                        </span>
+                        <span className="ml-2 text-sm text-[#94A3B8]">{rating > 0 ? `${rating}/5` : 'Select rating'}</span>
                     </div>
                 </div>
-
-                {/* Comment */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Comment (optional)
-                    </label>
-                    <textarea
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        placeholder="Share your experience working with this client..."
-                        className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-white placeholder-gray-400"
-                        rows="3"
-                    />
+                    <label className="block text-sm font-medium text-[#64748B] mb-2">Comment (optional)</label>
+                    <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Share your experience working with this client..." className="w-full px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4F46E5] text-[#0F172A] placeholder-[#94A3B8]" rows="3" />
                 </div>
-
-                {/* Submit Button */}
-                <Button
-                    type="submit"
-                    disabled={isSubmitting || rating === 0}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
-                >
+                <Button type="submit" disabled={isSubmitting || rating === 0} className="w-full bg-amber-500 hover:bg-amber-600 text-white">
                     {isSubmitting ? 'Submitting...' : existingRating ? 'Update Rating' : 'Submit Rating'}
                 </Button>
             </form>

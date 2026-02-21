@@ -8,10 +8,10 @@ import { cn } from '@/lib/utils';
 import axios from 'axios';
 
 const typeConfig = {
-  task_assigned: { icon: CheckCircle, color: 'text-purple-400', bg: 'bg-purple-900/30' },
-  comment_added: { icon: MessageSquare, color: 'text-blue-400', bg: 'bg-blue-900/30' },
-  attachment_added: { icon: Paperclip, color: 'text-emerald-400', bg: 'bg-emerald-900/30' },
-  status_changed: { icon: ArrowRightLeft, color: 'text-orange-400', bg: 'bg-orange-900/30' },
+  task_assigned: { icon: CheckCircle, color: 'text-[#4F46E5]', bg: 'bg-[rgba(79,70,229,0.08)]' },
+  comment_added: { icon: MessageSquare, color: 'text-blue-600', bg: 'bg-blue-50' },
+  attachment_added: { icon: Paperclip, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  status_changed: { icon: ArrowRightLeft, color: 'text-amber-600', bg: 'bg-amber-50' },
 };
 
 function timeAgo(timestamp) {
@@ -55,32 +55,24 @@ export default function NotificationsIndex() {
     <>
       <Head title="Notifications" />
       <MainLayout title="Notifications">
-        <div className="min-h-screen bg-slate-900 text-white">
-          {/* Animated Background Elements */}
-          <div className="fixed inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
-          </div>
-          
-          <div className="relative z-10 max-w-3xl mx-auto py-6 px-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">Notifications</h1>
-                <p className="text-sm text-gray-300">{unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}</p>
-              </div>
-              {unreadCount > 0 && (
-                <Button variant="outline" size="sm" onClick={markAllAsRead} className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white">Mark all as read</Button>
-              )}
+        <div className="max-w-3xl mx-auto py-6 px-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-[#0F172A]">Notifications</h1>
+              <p className="text-sm text-[#64748B]">{unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}</p>
             </div>
+            {unreadCount > 0 && (
+              <Button variant="outline" size="sm" onClick={markAllAsRead} className="border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]">Mark all as read</Button>
+            )}
+          </div>
 
           <div className="space-y-3">
             {items.length === 0 ? (
-              <Card className="bg-slate-800 border-slate-700 shadow-lg shadow-blue-600/20">
+              <Card className="bg-white border border-[#E2E8F0]">
                 <CardContent className="p-12 text-center">
-                  <Bell className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-1">No notifications</h3>
-                  <p className="text-gray-400 text-sm">You're all caught up!</p>
+                  <Bell className="mx-auto h-12 w-12 text-[#94A3B8] mb-4" />
+                  <h3 className="text-lg font-medium text-[#0F172A] mb-1">No notifications</h3>
+                  <p className="text-[#64748B] text-sm">You're all caught up!</p>
                 </CardContent>
               </Card>
             ) : (
@@ -91,8 +83,8 @@ export default function NotificationsIndex() {
                   <Card
                     key={n.id}
                     className={cn(
-                      "transition-all hover:shadow-lg hover:shadow-blue-600/20 cursor-pointer bg-slate-800 border-slate-700",
-                      !n.read_at && "border-l-4 border-l-purple-500 bg-purple-900/20"
+                      "transition-all hover:shadow-md cursor-pointer bg-white border border-[#E2E8F0]",
+                      !n.read_at && "border-l-4 border-l-[#4F46E5] bg-[rgba(79,70,229,0.03)]"
                     )}
                     onClick={() => handleClick(n)}
                   >
@@ -103,12 +95,12 @@ export default function NotificationsIndex() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-0.5">
-                            <h4 className="text-sm font-medium text-white">{n.title}</h4>
-                            <span className="text-xs text-gray-400 ml-2 flex-shrink-0">{timeAgo(n.created_at)}</span>
+                            <h4 className="text-sm font-medium text-[#0F172A]">{n.title}</h4>
+                            <span className="text-xs text-[#94A3B8] ml-2 flex-shrink-0">{timeAgo(n.created_at)}</span>
                           </div>
-                          <p className="text-sm text-gray-300">{n.message}</p>
+                          <p className="text-sm text-[#64748B]">{n.message}</p>
                         </div>
-                        {!n.read_at && <div className="w-2 h-2 bg-purple-600 rounded-full mt-2 flex-shrink-0" />}
+                        {!n.read_at && <div className="w-2 h-2 bg-[#4F46E5] rounded-full mt-2 flex-shrink-0" />}
                       </div>
                     </CardContent>
                   </Card>
@@ -116,7 +108,6 @@ export default function NotificationsIndex() {
               })
             )}
           </div>
-        </div>
         </div>
       </MainLayout>
     </>

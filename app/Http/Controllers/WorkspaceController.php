@@ -35,6 +35,11 @@ class WorkspaceController extends Controller
         ]);
 
         $user = Auth::user();
+        
+        // Must complete onboarding to create workspace
+        if (!$user->onboarding_completed) {
+            return response()->json(['error' => 'Please complete your profile before creating a workspace.'], 403);
+        }
 
         $workspace = Workspace::create([
             'name' => $validated['name'],
@@ -346,17 +351,14 @@ class WorkspaceController extends Controller
             $userRole = $workspace->users()->where('user_id', $user->id)->first()->pivot->role;
             $referer = $request->header('Referer', '');
             
-            // If user is on reports page, stay on reports
+            // Fallback for missing reports feature
             if (str_contains($referer, '/reports') || str_contains($referer, '/client/reports')) {
-                if ($userRole === 'client') {
-                    return redirect()->route('client.reports')->with('success', "Switched to {$workspace->name}");
-                }
-                return redirect()->route('reports')->with('success', "Switched to {$workspace->name}");
+                return redirect()->route('dashboard')->with('success', "Switched to {$workspace->name}");
             }
             
-            // If user is a client, redirect to client reports
+            // If user is a client, redirect to dashboard
             if ($userRole === 'client') {
-                return redirect()->route('client.reports')->with('success', "Switched to {$workspace->name}");
+                return redirect()->route('dashboard')->with('success', "Switched to {$workspace->name}");
             }
             
             // For admin/member, redirect to dashboard
@@ -617,6 +619,12 @@ class WorkspaceController extends Controller
 
         // Delete the workspace (this will cascade delete workspace_users, projects, tasks, etc.)
         $workspace->delete();
+
+        // Recalculate freelancer's project count if applicable
+        $freelancerProfile = \App\Models\FreelancerProfile::where('user_id', $user->id)->first();
+        if ($freelancerProfile) {
+            $freelancerProfile->recalculateProjectsCount();
+        }
 
         // Clear current workspace session if it was the deleted workspace
         if (session('current_workspace_id') == $workspace->id) {

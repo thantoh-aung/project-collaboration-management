@@ -33,7 +33,6 @@ class UserProfileController extends Controller
                 $avatarUrl = null;
                 
                 if ($avatar) {
-                    // Generate avatar URL similar to User model logic
                     if (str_starts_with($avatar, 'http')) {
                         $avatarUrl = $avatar;
                     } elseif (str_starts_with($avatar, '/storage/') || str_starts_with($avatar, 'storage/')) {
@@ -75,8 +74,7 @@ class UserProfileController extends Controller
                 // Stats for freelancer
                 $profileData['stats'] = [
                     'member_since' => $user->created_at->format('M Y'),
-                    'workspaces_count' => \App\Models\Workspace::where('owner_id', $user->id)->count()
-                        + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $user->id))->count(),
+                    'workspaces_count' => \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $user->id))->count(),
                     'avg_rating' => round($freelancerProfile->avg_rating ?? 0, 1),
                 ];
             }
@@ -125,6 +123,45 @@ class UserProfileController extends Controller
                     ->get();
             }
         }
+
+        // Add chat and collaboration status relative to the authenticated user
+        $currentUser = auth()->user();
+        $hasExistingChat = false;
+        $existingChatId = null;
+        $hasExistingCollab = false;
+        $existingCollabId = null;
+
+        if ($currentUser) {
+            // Check for client-freelancer chat (either direction)
+            $chat = \App\Models\PreProjectChat::where(function ($q) use ($currentUser, $user) {
+                $q->where('client_id', $currentUser->id)->where('freelancer_id', $user->id);
+            })->orWhere(function ($q) use ($currentUser, $user) {
+                $q->where('freelancer_id', $currentUser->id)->where('client_id', $user->id);
+            })->first();
+
+            if ($chat) {
+                $hasExistingChat = true;
+                $existingChatId = $chat->id;
+            }
+
+            // Check for freelancer-freelancer collaboration
+            if ($currentUser->usage_type === 'freelancer' && $user->usage_type === 'freelancer' && $currentUser->id !== $user->id) {
+                $userOneId = min($currentUser->id, $user->id);
+                $userTwoId = max($currentUser->id, $user->id);
+                $collab = \App\Models\FreelancerCollaboration::where('user_one_id', $userOneId)
+                    ->where('user_two_id', $userTwoId)
+                    ->first();
+                if ($collab) {
+                    $hasExistingCollab = true;
+                    $existingCollabId = $collab->id;
+                }
+            }
+        }
+
+        $profileData['hasExistingChat'] = $hasExistingChat;
+        $profileData['existingChatId'] = $existingChatId;
+        $profileData['hasExistingCollab'] = $hasExistingCollab;
+        $profileData['existingCollabId'] = $existingCollabId;
 
         return response()->json($profileData);
     }

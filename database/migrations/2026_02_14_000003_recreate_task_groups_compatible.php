@@ -47,11 +47,16 @@ return new class extends Migration
                 if (!Schema::hasColumn('task_groups', 'archived_at')) {
                     $table->timestamp('archived_at')->nullable();
                 }
-                
-                // Add indexes if they don't exist
-                $table->index(['project_id', 'position']);
-                $table->index(['project_id', 'type']);
             });
+
+            // Add indexes if they don't exist using raw SQL for better error handling
+            try {
+                DB::statement("ALTER TABLE `task_groups` ADD INDEX `task_groups_project_id_position_index` (`project_id`, `position`)");
+            } catch (\Exception $e) {}
+
+            try {
+                DB::statement("ALTER TABLE `task_groups` ADD INDEX `task_groups_project_id_type_index` (`project_id`, `type`)");
+            } catch (\Exception $e) {}
         }
     }
 

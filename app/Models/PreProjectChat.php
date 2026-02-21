@@ -60,6 +60,14 @@ class PreProjectChat extends Model
     }
 
     /**
+     * Get the project requests for this chat.
+     */
+    public function projectRequests(): HasMany
+    {
+        return $this->hasMany(ProjectRequest::class, 'chat_id');
+    }
+
+    /**
      * Get the chat deletions for this chat.
      */
     public function deletions(): HasMany

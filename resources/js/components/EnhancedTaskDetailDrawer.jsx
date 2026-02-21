@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
+import UserProfileLink from '@/Components/UserProfileLink';
 
 export default function EnhancedTaskDetailDrawer({
     task,
@@ -453,40 +454,40 @@ export default function EnhancedTaskDetailDrawer({
 
             {/* Drawer */}
             <div className={cn(
-                "fixed inset-y-0 right-0 z-50 w-full sm:w-[640px] bg-slate-800 shadow-2xl transform transition-transform duration-200 ease-out overflow-hidden flex flex-col",
+                "fixed inset-y-0 right-0 z-50 w-full sm:w-[640px] bg-white shadow-2xl transform transition-transform duration-200 ease-out overflow-hidden flex flex-col",
                 open ? "translate-x-0" : "translate-x-full"
             )}>
                 {/* Loading Overlay */}
                 {isDragging && (
-                    <div className="absolute inset-0 bg-slate-900/80 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
                         <div className="flex flex-col items-center gap-3">
                             <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-                            <p className="text-sm text-gray-400">Updating task...</p>
+                            <p className="text-sm text-slate-500">Updating task...</p>
                         </div>
                     </div>
                 )}
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700 bg-slate-800">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-white">
                     <div className="flex items-center gap-2">
-                        <Activity className={cn('h-5 w-5', currentGroupName === 'Complete' ? 'text-emerald-400' : 'text-gray-400')} />
-                        <h2 className="text-base font-semibold text-white truncate max-w-[400px]">{localTask.name}</h2>
+                        <Activity className={cn('h-5 w-5', currentGroupName === 'Complete' ? 'text-emerald-500' : 'text-slate-400')} />
+                        <h2 className="text-base font-semibold text-slate-900 truncate max-w-[400px]">{localTask.name}</h2>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:text-slate-700">
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b px-5 bg-slate-700/50 border-slate-700">
+                <div className="flex border-b px-5 bg-slate-50 border-slate-200">
                     {['details', 'activity'].map(tab => (
                         <button
                             key={tab}
                             className={cn(
-                                "px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize",
+                                "px-4 py-3 text-sm font-medium border-b-2 transition-colors capitalize",
                                 activeTab === tab
-                                    ? "border-blue-600 text-blue-400"
-                                    : "border-transparent text-gray-400 hover:text-gray-200"
+                                    ? "border-blue-600 text-blue-600 bg-white -mb-px"
+                                    : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100/50"
                             )}
                             onClick={() => setActiveTab(tab)}
                         >
@@ -502,7 +503,7 @@ export default function EnhancedTaskDetailDrawer({
                         <div className="p-5 space-y-5">
                             {/* Task Name */}
                             <div>
-                                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Task Name</label>
+                                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">Task Name</label>
                                 {isReadOnly ? (
                                     <h3 className="text-base font-semibold">{localTask.name}</h3>
                                 ) : (
@@ -519,8 +520,8 @@ export default function EnhancedTaskDetailDrawer({
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Status */}
                                 <div>
-                                    <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-                                        <Clock className="h-3 w-3 inline mr-1 text-gray-400" />Status
+                                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
+                                        <Clock className="h-3 w-3 inline mr-1 text-slate-500" />Status
                                     </label>
                                     {!canUpdateStatus ? (
                                         <>
@@ -531,8 +532,8 @@ export default function EnhancedTaskDetailDrawer({
                                         <>
                                             {console.log('✅ Status enabled - canUpdateStatus:', canUpdateStatus, 'isAssignedMember:', isAssignedMember, 'isAdmin:', isAdmin)}
                                             <Select value={localTask.group_id?.toString()} onValueChange={handleStatusChange}>
-                                                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                                <SelectContent className="bg-slate-800 border-slate-700 shadow-xl shadow-blue-600/20">
+                                                <SelectTrigger className="h-9 border-slate-200"><SelectValue /></SelectTrigger>
+                                                <SelectContent className="bg-white border-slate-200 shadow-xl">
                                                     {taskGroups.map(g => (
                                                         <SelectItem key={g.id} value={g.id.toString()}>{g.name}</SelectItem>
                                                     ))}
@@ -544,19 +545,21 @@ export default function EnhancedTaskDetailDrawer({
 
                                 {/* Assignee */}
                                 <div>
-                                    <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+                                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                                         <User className="h-3 w-3 inline mr-1" />Assignee
                                     </label>
                                     {!canReassign ? (
                                         localTask.assigned_to_user ? (
-                                            <div className="flex items-center gap-2">
-                                                <Avatar className="h-6 w-6">
-                                                    <AvatarFallback className="text-xs bg-indigo-100 text-indigo-700">{localTask.assigned_to_user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="text-sm">{localTask.assigned_to_user.name}</span>
-                                            </div>
+                                            <UserProfileLink userId={localTask.assigned_to_user.id}>
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar className="h-6 w-6">
+                                                        <AvatarFallback className="text-xs bg-indigo-100 text-indigo-700">{localTask.assigned_to_user.name?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <span className="text-sm hover:text-[#4F46E5] transition-colors">{localTask.assigned_to_user.name}</span>
+                                                </div>
+                                            </UserProfileLink>
                                         ) : (
-                                            <span className="text-sm text-gray-400">Not assigned</span>
+                                            <span className="text-sm text-slate-500">Not assigned</span>
                                         )
                                     ) : (
                                         <Select
@@ -609,10 +612,10 @@ export default function EnhancedTaskDetailDrawer({
                                                 }
                                             }}
                                         >
-                                            <SelectTrigger className="h-9">
+                                            <SelectTrigger className="h-9 border-slate-200">
                                                 <SelectValue placeholder="Select team member to assign" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-white border-gray-300 shadow-xl">
+                                            <SelectContent className="bg-white border-slate-200 shadow-xl">
                                                 {teamMembers.map(m => (
                                                     <SelectItem key={m.id} value={m.id.toString()}>{m.name}</SelectItem>
                                                 ))}
@@ -623,7 +626,7 @@ export default function EnhancedTaskDetailDrawer({
 
                                 {/* Due Date */}
                                 <div>
-                                    <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+                                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                                         <Calendar className="h-3 w-3 inline mr-1" />Due Date
                                     </label>
                                     {!canChangeDueDate ? (
@@ -635,7 +638,7 @@ export default function EnhancedTaskDetailDrawer({
 
                                 {/* Priority */}
                                 <div>
-                                    <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+                                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                                         <Tag className="h-3 w-3 inline mr-1" />Priority
                                     </label>
                                     {!canChangePriority ? (
@@ -644,8 +647,8 @@ export default function EnhancedTaskDetailDrawer({
                                         </Badge>
                                     ) : (
                                         <Select value={localTask.priority || 'normal'} onValueChange={(v) => updateTask({ priority: v })}>
-                                            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                            <SelectContent className="bg-white border-gray-300 shadow-xl">
+                                            <SelectTrigger className="h-9 border-slate-200"><SelectValue /></SelectTrigger>
+                                            <SelectContent className="bg-white border-slate-200 shadow-xl">
                                                 <SelectItem value="low">Low</SelectItem>
                                                 <SelectItem value="normal">Normal</SelectItem>
                                                 <SelectItem value="medium">Medium</SelectItem>
@@ -658,9 +661,9 @@ export default function EnhancedTaskDetailDrawer({
 
                             {/* Description */}
                             <div>
-                                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Description</label>
+                                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">Description</label>
                                 {isReadOnly ? (
-                                    <div className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg min-h-[80px]">
+                                    <div className="text-sm text-slate-800 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg min-h-[80px]">
                                         {localTask.description || 'No description'}
                                     </div>
                                 ) : (
@@ -677,7 +680,7 @@ export default function EnhancedTaskDetailDrawer({
 
                             {/* Attachments */}
                             <div>
-                                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+                                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                                     <Paperclip className="h-3 w-3 inline mr-1" />
                                     Attachments ({localTask.attachments?.length || 0})
                                 </label>
@@ -687,7 +690,7 @@ export default function EnhancedTaskDetailDrawer({
                                         {localTask.attachments.map((att) => (
                                             <div key={att.id} className="flex items-center justify-between p-2 border rounded-lg hover:bg-gray-50 text-sm">
                                                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                    <Paperclip className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                                                    <Paperclip className="h-3.5 w-3.5 text-slate-500 flex-shrink-0" />
                                                     <span className="truncate">{att.filename || att.original_name || 'File'}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1">
@@ -718,7 +721,7 @@ export default function EnhancedTaskDetailDrawer({
 
                             {/* Comments */}
                             <div>
-                                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+                                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                                     <MessageSquare className="h-3 w-3 inline mr-1" />
                                     Comments ({localTask.comments?.length || 0})
                                 </label>
@@ -727,24 +730,28 @@ export default function EnhancedTaskDetailDrawer({
                                     {localTask.comments?.length > 0 ? (
                                         localTask.comments.map((comment) => (
                                             <div key={comment.id} className="flex gap-2.5">
-                                                <Avatar className="h-7 w-7 flex-shrink-0">
-                                                    <AvatarFallback className="text-[10px] bg-indigo-100 text-indigo-700 font-medium">
-                                                        {comment.user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                                                    </AvatarFallback>
-                                                </Avatar>
+                                                <UserProfileLink userId={comment.user?.id}>
+                                                    <Avatar className="h-7 w-7 flex-shrink-0">
+                                                        <AvatarFallback className="text-[10px] bg-indigo-100 text-indigo-700 font-medium">
+                                                            {comment.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </UserProfileLink>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-0.5">
-                                                        <span className="font-medium text-sm text-gray-800">{comment.user?.name || 'Unknown'}</span>
-                                                        <span className="text-[11px] text-gray-400">
+                                                        <UserProfileLink userId={comment.user?.id}>
+                                                            <span className="font-medium text-sm text-gray-800 hover:text-[#4F46E5] transition-colors">{comment.user?.name || 'Unknown'}</span>
+                                                        </UserProfileLink>
+                                                        <span className="text-[11px] text-slate-500">
                                                             {new Date(comment.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">{comment.body}</p>
+                                                    <p className="text-sm text-slate-800 bg-gray-50 px-3 py-2 rounded-lg">{comment.body}</p>
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-gray-400 text-center py-3">No comments yet</p>
+                                        <p className="text-sm text-slate-500 text-center py-3">No comments yet</p>
                                     )}
                                     <div ref={commentsEndRef} />
                                 </div>
@@ -756,7 +763,7 @@ export default function EnhancedTaskDetailDrawer({
                                             <div className="absolute bottom-full mb-1 w-full bg-white border rounded-lg shadow-lg max-h-32 overflow-y-auto z-10">
                                                 {teamMembers.map(m => (
                                                     <button key={m.id} className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 flex items-center gap-2" onClick={() => insertMention(m.name)}>
-                                                        <AtSign className="h-3 w-3 text-gray-400" />{m.name}
+                                                        <AtSign className="h-3 w-3 text-slate-500" />{m.name}
                                                     </button>
                                                 ))}
                                             </div>
@@ -791,18 +798,18 @@ export default function EnhancedTaskDetailDrawer({
                                         </Avatar>
                                         <div className="flex-1">
                                             <p className="text-sm"><span className="font-medium">{comment.user?.name}</span> commented</p>
-                                            <p className="text-xs text-gray-500 mt-0.5">{comment.body}</p>
-                                            <p className="text-[11px] text-gray-400 mt-0.5">{new Date(comment.created_at).toLocaleString()}</p>
+                                            <p className="text-xs text-slate-500 mt-0.5">{comment.body}</p>
+                                            <p className="text-[11px] text-slate-500 mt-0.5">{new Date(comment.created_at).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 ))}
                                 <div className="flex gap-3">
                                     <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                        <Activity className="h-3.5 w-3.5 text-gray-500" />
+                                        <Activity className="h-3.5 w-3.5 text-slate-500" />
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm"><span className="font-medium">Task created</span> by {localTask.created_by_user?.name || 'Unknown'}</p>
-                                        <p className="text-[11px] text-gray-400">{localTask.created_at ? new Date(localTask.created_at).toLocaleString() : ''}</p>
+                                        <p className="text-[11px] text-slate-500">{localTask.created_at ? new Date(localTask.created_at).toLocaleString() : ''}</p>
                                     </div>
                                 </div>
                             </div>

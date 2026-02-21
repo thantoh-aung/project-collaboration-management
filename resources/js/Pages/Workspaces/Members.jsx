@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
 import {
   Table,
@@ -46,9 +46,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { 
-  Plus, 
-  Search, 
+import {
+  Plus,
+  Search,
   Mail,
   MoreHorizontal,
   User,
@@ -61,6 +61,7 @@ import {
   Check
 } from 'lucide-react';
 import InviteMemberModal from '@/Components/InviteMemberModal';
+import UserProfileLink from '@/Components/UserProfileLink';
 
 export default function WorkspaceMembers() {
   return (
@@ -75,7 +76,7 @@ function WorkspaceMembersContent() {
   const { currentWorkspace, userRole, loading, error, hasPermission } = useWorkspace();
   const [searchTerm, setSearchTerm] = useState('');
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
-  
+
   // Mock data - replace with real API calls
   const members = [
     {
@@ -184,7 +185,7 @@ function WorkspaceMembersContent() {
       member: 'bg-blue-100 text-blue-800',
       client: 'bg-green-100 text-green-800'
     };
-    
+
     const icons = {
       admin: <Crown className="w-3 h-3" />,
       member: <User className="w-3 h-3" />,
@@ -207,7 +208,7 @@ function WorkspaceMembersContent() {
       pending: 'bg-yellow-100 text-yellow-800',
       inactive: 'bg-gray-100 text-gray-800'
     };
-    
+
     return (
       <Badge className={variants[status]}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -234,7 +235,7 @@ function WorkspaceMembersContent() {
   return (
     <>
       <Head title="Workspace Members" />
-      
+
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -250,7 +251,7 @@ function WorkspaceMembersContent() {
                   Invite Member
                 </Button>
               </DialogTrigger>
-              <InviteMemberModal 
+              <InviteMemberModal
                 workspaceId={currentWorkspace?.id}
                 onClose={() => setInviteModalOpen(false)}
                 onSuccess={() => {
@@ -298,18 +299,20 @@ function WorkspaceMembersContent() {
                 {filteredMembers.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
-                          <AvatarImage src={member.avatar_url} />
-                          <AvatarFallback>
-                            {member.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-gray-500">{member.email}</div>
+                      <UserProfileLink userId={member.id}>
+                        <div className="flex items-center space-x-3">
+                          <Avatar>
+                            <AvatarImage src={member.avatar_url} />
+                            <AvatarFallback>
+                              {member.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium hover:text-[#4F46E5] transition-colors">{member.name}</div>
+                            <div className="text-sm text-gray-500">{member.email}</div>
+                          </div>
                         </div>
-                      </div>
+                      </UserProfileLink>
                     </TableCell>
                     <TableCell>
                       {getRoleBadge(member.role)}

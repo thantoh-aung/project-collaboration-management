@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\PreProjectChat;
 use App\Models\PreProjectMessage;
+use App\Models\ProjectRequest;
+use App\Models\Notification;
 use App\Services\WorkspaceCreationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +18,17 @@ class PreProjectChatController extends Controller
     {
         $user = Auth::user();
 
+        // Get IDs of users who share a workspace with the current user
+        $workspaceUserIds = \App\Models\WorkspaceUser::whereIn('workspace_id', function($query) use ($user) {
+                $query->select('workspace_id')
+                    ->from('workspace_users')
+                    ->where('user_id', $user->id);
+            })
+            ->where('user_id', '!=', $user->id)
+            ->pluck('user_id')
+            ->toArray();
+
+        // 1. Get PreProject chats
         $chats = PreProjectChat::where(function ($q) use ($user) {
             $q->where('client_id', $user->id)
               ->orWhere('freelancer_id', $user->id);
@@ -29,101 +42,102 @@ class PreProjectChatController extends Controller
                 'freelancer.freelancerProfile:id,user_id,title,slug,avatar',
                 'messages' => fn($q) => $q->latest()->limit(1),
             ])
-            ->orderByDesc('last_message_at')
-            ->orderByDesc('created_at')
             ->get()
-            ->map(function ($chat) use ($user) {
+            ->map(function ($chat) use ($user, $workspaceUserIds) {
                 $otherUser = $chat->getOtherParticipant($user);
-                // Create proper array structure for other_user with avatar_url
-                if ($otherUser) {
-                    // Check if this is a freelancer and prioritize FreelancerProfile.avatar
-                    $avatar = $otherUser->avatar;
-                    $avatarUrl = null;
-                    
-                    if ($otherUser->usage_type === 'freelancer' && $chat->freelancer && $chat->freelancer->id === $otherUser->id) {
-                        $freelancerProfileAvatar = $chat->freelancer->freelancerProfile->avatar ?? null;
-                        if ($freelancerProfileAvatar) {
-                            // Check if freelancer profile avatar exists and is not too small (corrupted)
-                            $avatarPath = null;
-                            if (str_starts_with($freelancerProfileAvatar, 'http')) {
-                                $avatarPath = null; // External URL, can't check size
-                            } elseif (str_starts_with($freelancerProfileAvatar, '/storage/') || str_starts_with($freelancerProfileAvatar, 'storage/')) {
-                                $avatarPath = str_replace(['/storage/', 'storage/'], '', $freelancerProfileAvatar);
-                            } else {
-                                $avatarPath = $freelancerProfileAvatar;
-                            }
-                            
-                            // Check file size if it's a local file
-                            $useFreelancerAvatar = true;
-                            if ($avatarPath) {
-                                $fullPath = storage_path('app/public/' . $avatarPath);
-                                \Log::info('Avatar check for user ' . $otherUser->id, [
-                                    'freelancer_profile_avatar' => $freelancerProfileAvatar,
-                                    'avatar_path' => $avatarPath,
-                                    'full_path' => $fullPath,
-                                    'file_exists' => file_exists($fullPath),
-                                    'file_size' => file_exists($fullPath) ? filesize($fullPath) : 'N/A'
-                                ]);
-                                if (file_exists($fullPath) && filesize($fullPath) < 5000) { // Less than 5KB = likely corrupted
-                                    \Log::info('Avatar too small, using fallback');
-                                    $useFreelancerAvatar = false;
-                                }
-                            }
-                            
-                            if ($useFreelancerAvatar) {
-                                $avatar = $freelancerProfileAvatar;
-                                // Generate avatar URL similar to User model logic
-                                if (str_starts_with($freelancerProfileAvatar, 'http')) {
-                                    $avatarUrl = $freelancerProfileAvatar;
-                                } elseif (str_starts_with($freelancerProfileAvatar, '/storage/') || str_starts_with($freelancerProfileAvatar, 'storage/')) {
-                                    $avatarUrl = url($freelancerProfileAvatar);
-                                } else {
-                                    $avatarUrl = url('storage/' . $freelancerProfileAvatar);
-                                }
-                            }
-                        }
-                    }
-                    
-                    // If no freelancer profile avatar, use User model's avatar_url accessor
-                    if (!$avatarUrl && $avatar) {
-                        // Generate avatar URL similar to User model logic
-                        if (str_starts_with($avatar, 'http')) {
-                            $avatarUrl = $avatar;
-                        } elseif (str_starts_with($avatar, '/storage/') || str_starts_with($avatar, 'storage/')) {
-                            $avatarUrl = url($avatar);
-                        } else {
-                            $avatarUrl = url('storage/' . $avatar);
-                        }
-                    }
-                    
-                    \Log::info('Final avatar selection for user ' . $otherUser->id, [
-                    'final_avatar' => $avatar,
-                    'final_avatar_url' => $avatarUrl,
-                    'user_avatar' => $otherUser->avatar,
-                    'user_avatar_url' => $otherUser->avatar_url
-                ]);
+                $avatar_url = $otherUser?->avatar_url;
                 
-                $chat->other_user = [
-                    'id' => $otherUser->id,
-                    'name' => $otherUser->name,
-                    'email' => $otherUser->email,
-                    'avatar' => $avatar,
-                    'avatar_url' => $avatarUrl,
-                    'job_title' => $otherUser->job_title,
-                    'usage_type' => $otherUser->usage_type,
-                ];
-                } else {
-                    $chat->other_user = null;
+                if ($otherUser && $otherUser->usage_type === 'freelancer' && $chat->freelancer && $chat->freelancer->id === $otherUser->id) {
+                    $profileAvatar = $chat->freelancer->freelancerProfile->avatar ?? null;
+                    if ($profileAvatar) {
+                        if (str_starts_with($profileAvatar, 'http')) {
+                            $avatar_url = $profileAvatar;
+                        } elseif (str_starts_with($profileAvatar, '/storage/') || str_starts_with($profileAvatar, 'storage/')) {
+                            $avatar_url = url($profileAvatar);
+                        } else {
+                            $avatar_url = url('storage/' . $profileAvatar);
+                        }
+                    }
                 }
-                $chat->unread_count = $chat->messages()
-                    ->where('sender_id', '!=', $user->id)
-                    ->whereNull('read_at')
-                    ->count();
-                return $chat;
+
+                // Normalization for robust comparison
+                $myRole = trim(strtolower($user->usage_type ?? ''));
+                $otherRole = $otherUser ? trim(strtolower($otherUser->usage_type ?? '')) : '';
+                $otherId = $otherUser ? $otherUser->id : null;
+
+                // Priority logic for categorization
+                if ($chat->status === 'converted_to_workspace' || ($otherId && in_array($otherId, $workspaceUserIds))) {
+                    $category = 'collaborator';
+                } elseif ($myRole === 'freelancer' && $otherRole === 'freelancer') {
+                    $category = 'network';
+                } else {
+                    // For freelancer vs client
+                    $category = 'client_hub';
+                }
+
+                return [
+                    'id' => $chat->id,
+                    'chat_type' => 'pre_project',
+                    'category' => $category,
+                    'status' => $chat->status,
+                    'last_message_at' => $chat->last_message_at ?? $chat->created_at,
+                    'unread_count' => $chat->messages()->where('sender_id', '!=', $user->id)->whereNull('read_at')->count(),
+                    'other_user' => $otherUser ? [
+                        'id' => $otherUser->id,
+                        'name' => $otherUser->name,
+                        'avatar_url' => $avatar_url,
+                        'job_title' => $otherUser->job_title,
+                        'usage_type' => trim($otherUser->usage_type),
+                    ] : null,
+                    'messages' => $chat->messages,
+                ];
             });
 
+        // 2. Get Freelancer Collaborations
+        $collaborations = \App\Models\FreelancerCollaboration::where('user_one_id', $user->id)
+            ->orWhere('user_two_id', $user->id)
+            ->with([
+                'userOne:id,name,avatar,email,usage_type',
+                'userTwo:id,name,avatar,email,usage_type',
+                'messages' => fn($q) => $q->latest()->limit(1),
+            ])
+            ->get()
+            ->map(function ($collab) use ($user, $workspaceUserIds) {
+                $otherUser = $collab->getOtherParticipant($user);
+                $otherId = $otherUser ? $otherUser->id : null;
+
+                // For collaborations, prioritize workspace status, fallback to network
+                if ($otherId && in_array($otherId, $workspaceUserIds)) {
+                    $category = 'collaborator';
+                } else {
+                    $category = 'network';
+                }
+
+                return [
+                    'id' => $collab->id,
+                    'chat_type' => 'collaboration',
+                    'category' => $category,
+                    'status' => 'open',
+                    'last_message_at' => $collab->last_message_at ?? $collab->created_at,
+                    'unread_count' => $collab->messages()->where('sender_id', '!=', $user->id)->whereNull('read_at')->count(),
+                    'other_user' => $otherUser ? [
+                        'id' => $otherUser->id,
+                        'name' => $otherUser->name,
+                        'avatar_url' => $otherUser->avatar_url,
+                        'job_title' => null,
+                        'usage_type' => trim($otherUser->usage_type),
+                    ] : null,
+                    'messages' => $collab->messages,
+                ];
+            });
+
+        // 3. Merge and sort
+        $mergedChats = $chats->concat($collaborations)
+            ->sortByDesc('last_message_at')
+            ->values();
+
         return Inertia::render('Marketplace/ChatList', [
-            'chats' => $chats,
+            'chats' => $mergedChats,
         ]);
     }
 
@@ -204,6 +218,7 @@ class PreProjectChatController extends Controller
             'freelancer:id,name,avatar,email,job_title,usage_type',
             'freelancer.freelancerProfile:id,user_id,title,slug,avatar',
             'workspace:id,name,slug,owner_id',
+            'projectRequests' => fn($q) => $q->latest(),
         ]);
         
         // Create proper array structures for chat participants with avatar_url
@@ -397,6 +412,7 @@ class PreProjectChatController extends Controller
             'client' => $chat->client,
             'freelancer' => $chat->freelancer,
             'workspace' => $chat->workspace,
+            'project_request' => $chat->projectRequests->first(),
         ];
 
         return Inertia::render('Marketplace/Chat', [
@@ -656,6 +672,99 @@ class PreProjectChatController extends Controller
         return response()->json($message);
     }
 
+    public function requestProject(Request $request, PreProjectChat $chat)
+    {
+        $user = Auth::user();
+
+        if ($chat->freelancer_id !== $user->id) {
+            abort(403, 'Only the freelancer can request to start a project.');
+        }
+
+        // Check if there's already a pending request
+        $existingPending = $chat->projectRequests()->where('status', 'pending')->exists();
+        if ($existingPending) {
+            return back()->with('error', 'A project request is already pending.');
+        }
+
+        $projectRequest = ProjectRequest::create([
+            'chat_id' => $chat->id,
+            'freelancer_id' => $chat->freelancer_id,
+            'client_id' => $chat->client_id,
+            'status' => 'pending',
+        ]);
+
+        // Send notification to client
+        Notification::notify(
+            $chat->client_id,
+            'project_request',
+            'Project Request',
+            "{$user->name} has requested to start a project with you.",
+            ['chat_id' => $chat->id, 'request_id' => $projectRequest->id]
+        );
+
+        return back()->with('success', 'Project request sent to client.');
+    }
+
+    public function approveProject(PreProjectChat $chat)
+    {
+        $user = Auth::user();
+
+        if ($chat->client_id !== $user->id) {
+            abort(403, 'Only the client can approve a project request.');
+        }
+
+        $projectRequest = $chat->projectRequests()->where('status', 'pending')->latest()->first();
+        if (!$projectRequest) {
+            return back()->with('error', 'No pending project request found.');
+        }
+
+        $projectRequest->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        // Send notification to freelancer
+        Notification::notify(
+            $chat->freelancer_id,
+            'project_approved',
+            'Project Approved',
+            "Your project request has been approved by {$user->name}. You can now start the project.",
+            ['chat_id' => $chat->id, 'request_id' => $projectRequest->id]
+        );
+
+        return back()->with('success', 'Project request approved.');
+    }
+
+    public function rejectProject(PreProjectChat $chat)
+    {
+        $user = Auth::user();
+
+        if ($chat->client_id !== $user->id) {
+            abort(403, 'Only the client can reject a project request.');
+        }
+
+        $projectRequest = $chat->projectRequests()->where('status', 'pending')->latest()->first();
+        if (!$projectRequest) {
+            return back()->with('error', 'No pending project request found.');
+        }
+
+        $projectRequest->update([
+            'status' => 'rejected',
+            'rejected_at' => now(),
+        ]);
+
+        // Send notification to freelancer
+        Notification::notify(
+            $chat->freelancer_id,
+            'project_rejected',
+            'Project Request Rejected',
+            "Your project request has been rejected by {$user->name}.",
+            ['chat_id' => $chat->id, 'request_id' => $projectRequest->id]
+        );
+
+        return back()->with('info', 'Project request rejected.');
+    }
+
     public function archive(PreProjectChat $chat)
     {
         $user = Auth::user();
@@ -676,6 +785,16 @@ class PreProjectChatController extends Controller
 
         if ($chat->freelancer_id !== $user->id) {
             abort(403, 'Only the freelancer can start a project.');
+        }
+
+        // Check for approved project request
+        $approvedRequest = $chat->projectRequests()
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+
+        if (!$approvedRequest) {
+            return back()->with('error', 'You need client approval before starting the project.');
         }
 
         // Allow conversion if chat is open OR archived OR already converted (in case of recreation)

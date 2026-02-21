@@ -90,6 +90,11 @@ class AuthenticationController extends Controller
                 // Set current workspace to the invited workspace
                 session(['current_workspace_id' => $invitation->workspace_id]);
                 
+                // If freelancer onboarding not completed, redirect to onboarding
+                if ($user->usage_type === 'freelancer' && !$user->onboarding_completed) {
+                    return redirect()->route('onboarding.profile')->with('info', 'Please complete your freelancer profile to gain full access.');
+                }
+                
                 return redirect()->route('dashboard')->with('success', 'Welcome! You\'ve joined the workspace successfully.');
             }
         }
@@ -135,6 +140,11 @@ class AuthenticationController extends Controller
                 
                 // Set current workspace
                 session(['current_workspace_id' => $workspace->id]);
+                
+                // If freelancer onboarding not completed, redirect to onboarding
+                if ($user->usage_type === 'freelancer' && !$user->onboarding_completed) {
+                    return redirect()->route('onboarding.profile')->with('info', 'Please complete your freelancer profile to gain full access.');
+                }
                 
                 return redirect()->route('dashboard')
                     ->with('success', "Welcome! You've joined '{$workspace->name}'.");
@@ -281,10 +291,11 @@ class AuthenticationController extends Controller
                 'name' => $fullName,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'team_member',
+                'role' => 'team_member', // Legacy role, keeping for now
                 'job_title' => $request->job_title,
                 'phone' => $request->phone,
-                'usage_type' => 'team_member', // Default for invitation-based registration
+                'usage_type' => 'freelancer', // ALL invited users are Freelancers by default
+                'onboarding_completed' => false,
             ]);
 
             Auth::login($user);
@@ -304,10 +315,10 @@ class AuthenticationController extends Controller
                 $workspace = $invitation->workspace;
                 $request->session()->forget('invite_token');
                 session(['current_workspace_id' => $workspace->id]);
-                $user->update(['onboarding_completed' => true]);
                 
-                return redirect()->route('dashboard')
-                    ->with('success', "Welcome! You've joined '{$workspace->name}' as a {$invitation->role}.");
+                // New Requirement: They must complete Freelancer Onboarding Profile
+                return redirect()->route('onboarding.profile')
+                    ->with('success', "Welcome! You've joined '{$workspace->name}'. Please complete your freelancer profile to get started.");
             }
         } else {
             // PUBLIC REGISTRATION (No Invitation)

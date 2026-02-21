@@ -4,27 +4,28 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, MessageSquare, Paperclip, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import UserProfileLink from './UserProfileLink';
 
 export default function TaskCard({ task, onClick, isDragging }) {
   const isOverdue = task.due_on && new Date(task.due_on) < new Date() && !task.completed_at;
-  
+
   return (
     <Card
       className={cn(
-        "p-3 cursor-pointer hover:shadow-md transition-all duration-200 bg-slate-800 border border-slate-700",
+        "p-3 cursor-pointer hover:shadow-md transition-all duration-200 bg-white border border-[#E2E8F0]",
         isDragging && "opacity-50 rotate-2",
         isOverdue && "border-l-4 border-l-red-500"
       )}
       onClick={onClick}
     >
       {/* Task Title */}
-      <h4 className="font-medium text-sm text-white mb-2 line-clamp-2">
+      <h4 className="font-medium text-sm text-[#0F172A] mb-2 line-clamp-2">
         {task.name}
       </h4>
 
       {/* Description Preview */}
       {task.description && (
-        <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+        <p className="text-xs text-[#64748B] mb-3 line-clamp-2">
           {task.description}
         </p>
       )}
@@ -43,7 +44,7 @@ export default function TaskCard({ task, onClick, isDragging }) {
             </Badge>
           ))}
           {task.labels.length > 3 && (
-            <Badge variant="secondary" className="text-xs px-2 py-0">
+            <Badge variant="secondary" className="text-xs px-2 py-0 bg-[#F1F5F9] text-[#64748B]">
               +{task.labels.length - 3}
             </Badge>
           )}
@@ -51,26 +52,26 @@ export default function TaskCard({ task, onClick, isDragging }) {
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-600">
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#E2E8F0]">
         {/* Due Date & Metadata */}
-        <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
           {task.due_on && (
             <div className={cn(
               "flex items-center gap-1",
-              isOverdue && "text-red-400 font-medium"
+              isOverdue && "text-red-500 font-medium"
             )}>
               <Calendar className="h-3 w-3" />
               <span>{format(new Date(task.due_on), 'MMM d')}</span>
             </div>
           )}
-          
+
           {task.comments_count > 0 && (
             <div className="flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />
               <span>{task.comments_count}</span>
             </div>
           )}
-          
+
           {task.attachments_count > 0 && (
             <div className="flex items-center gap-1">
               <Paperclip className="h-3 w-3" />
@@ -88,12 +89,14 @@ export default function TaskCard({ task, onClick, isDragging }) {
 
         {/* Assignee Avatar */}
         {task.assigned_to_user && (
-          <Avatar className="h-6 w-6 border-2 border-slate-600">
-            <AvatarImage src={task.assigned_to_user.avatar_url} />
-            <AvatarFallback className="text-xs bg-gradient-to-br from-blue-500 to-violet-500 text-white">
-              {task.assigned_to_user.name?.charAt(0)?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <UserProfileLink userId={task.assigned_to_user.id}>
+            <Avatar className="h-6 w-6 border-2 border-[#E2E8F0]">
+              <AvatarImage src={task.assigned_to_user.avatar_url} />
+              <AvatarFallback className="text-xs bg-[#4F46E5] text-white">
+                {task.assigned_to_user.name?.charAt(0)?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </UserProfileLink>
         )}
       </div>
     </Card>

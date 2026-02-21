@@ -12,23 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create the task_groups table with the correct structure
-        DB::statement('
-            CREATE TABLE task_groups (
-                id bigint unsigned NOT NULL AUTO_INCREMENT,
-                project_id bigint unsigned NOT NULL,
-                name varchar(255) NOT NULL,
-                type enum("system", "custom") NOT NULL DEFAULT "custom",
-                position int NOT NULL,
-                created_at timestamp NULL DEFAULT NULL,
-                updated_at timestamp NULL DEFAULT NULL,
-                PRIMARY KEY (id),
-                KEY task_groups_project_id_foreign (project_id),
-                KEY task_groups_project_id_position_index (project_id, position),
-                KEY task_groups_project_id_type_index (project_id, type),
-                CONSTRAINT task_groups_project_id_foreign FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ');
+        if (!Schema::hasTable('task_groups')) {
+            // Create the task_groups table with the correct structure
+            DB::statement('
+                CREATE TABLE task_groups (
+                    id bigint unsigned NOT NULL AUTO_INCREMENT,
+                    project_id bigint unsigned NOT NULL,
+                    name varchar(255) NOT NULL,
+                    type enum("system", "custom") NOT NULL DEFAULT "custom",
+                    position int NOT NULL,
+                    created_at timestamp NULL DEFAULT NULL,
+                    updated_at timestamp NULL DEFAULT NULL,
+                    PRIMARY KEY (id),
+                    KEY task_groups_project_id_foreign (project_id),
+                    KEY task_groups_project_id_position_index (project_id, position),
+                    KEY task_groups_project_id_type_index (project_id, type),
+                    CONSTRAINT task_groups_project_id_foreign FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ');
+        }
     }
 
     /**

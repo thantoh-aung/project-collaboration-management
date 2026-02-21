@@ -23,8 +23,11 @@ class ProjectPolicy
             return true;
         }
 
-        // Clients can only view if they are team members
-        return $project->teamMembers()->where('user_id', $user->id)->exists();
+        if ($role === 'client') {
+            return true;
+        }
+
+        return false;
     }
 
     /**

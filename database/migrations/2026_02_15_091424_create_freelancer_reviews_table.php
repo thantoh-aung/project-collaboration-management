@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('freelancer_reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('freelancer_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('users')->onDelete('cascade');
-            $table->unsignedTinyInteger('rating'); // 1-5
-            $table->text('comment')->nullable();
-            $table->timestamps();
-            
-            $table->unique(['freelancer_id', 'client_id']); // One review per client per freelancer
-        });
+        if (!Schema::hasTable('freelancer_reviews')) {
+            Schema::create('freelancer_reviews', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('freelancer_id')->constrained('users')->onDelete('cascade');
+                $table->foreignId('client_id')->constrained('users')->onDelete('cascade');
+                $table->unsignedTinyInteger('rating'); // 1-5
+                $table->text('comment')->nullable();
+                $table->timestamps();
+                
+                $table->unique(['freelancer_id', 'client_id']); // One review per client per freelancer
+            });
+        }
     }
 
     /**

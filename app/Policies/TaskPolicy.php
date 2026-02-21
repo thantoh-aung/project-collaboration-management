@@ -29,13 +29,15 @@ class TaskPolicy
             return true;
         }
 
+        // Clients can view all tasks in projects belonging to their workspace
+        if ($workspaceRole === 'client') {
+            return $workspace && $task->project->workspace_id === $workspace->id;
+        }
+
         // If task is unassigned (assigned_to_user_id is null), all project team members can view it
         if ($task->assigned_to_user_id === null) {
             if ($workspaceRole === 'member') {
                 return $task->project->teamMembers()->where('user_id', $user->id)->exists();
-            }
-            if ($workspaceRole === 'client') {
-                return $user->hasProjectAccess($task->project);
             }
         }
 
@@ -43,11 +45,6 @@ class TaskPolicy
         if ($workspaceRole === 'member') {
             return (int) $task->assigned_to_user_id === (int) $user->id 
                 || (int) $task->created_by_user_id === (int) $user->id;
-        }
-
-        // Clients can view all tasks (read-only access)
-        if ($workspaceRole === 'client') {
-            return $user->hasProjectAccess($task->project);
         }
 
         // Default: check project access

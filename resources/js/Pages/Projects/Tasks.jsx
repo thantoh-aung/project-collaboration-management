@@ -18,12 +18,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Search, 
-  Filter, 
-  Calendar, 
+import {
+  ArrowLeft,
+  Plus,
+  Search,
+  Filter,
+  Calendar,
   User,
   CheckCircle,
   Clock,
@@ -76,26 +76,25 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`mb-1.5 cursor-pointer hover:shadow-sm transition-all border-l-2 border-l-transparent hover:border-l-blue-500 bg-slate-800 border-slate-700 ${
-        isDragging ? 'shadow-md opacity-50' : ''
-      }`}
+      className={`mb-1.5 cursor-pointer hover:shadow-sm transition-all border-l-2 border-l-transparent hover:border-l-[#4F46E5] bg-white border-[#E2E8F0] ${isDragging ? 'shadow-md opacity-50' : ''
+        }`}
       onClick={onClick}
     >
       <CardContent className="p-2 relative">
         {/* Drag Handle - separated from click area */}
-        <div 
+        <div
           {...attributes}
           {...listeners}
-          className="absolute top-1 right-1 p-1 cursor-grab active:cursor-grabbing hover:bg-slate-700 rounded"
+          className="absolute top-1 right-1 p-1 cursor-grab active:cursor-grabbing hover:bg-[#F1F5F9] rounded"
           onClick={(e) => e.stopPropagation()}
         >
-          <svg className="h-3 w-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="h-3 w-3 text-[#94A3B8]" fill="currentColor" viewBox="0 0 20 20">
             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"></path>
           </svg>
         </div>
-        
-        <h4 className="font-medium text-xs mb-1.5 line-clamp-2 leading-tight pr-6 text-white">{task.name}</h4>
-        
+
+        <h4 className="font-medium text-xs mb-1.5 line-clamp-2 leading-tight pr-6 text-[#0F172A]">{task.name}</h4>
+
         {/* Labels */}
         {task.labels && task.labels.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-1.5">
@@ -115,7 +114,7 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
             )}
           </div>
         )}
-        
+
         {/* Bottom info */}
         <div className="flex items-center justify-between text-[10px]">
           <div className="flex items-center gap-1.5">
@@ -127,33 +126,33 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
                 </AvatarFallback>
               </Avatar>
             )}
-            
+
             {task.time_estimate && (
-              <div className="flex items-center gap-0.5 text-gray-400">
+              <div className="flex items-center gap-0.5 text-[#94A3B8]">
                 <Timer className="h-2.5 w-2.5" />
-                <span className="text-gray-400">{formatTime(task.time_estimate)}</span>
+                <span className="text-[#94A3B8]">{formatTime(task.time_estimate)}</span>
               </div>
             )}
-            
+
             {task.attachments && task.attachments.length > 0 && (
-              <div className="flex items-center gap-0.5 text-gray-400">
+              <div className="flex items-center gap-0.5 text-[#94A3B8]">
                 <Paperclip className="h-2.5 w-2.5" />
-                <span className="text-gray-400">{task.attachments.length}</span>
+                <span className="text-[#94A3B8]">{task.attachments.length}</span>
               </div>
             )}
-            
+
             {task.subscribers && task.subscribers.length > 0 && (
-              <div className="flex items-center gap-0.5 text-gray-400">
+              <div className="flex items-center gap-0.5 text-[#94A3B8]">
                 <Users className="h-2.5 w-2.5" />
-                <span className="text-gray-400">{task.subscribers.length}</span>
+                <span className="text-[#94A3B8]">{task.subscribers.length}</span>
               </div>
             )}
           </div>
-          
+
           {task.due_on && (
-            <div className="flex items-center gap-0.5 text-gray-400">
+            <div className="flex items-center gap-0.5 text-[#94A3B8]">
               <Calendar className="h-2.5 w-2.5" />
-              <span className="text-gray-400">{new Date(task.due_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              <span className="text-[#94A3B8]">{new Date(task.due_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
             </div>
           )}
         </div>
@@ -165,7 +164,7 @@ function SortableTaskCard({ task, index, onClick, labelColors, formatTime }) {
 export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }) {
   const { userRole, user } = useWorkspace();
   const canCreateTasks = userRole !== 'client'; // Admin and Member can create, Client cannot
-  
+
   // Filter team members to exclude clients (only team members can be assigned tasks)
   const assignableMembers = teamMembers?.filter(member => member.pivot?.role !== 'client') || [];
 
@@ -173,10 +172,10 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
   const canMoveTask = useCallback((task) => {
     // Clients cannot move tasks
     if (userRole === 'client') return false;
-    
+
     // Admins can move any task
     if (userRole === 'admin') return true;
-    
+
     // Members can move tasks if:
     // 1. Task is unassigned (assigned_to_user_id is null)
     // 2. Task is assigned to them
@@ -185,7 +184,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
       const assignedUserId = task.assigned_to_user_id;
       const currentUserId = user?.id;
       const createdById = task.created_by_user_id;
-      
+
       // Unassigned tasks can be moved by all team members
       if (assignedUserId == null) {
         console.log('🔍 Unassigned task - allowing move for team member', {
@@ -196,14 +195,14 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
         });
         return true;
       }
-      
+
       // Assigned tasks can only be moved by the assigned user or creator
       return assignedUserId == currentUserId || createdById == currentUserId;
     }
-    
+
     return false;
   }, [userRole, user]);
-  
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTask, setSelectedTask] = useState(null);
@@ -213,12 +212,12 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
   const [filterAssignee, setFilterAssignee] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [localTasks, setLocalTasks] = useState(tasks);
-  
+
   // Update local tasks when props change
   useEffect(() => {
     setLocalTasks(tasks);
   }, [tasks]);
-  
+
   const { data, setData, post, processing, errors, reset } = useForm({
     name: '',
     description: '',
@@ -241,138 +240,115 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
 
   // Use actual task groups from database
   const taskGroupsList = taskGroups || [];
-  
+
   const taskStatuses = [
-    { id: 'todo', name: 'To Do', color: 'bg-gray-900/30 text-gray-400', icon: Clock },
-    { id: 'in-progress', name: 'In Progress', color: 'bg-blue-900/30 text-blue-400', icon: AlertCircle },
-    { id: 'in-review', name: 'In Review', color: 'bg-purple-900/30 text-purple-400', icon: Users },
-    { id: 'qa', name: 'QA', color: 'bg-orange-900/30 text-orange-400', icon: CheckCircle },
-    { id: 'done', name: 'Done', color: 'bg-green-900/30 text-green-400', icon: CheckCircle },
-    { id: 'deployed', name: 'Deployed', color: 'bg-indigo-900/30 text-indigo-400', icon: CheckCircle },
+    { id: 'todo', name: 'To Do', color: 'bg-[#F1F5F9] text-[#64748B]', icon: Clock },
+    { id: 'in-progress', name: 'In Progress', color: 'bg-blue-50 text-blue-600', icon: AlertCircle },
+    { id: 'in-review', name: 'In Review', color: 'bg-[rgba(79,70,229,0.08)] text-[#4F46E5]', icon: Users },
+    { id: 'qa', name: 'QA', color: 'bg-amber-50 text-amber-600', icon: CheckCircle },
+    { id: 'done', name: 'Done', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle },
+    { id: 'deployed', name: 'Deployed', color: 'bg-[rgba(79,70,229,0.08)] text-[#4F46E5]', icon: CheckCircle },
   ];
 
   const labelColors = {
-    bug: 'bg-red-900/30 text-red-400',
-    feature: 'bg-green-900/30 text-green-400',
-    improvement: 'bg-blue-900/30 text-blue-400',
-    urgent: 'bg-yellow-900/30 text-yellow-400',
-    documentation: 'bg-purple-900/30 text-purple-400',
+    bug: 'bg-red-50 text-red-600',
+    feature: 'bg-emerald-50 text-emerald-600',
+    improvement: 'bg-blue-50 text-blue-600',
+    urgent: 'bg-amber-50 text-amber-600',
+    documentation: 'bg-[rgba(79,70,229,0.08)] text-[#4F46E5]',
   };
 
   // Filter tasks based on search and filters
   const filteredTasks = localTasks?.filter(task => {
     // Search filter
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     // Assignee filter
-    const matchesAssignee = filterAssignee === 'all' || 
+    const matchesAssignee = filterAssignee === 'all' ||
       (filterAssignee === 'unassigned' && !task.assigned_to_user_id) ||
       (task.assigned_to_user_id?.toString() === filterAssignee);
-    
+
     // Status filter (for non-group mode)
     const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
-    
+
     return matchesSearch && matchesAssignee && matchesStatus;
   }) || [];
 
   // Group tasks by task group (if using groups) or by status
   const useTaskGroups = taskGroupsList.length > 0;
-  
-  console.log('🔍 Projects/Tasks.jsx Debug:', {
-    totalTasks: localTasks?.length,
-    filteredTasks: filteredTasks.length,
-    taskGroups: taskGroupsList,
-    useTaskGroups,
-    firstTask: localTasks?.[0],
-    firstGroup: taskGroupsList[0]
-  });
-  
-  console.log('📋 All Tasks:', localTasks);
-  console.log('📁 All Groups:', taskGroupsList);
-  
-  if (localTasks?.length > 0) {
-    localTasks.forEach((task, idx) => {
-      console.log(`Task ${idx + 1}:`, {
-        id: task.id,
-        name: task.name,
-        group_id: task.group_id,
-        task_group: task.task_group,
-        status: task.status
-      });
-    });
-  }
-  
-  const tasksByGroup = useTaskGroups 
+
+  // Task groups debug removed for production
+
+  const tasksByGroup = useTaskGroups
     ? taskGroupsList.reduce((acc, group, index) => {
-        // For the first group, include both assigned tasks and unassigned tasks
-        if (index === 0) {
-          acc[group.id] = filteredTasks.filter(task => 
-            task.group_id === group.id || task.group_id === null
-          );
-        } else {
-          acc[group.id] = filteredTasks.filter(task => task.group_id === group.id);
-        }
-        console.log(`📊 Group ${group.id} (${group.name}): ${acc[group.id].length} tasks`);
-        return acc;
-      }, {})
+      // For the first group, include both assigned tasks and unassigned tasks
+      if (index === 0) {
+        acc[group.id] = filteredTasks.filter(task =>
+          task.group_id === group.id || task.group_id === null
+        );
+      } else {
+        acc[group.id] = filteredTasks.filter(task => task.group_id === group.id);
+      }
+      // Group task count tracked
+      return acc;
+    }, {})
     : taskStatuses.reduce((acc, status) => {
-        acc[status.id] = filteredTasks.filter(task => task.status === status.id);
-        return acc;
-      }, {});
+      acc[status.id] = filteredTasks.filter(task => task.status === status.id);
+      return acc;
+    }, {});
 
   const handleDragEnd = useCallback(async (event) => {
     const { active, over } = event;
-    
+
     if (!over) return;
-    
+
     const taskId = parseInt(active.id);
     const newGroupId = parseInt(over.id);
-    
-    console.log('🔄 Drag & Drop:', { taskId, newGroupId, activeId: active.id, overId: over.id });
-    
+
+    // Drag & Drop event
+
     // Validate group ID
     const validGroupIds = taskGroups.map(g => g.id);
     if (!validGroupIds.includes(newGroupId)) {
-      console.error('❌ Invalid group ID:', newGroupId, 'Valid groups:', validGroupIds);
       return;
     }
-    
+
     // Find the task being moved
     const task = localTasks.find(t => t.id === taskId);
     if (!task || task.group_id === newGroupId) return;
-    
+
     // Authorization check
     if (!canMoveTask(task)) {
       console.log('� Drag denied: User cannot move this task');
       alert('You do not have permission to move this task.');
       return;
     }
-    
+
     console.log('�� Moving task:', task.name, 'from group', task.group_id, 'to group', newGroupId);
-    
+
     // Optimistic update
-    const updatedTasks = localTasks.map(t => 
+    const updatedTasks = localTasks.map(t =>
       t.id === taskId ? { ...t, group_id: newGroupId } : t
     );
     setLocalTasks(updatedTasks);
-    
+
     // Update backend
     try {
       const response = await axios.patch(`/api/workspaces/${project.workspace_id}/tasks/${taskId}`, {
         group_id: newGroupId
       });
-      console.log('✅ Task updated successfully:', response.data);
+      // Task updated successfully
     } catch (error) {
-      console.error('❌ Failed to update task:', error.response?.data || error.message);
+      console.error('Failed to update task:', error.response?.data || error.message);
       // Revert on error
       setLocalTasks(tasks);
-      
+
       // Show specific error message
-      const errorMessage = error.response?.data?.message || 
-                         error.response?.data?.error || 
-                         'Failed to move task. Please try again.';
+      const errorMessage = error.response?.data?.message ||
+        error.response?.data?.error ||
+        'Failed to move task. Please try again.';
       alert(errorMessage);
     }
   }, [canMoveTask, localTasks, tasks, taskGroups]);
@@ -394,7 +370,7 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
   return (
     <>
       <Head title={`Tasks - ${project.name} - CollabTool`} />
-      
+
       <MainLayout title={`Tasks - ${project.name}`}>
         <div className="h-full flex flex-col">
           {/* Compact Header */}
@@ -407,16 +383,16 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   </Button>
                 </Link>
                 <div>
-                  <h1 className="text-lg font-semibold text-white">{project.name}</h1>
-                  <p className="text-xs text-gray-400">{tasks?.length || 0} tasks</p>
+                  <h1 className="text-lg font-semibold text-[#0F172A]">{project.name}</h1>
+                  <p className="text-xs text-[#64748B]">{tasks?.length || 0} tasks</p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <div className="relative">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    className="h-8 border-slate-600 text-gray-400 hover:bg-slate-700"
+                    className="h-8 border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]"
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     <Filter className="h-3.5 w-3.5 mr-1.5" />
@@ -425,26 +401,26 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   {showFilters && (
                     <>
                       {/* Backdrop to close filter on outside click */}
-                      <div 
-                        className="fixed inset-0 z-40" 
+                      <div
+                        className="fixed inset-0 z-40"
                         onClick={() => setShowFilters(false)}
                       />
-                      <div 
-                        className="absolute right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-lg shadow-blue-600/20 border border-slate-700 p-3 z-50"
+                      <div
+                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-[#E2E8F0] p-3 z-50"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="space-y-3">
                           <div>
-                            <Label className="text-xs font-medium mb-1.5 block text-gray-300">Assignee</Label>
+                            <Label className="text-xs font-medium mb-1.5 block text-[#0F172A]">Assignee</Label>
                             <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-                              <SelectTrigger className="h-8 text-xs bg-slate-700 border-slate-600 text-white">
+                              <SelectTrigger className="h-8 text-xs bg-white border-[#E2E8F0] text-[#0F172A]">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="bg-slate-800 border-slate-600">
-                                <SelectItem value="all" className="text-white hover:bg-slate-700">All Members</SelectItem>
-                                <SelectItem value="unassigned" className="text-white hover:bg-slate-700">Unassigned</SelectItem>
+                              <SelectContent className="bg-white border-[#E2E8F0]">
+                                <SelectItem value="all" className="text-[#0F172A]">All Members</SelectItem>
+                                <SelectItem value="unassigned" className="text-[#0F172A]">Unassigned</SelectItem>
                                 {assignableMembers?.map(member => (
-                                  <SelectItem key={member.id} value={member.id.toString()} className="text-white hover:bg-slate-700">
+                                  <SelectItem key={member.id} value={member.id.toString()} className="text-[#0F172A]">
                                     {member.name}
                                   </SelectItem>
                                 ))}
@@ -452,10 +428,10 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                             </Select>
                           </div>
                           <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-7 text-xs flex-1 border-slate-600 text-gray-400 hover:bg-slate-700"
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs flex-1 border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]"
                               onClick={() => {
                                 setFilterAssignee('all');
                                 setFilterStatus('all');
@@ -463,9 +439,9 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                             >
                               Clear
                             </Button>
-                            <Button 
-                              size="sm" 
-                              className="h-7 text-xs flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs flex-1 bg-[#4F46E5] hover:bg-[#4338CA] text-white"
                               onClick={() => setShowFilters(false)}
                             >
                               Apply
@@ -477,9 +453,9 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   )}
                 </div>
                 {canCreateTasks && (
-                  <Button 
-                    size="sm" 
-                    className="h-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  <Button
+                    size="sm"
+                    className="h-8 bg-[#4F46E5] hover:bg-[#4338CA] text-white"
                     onClick={() => {
                       setSelectedGroupId(taskGroups?.[0]?.id || null);
                       setShowCreateModal(true);
@@ -495,39 +471,39 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
             {/* Compact Stats */}
             <div className="flex gap-6 px-1">
               <div>
-                <div className="text-xl font-bold text-white">{localTasks?.length || 0}</div>
-                <p className="text-xs text-gray-400">Total</p>
+                <div className="text-xl font-bold text-[#0F172A]">{localTasks?.length || 0}</div>
+                <p className="text-xs text-[#64748B]">Total</p>
               </div>
               {useTaskGroups ? (
                 <>
                   {taskGroupsList.slice(0, 3).map((group) => (
                     <div key={group.id}>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-xl font-bold text-[#0F172A]">
                         {localTasks?.filter(t => t.group_id === group.id).length || 0}
                       </div>
-                      <p className="text-xs text-gray-400">{group.name}</p>
+                      <p className="text-xs text-[#64748B]">{group.name}</p>
                     </div>
                   ))}
                 </>
               ) : (
                 <>
                   <div>
-                    <div className="text-xl font-bold text-white">
+                    <div className="text-xl font-bold text-[#0F172A]">
                       {localTasks?.filter(t => t.status === 'todo').length || 0}
                     </div>
-                    <p className="text-xs text-gray-400">To Do</p>
+                    <p className="text-xs text-[#64748B]">To Do</p>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-white">
+                    <div className="text-xl font-bold text-[#0F172A]">
                       {localTasks?.filter(t => t.status === 'in-progress').length || 0}
                     </div>
-                    <p className="text-xs text-gray-400">In Progress</p>
+                    <p className="text-xs text-[#64748B]">In Progress</p>
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-white">
+                    <div className="text-xl font-bold text-[#0F172A]">
                       {localTasks?.filter(t => ['done', 'deployed'].includes(t.status)).length || 0}
                     </div>
-                    <p className="text-xs text-gray-400">Completed</p>
+                    <p className="text-xs text-[#64748B]">Completed</p>
                   </div>
                 </>
               )}
@@ -537,10 +513,10 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
           {/* Compact Search */}
           <div className="mb-3">
             <div className="relative max-w-sm">
-              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-[#94A3B8]" />
               <Input
                 placeholder="Search tasks..."
-                className="pl-8 h-8 text-sm bg-slate-700 border-slate-600 text-white"
+                className="pl-8 h-8 text-sm bg-white border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -559,17 +535,17 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   // Render columns based on task groups from database
                   taskGroupsList.map((group) => {
                     const groupTasks = tasksByGroup[group.id] || [];
-                    
+
                     return (
                       <div key={group.id} className="flex flex-col h-full">
                         <div className="flex items-center gap-1.5 mb-2 px-1">
-                          <h3 className="font-medium text-xs text-gray-300 uppercase tracking-wide">{group.name}</h3>
+                          <h3 className="font-medium text-xs text-[#64748B] uppercase tracking-wide">{group.name}</h3>
                           <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
                             {groupTasks.length}
                           </Badge>
                         </div>
-                        
-                        <div className="flex-1 min-h-[400px] p-1.5 rounded-md bg-slate-700/30">
+
+                        <div className="flex-1 min-h-[400px] p-1.5 rounded-md bg-[#F8FAFC]">
                           <SortableContext
                             items={groupTasks.map(t => t.id.toString())}
                             strategy={verticalListSortingStrategy}
@@ -588,13 +564,13 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                               />
                             ))}
                           </SortableContext>
-                          
+
                           {/* Quick Add Button - Only for Admin/Member */}
                           {canCreateTasks && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full mt-1 h-7 text-xs text-gray-400 hover:text-white hover:bg-slate-700"
+                              className="w-full mt-1 h-7 text-xs text-[#94A3B8] hover:text-[#4F46E5] hover:bg-[#F1F5F9]"
                               onClick={() => {
                                 setSelectedGroupId(group.id);
                                 setShowCreateModal(true);
@@ -613,18 +589,18 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                   taskStatuses.map((status) => {
                     const StatusIcon = status.icon;
                     const statusTasks = tasksByGroup[status.id] || [];
-                    
+
                     return (
                       <div key={status.id} className="flex flex-col h-full">
                         <div className="flex items-center gap-2 mb-3">
-                          <StatusIcon className="h-4 w-4 text-gray-400" />
-                          <h3 className="font-medium text-sm text-white">{status.name}</h3>
+                          <StatusIcon className="h-4 w-4 text-[#64748B]" />
+                          <h3 className="font-medium text-sm text-[#0F172A]">{status.name}</h3>
                           <Badge variant="secondary" className="text-xs">
                             {statusTasks.length}
                           </Badge>
                         </div>
-                        
-                        <div className="flex-1 min-h-[400px] p-2 rounded-lg bg-slate-700/30">
+
+                        <div className="flex-1 min-h-[400px] p-2 rounded-lg bg-[#F8FAFC]">
                           <SortableContext
                             items={statusTasks.map(t => t.id.toString())}
                             strategy={verticalListSortingStrategy}
@@ -643,13 +619,13 @@ export default function ProjectTasks({ project, tasks, taskGroups, teamMembers }
                               />
                             ))}
                           </SortableContext>
-                          
+
                           {/* Quick Add Button - Only for Admin/Member */}
                           {canCreateTasks && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full mt-2 text-gray-400 hover:text-white hover:bg-slate-700"
+                              className="w-full mt-2 text-[#94A3B8] hover:text-[#4F46E5] hover:bg-[#F1F5F9]"
                               onClick={() => {
                                 setSelectedGroupId(null);
                                 setShowCreateModal(true);

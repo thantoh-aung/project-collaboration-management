@@ -8,15 +8,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 
-export default function CreateTaskModal({ 
-  open, 
-  onClose, 
-  projectId, 
-  groupId, 
+export default function CreateTaskModal({
+  open,
+  onClose,
+  projectId,
+  groupId,
   projectMembers = [],
-  onSuccess 
+  onSuccess
 }) {
-  
+
   const { data, setData, post, processing, errors, reset } = useForm({
     name: '',
     description: '',
@@ -28,7 +28,7 @@ export default function CreateTaskModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     post(`/projects/${projectId}/tasks`, {
       preserveScroll: true,
       onSuccess: () => {
@@ -46,7 +46,7 @@ export default function CreateTaskModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-gray-900 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] bg-white max-h-[90vh] overflow-y-auto border border-[#E2E8F0]">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>

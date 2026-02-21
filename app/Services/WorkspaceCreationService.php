@@ -39,6 +39,12 @@ class WorkspaceCreationService
                 'status'       => 'converted_to_workspace',
                 'workspace_id' => $workspace->id,
             ]);
+
+            // 5. Recalculate freelancer's total projects count
+            $freelancerProfile = \App\Models\FreelancerProfile::where('user_id', $chat->freelancer_id)->first();
+            if ($freelancerProfile) {
+                $freelancerProfile->recalculateProjectsCount();
+            }
         });
 
         return $workspace;

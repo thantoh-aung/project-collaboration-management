@@ -16,9 +16,14 @@ class EnsureMarketplaceAccess
             return redirect()->route('login');
         }
 
+        // Must complete onboarding to access marketplace
+        if (!$user->onboarding_completed) {
+            return redirect()->route('onboarding.profile')->with('info', 'Please complete your profile to access the marketplace.');
+        }
+
         // Team members cannot access marketplace
         if ($user->usage_type === 'team_member') {
-            abort(403, 'Team members do not have marketplace access.');
+            abort(403, 'Team members do not have marketplace access. Please contact support to upgrade to Freelancer.');
         }
 
         return $next($request);

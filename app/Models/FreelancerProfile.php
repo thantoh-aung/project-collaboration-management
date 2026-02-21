@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FreelancerProfile extends Model
@@ -35,6 +36,8 @@ class FreelancerProfile extends Model
         'avg_rating',
     ];
 
+    protected $appends = ['avatar_url'];
+
     protected function casts(): array
     {
         return [
@@ -47,6 +50,20 @@ class FreelancerProfile extends Model
         ];
     }
 
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            if (str_starts_with($this->avatar, 'http')) {
+                return $this->avatar;
+            }
+            if (str_starts_with($this->avatar, '/storage/') || str_starts_with($this->avatar, 'storage/')) {
+                return url($this->avatar);
+            }
+            return url('storage/' . $this->avatar);
+        }
+        return $this->user?->avatar_url;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -55,6 +72,11 @@ class FreelancerProfile extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(FreelancerReview::class, 'freelancer_id', 'user_id');
+    }
+
+    public function workspaces(): BelongsToMany
+    {
+        return $this->belongsToMany(Workspace::class, 'workspace_users', 'user_id', 'workspace_id', 'user_id', 'id');
     }
 
     public function scopePublished($query)
@@ -86,4 +108,28 @@ class FreelancerProfile extends Model
         $avg = FreelancerReview::where('freelancer_id', $this->user_id)->avg('rating');
         $this->update(['avg_rating' => round($avg ?? 0, 2)]);
     }
+
+    public function recalculateProjectsCount(): void
+    {
+        // Total Projects = Workspaces associated with an approved PreProjectChat where freelancer is the freelancer
+        $count = \App\Models\PreProjectChat::where('freelancer_id', $this->user_id)
+            ->where('status', 'converted_to_workspace')
+            ->whereNotNull('workspace_id')
+            ->count();
+            
+        $this->update(['total_projects' => $count]);
+    }
+
+    public function recalculateCollaborationsCount(): void
+    {
+        // Collaboration count = All workspaces the freelancer participated in (as admin or member)
+        $count = \App\Models\Workspace::whereHas('users', function($q) {
+            $q->where('users.id', $this->user_id);
+        })->count();
+        
+        // We will store this in a temporary property or meta if we don't want to add a DB column,
+        // but for now let's just make it available for the controller.
+        $this->workspaces_count = $count;
+    }
 }
+

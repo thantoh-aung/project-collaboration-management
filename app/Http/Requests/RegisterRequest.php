@@ -43,7 +43,7 @@ class RegisterRequest extends FormRequest
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/'
             ],
             'job_title' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-\'\.]+$/'],
-            'usage_type' => [$hasInvitation ? 'sometimes' : 'required', $hasInvitation ? 'in:team_member' : 'in:client,freelancer'],
+            'usage_type' => [$hasInvitation ? 'sometimes' : 'required', $hasInvitation ? 'in:freelancer,team_member' : 'in:client,freelancer'],
         ];
     }
 

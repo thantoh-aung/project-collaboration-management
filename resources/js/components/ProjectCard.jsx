@@ -14,40 +14,22 @@ import {
   Clock,
   TrendingUp,
   Target,
-  ArrowRight
+  ArrowRight,
+  Archive
 } from 'lucide-react';
 import { router, usePage } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/Context/WorkspaceContext';
+import UserProfileLink from '@/Components/UserProfileLink';
 
 export default function ProjectCard({ project }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const { hasPermission, userRole } = useWorkspace();
+  const { hasPermission } = useWorkspace();
   const { props } = usePage();
   const currentUser = props.auth?.user;
 
-  // Check if current user can manage projects (admin or creator)
   const canManageProject = hasPermission('manage_projects') || currentUser?.id === project.created_by;
-
-  // Debug: Log the project status
-  console.log('🔍 ProjectCard - Project status:', project.status);
-  console.log('🔍 ProjectCard - User role:', userRole);
-  console.log('🔍 ProjectCard - Current user ID:', currentUser?.id);
-  console.log('🔍 ProjectCard - Project created by:', project.created_by);
-  console.log('🔍 ProjectCard - Has manage_projects permission:', hasPermission('manage_projects'));
-  console.log('🔍 ProjectCard - Can manage project:', canManageProject);
-  console.log('🔍 ProjectCard - Status type:', typeof project.status);
-  console.log('🔍 ProjectCard - Status length:', project.status?.length);
-  
-  // Check for possible variations
-  if (project.status === 'completed') {
-    console.log('🔍 Status is EXACTLY "completed"');
-  } else if (project.status === 'complete') {
-    console.log('🔍 Status is "complete" (missing "d")');
-  } else if (project.status?.includes('complete')) {
-    console.log('🔍 Status contains "complete":', project.status);
-  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -62,279 +44,196 @@ export default function ProjectCard({ project }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen]);
 
-  // Helper functions (kept as is)
-  const getStatusColor = (status) => {
-    const colors = {
-      planning: 'from-slate-600 to-slate-700',
-      active: 'from-blue-600 to-purple-600',
-      on_hold: 'from-amber-600 to-orange-600',
-      completed: 'from-emerald-600 to-green-600',
-      complete: 'from-emerald-600 to-green-600', // Fallback for missing "d"
-      archived: 'from-slate-600 to-slate-700',
+  const getStatusConfig = (status) => {
+    const configs = {
+      planning: { color: 'bg-slate-100 text-slate-600', icon: <Target className="h-3 w-3" />, label: 'Planning' },
+      active: { color: 'bg-indigo-50 text-indigo-600', icon: <TrendingUp className="h-3 w-3" />, label: 'In Progress' },
+      on_hold: { color: 'bg-amber-50 text-amber-600', icon: <Clock className="h-3 w-3" />, label: 'On Hold' },
+      completed: { color: 'bg-emerald-50 text-emerald-600', icon: <CheckCircle className="h-3 w-3" />, label: 'Completed' },
+      complete: { color: 'bg-emerald-50 text-emerald-600', icon: <CheckCircle className="h-3 w-3" />, label: 'Completed' },
+      archived: { color: 'bg-slate-100 text-slate-500', icon: <Archive className="h-3 w-3" />, label: 'Archived' },
     };
-    
-    // Debug: Check if status is completed
-    if (status === 'completed') {
-      console.log('🔍 COMPLETED STATUS DETECTED! Using green gradient');
-    } else if (status === 'complete') {
-      console.log('🔍 COMPLETE STATUS DETECTED! Using green gradient');
-    }
-    
-    const result = colors[status] || colors.active;
-    console.log('🔍 getStatusColor - status:', status, 'result:', result);
-    return result;
+    return configs[status] || configs.active;
   };
 
-  const getStatusBgColor = (status) => {
-    const colors = {
-      planning: 'bg-slate-800',
-      active: 'bg-blue-600/20',
-      on_hold: 'bg-amber-600/20',
-      completed: 'bg-emerald-600/20',
-      complete: 'bg-emerald-600/20', // Fallback for missing "d"
-      archived: 'bg-slate-800',
-    };
-    return colors[status] || colors.active;
-  };
+  const status = getStatusConfig(project.status);
 
-  const getStatusTextColor = (status) => {
-    const colors = {
-      planning: 'text-slate-300',
-      active: 'text-blue-300',
-      on_hold: 'text-amber-300',
-      completed: 'text-emerald-300',
-      complete: 'text-emerald-300', // Fallback for missing "d"
-      archived: 'text-slate-300',
-    };
-    return colors[status] || colors.active;
-  };
-
-  const getStatusIcon = (status) => {
-    if (status === 'completed' || status === 'complete') return <CheckCircle className="h-3 w-3" />;
-    if (status === 'active') return <TrendingUp className="h-3 w-3" />;
-    if (status === 'on_hold') return <Clock className="h-3 w-3" />;
-    if (status === 'planning') return <Target className="h-3 w-3" />;
-    return <TrendingUp className="h-3 w-3" />;
-  };
-
-  const handleOpen = (e) => {
-    e.stopPropagation();
-    setIsMenuOpen(false);
-    router.visit(`/projects/${project.id}/tasks`);
-  };
-
-  const handleEdit = (e) => {
-    e.stopPropagation();
-    setIsMenuOpen(false);
-    router.visit(`/projects/${project.id}/edit`);
-  };
-
-  const handleDelete = (e) => {
-    e.stopPropagation();
-    setIsMenuOpen(false);
-    if (confirm('Are you sure you want to delete this project?')) {
-      router.delete(`/projects/${project.id}`);
-    }
-  };
-
-  const completionPercentage = project.tasks_count > 0 
+  const completionPercentage = project.tasks_count > 0
     ? Math.round((project.completed_tasks_count || 0) / project.tasks_count * 100)
     : 0;
 
+  const getProgressStyles = () => {
+    if (completionPercentage === 100) return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]';
+    if (completionPercentage >= 75) return 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.3)]';
+    if (completionPercentage >= 50) return 'bg-blue-400';
+    if (completionPercentage >= 25) return 'bg-amber-400';
+    return 'bg-slate-300';
+  };
+
   return (
-    <Card 
+    <Card
       className={cn(
-        "group relative transition-all duration-500 cursor-pointer", // Removed overflow-hidden to let menu show
-        "bg-slate-800 border-slate-700 shadow-lg hover:shadow-2xl hover:shadow-blue-600/20",
-        "hover:-translate-y-2 rounded-2xl w-[320px] h-[280px]",
-        "before:absolute before:inset-0 before:bg-gradient-to-br",
-        `before:from-transparent before:to-${getStatusColor(project.status).split(' ')[0].replace('from-', '')}/5`,
-        "before:opacity-20 group-hover:opacity-100 before:transition-opacity before:rounded-2xl"
+        "group relative overflow-hidden transition-all duration-300 cursor-pointer border-slate-200/60 bg-white",
+        "hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] hover:border-indigo-200/60",
+        "flex flex-col h-full rounded-2xl"
       )}
       onClick={() => router.visit(project.tasksPageUrl || `/projects/${project.id}/tasks`)}
     >
-      {/* Header section with overflow-hidden specifically for the gradient and shapes */}
-      <div className={cn(
-        "h-24 bg-gradient-to-br relative overflow-hidden rounded-t-2xl",
-        getStatusColor(project.status)
-      )}>
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8"></div>
-        </div>
-        
-        <div className="absolute top-3 right-3">
-          <div className={cn(
-            "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1",
-            getStatusBgColor(project.status),
-            getStatusTextColor(project.status)
-          )}>
-            {getStatusIcon(project.status)}
-            <span className="capitalize">{project.status?.replace('_', ' ') || 'Active'}</span>
-          </div>
-        </div>
+      {/* Decorative Gradient Background */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        <div className="absolute bottom-3 left-3">
-          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-            <FolderOpen className="h-6 w-6 text-white" />
-          </div>
-        </div>
-      </div>
-
-      <CardContent className="p-4 space-y-3 relative">
-        <div className="space-y-1">
-          <h3 className="font-semibold text-white text-sm line-clamp-1 group-hover:text-blue-400 transition-colors">
-            {project.name}
-          </h3>
-          <p className="text-xs text-gray-400 line-clamp-2">
-            {project.description || 'No description available'}
-          </p>
-        </div>
-
-        {project.tasks_count > 0 && (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">Progress</span>
-              <span className="font-medium text-white">{completionPercentage}%</span>
-            </div>
-            <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
-              <div 
-                className={cn(
-                  "h-full rounded-full transition-all duration-500",
-                  completionPercentage === 100 ? "bg-gradient-to-r from-emerald-600 to-green-600" :
-                  completionPercentage >= 75 ? "bg-gradient-to-r from-blue-600 to-purple-600" :
-                  completionPercentage >= 50 ? "bg-gradient-to-r from-amber-600 to-orange-600" :
-                  "bg-gradient-to-r from-slate-600 to-slate-700"
-                )}
-                style={{ width: `${completionPercentage}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between text-xs">
+      {/* Header Section */}
+      <div className="p-5 flex-1">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            {project.team_members_count !== undefined && (
-              <div className="flex items-center gap-1 text-gray-600">
-                <Users className="h-3 w-3" />
-                <span>{project.team_members_count}</span>
+            <div className="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
+              <FolderOpen className="h-5.5 w-5.5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-slate-900 text-[15px] leading-tight line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                {project.name}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider", status.color)}>
+                  {status.icon}
+                  {status.label}
+                </span>
               </div>
-            )}
-            <div className="flex items-center gap-1 text-gray-600">
-              <CheckCircle className="h-3 w-3" />
-              <span>{project.completed_tasks_count || 0}/{project.tasks_count || 0}</span>
             </div>
           </div>
-          {project.due_date && (
-            <div className="flex items-center gap-1 text-gray-500">
-              <Calendar className="h-3 w-3" />
-              <span>{new Date(project.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-            </div>
-          )}
-        </div>
 
-        {/* Team Members */}
-        {project.team_members && project.team_members.length > 0 && (
-          <div className="flex items-center justify-between">
-            <div className="flex -space-x-2">
-              {project.team_members.slice(0, 4).map((member, index) => (
-                <Avatar key={index} className="h-6 w-6 border-2 border-white">
-                  <AvatarImage src={member.avatar_url} />
-                  <AvatarFallback className="text-[10px] bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium">
-                    {member.name?.charAt(0)?.toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              ))}
-              {project.team_members.length > 4 && (
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white flex items-center justify-center">
-                  <span className="text-[9px] font-medium text-gray-600">
-                    +{project.team_members.length - 4}
-                  </span>
-                </div>
-              )}
-            </div>
-            <span className="text-[10px] text-gray-500">
-              {project.team_members.length} {project.team_members.length === 1 ? 'member' : 'members'}
-            </span>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between pt-2">
-          <Button
-            size="sm"
-            className="h-8 px-3 text-xs bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg transition-all"
-            onClick={handleOpen}
-          >
-            Open <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-
-          {/* Dropdown menu - different options based on user permissions */}
-          <div 
-            ref={menuRef} 
+          <div
+            ref={menuRef}
             className="relative"
-            onClick={(e) => e.stopPropagation()} 
+            onClick={(e) => e.stopPropagation()}
           >
             <Button
               variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-slate-700 rounded-lg transition-colors",
-                isMenuOpen && "bg-slate-700"
-              )}
+              size="icon"
+              className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setIsMenuOpen(!isMenuOpen);
               }}
             >
-              <MoreHorizontal className="h-4 w-4 text-gray-400" />
+              <MoreHorizontal className="h-5 w-5" />
             </Button>
 
             {isMenuOpen && (
-              <div className="absolute right-0 bottom-full mb-2 w-48 bg-slate-800 border border-slate-600 rounded-xl shadow-xl shadow-black/50 z-[100] py-1 animate-in fade-in zoom-in duration-200">
-                {/* Admins and creators see full menu */}
+              <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-1.5 overflow-hidden animate-in fade-in zoom-in duration-200">
                 {canManageProject && (
                   <>
                     <button
-                      onClick={handleEdit}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-slate-700 flex items-center transition-colors text-blue-300 hover:text-blue-200"
+                      onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); router.visit(`/projects/${project.id}/edit`); }}
+                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-slate-50 flex items-center gap-2.5 transition-colors text-slate-700 font-medium"
                     >
-                      <Edit className="h-4 w-4 mr-2" />
+                      <Edit className="h-4 w-4 text-indigo-500" />
                       Edit Project
                     </button>
                     <button
-                      onClick={handleOpen}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-slate-700 flex items-center transition-colors text-emerald-300 hover:text-emerald-200"
+                      onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); router.visit(`/projects/${project.id}/tasks`); }}
+                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-slate-50 flex items-center gap-2.5 transition-colors text-slate-700 font-medium"
                     >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Tasks
+                      <Eye className="h-4 w-4 text-emerald-500" />
+                      View Details
                     </button>
-                    <div className="my-1 border-t border-slate-600" />
+                    <div className="my-1.5 border-t border-slate-100" />
                     <button
-                      onClick={handleDelete}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-red-900/50 flex items-center transition-colors text-red-400 hover:text-red-300"
+                      onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); if (confirm('Delete project?')) router.delete(`/projects/${project.id}`); }}
+                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-red-50 flex items-center gap-2.5 transition-colors text-red-600 font-medium"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Trash2 className="h-4 w-4" />
                       Delete Project
                     </button>
                   </>
                 )}
-                
-                {/* Team members and clients see only View Tasks */}
                 {!canManageProject && (
                   <button
-                    onClick={handleOpen}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-slate-700 flex items-center transition-colors text-emerald-300 hover:text-emerald-200"
+                    onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); router.visit(`/projects/${project.id}/tasks`); }}
+                    className="w-full px-4 py-2.5 text-sm text-left hover:bg-slate-50 flex items-center gap-2.5 transition-colors text-slate-700 font-medium"
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Tasks
+                    <Eye className="h-4 w-4 text-emerald-500" />
+                    View Details
                   </button>
                 )}
               </div>
             )}
           </div>
         </div>
-      </CardContent>
+
+        <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-6">
+          {project.description || 'Develop and manage your projects with ease using our collaborative tools.'}
+        </p>
+
+        {/* Progress Bar Container */}
+        <div className="space-y-2 mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Project Progress</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[14px] font-bold text-slate-900">{completionPercentage}%</span>
+            </div>
+          </div>
+          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner p-px">
+            <div
+              className={cn("h-full rounded-full transition-all duration-1000 ease-out", getProgressStyles())}
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Members and Deadlines */}
+        <div className="flex items-center justify-between">
+          <div className="flex -space-x-2.5">
+            {project.team_members?.slice(0, 4).map((member, index) => (
+              <UserProfileLink key={index} userId={member.id}>
+                <Avatar className="h-8 w-8 border-2 border-white ring-1 ring-slate-100 transition-transform hover:scale-110 hover:z-10 shadow-sm">
+                  <AvatarImage src={member.avatar_url} />
+                  <AvatarFallback className="text-[11px] bg-slate-500 text-white font-bold">
+                    {member.name?.charAt(0)?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </UserProfileLink>
+            ))}
+            {project.team_members && project.team_members.length > 4 && (
+              <div className="h-8 w-8 rounded-full bg-slate-50 border-2 border-white ring-1 ring-slate-100 flex items-center justify-center shadow-sm">
+                <span className="text-[10px] font-bold text-slate-500">
+                  +{project.team_members.length - 4}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-1.5 text-slate-500">
+              <Calendar className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium">
+                {project.due_date ? new Date(project.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No due date'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer / Stats */}
+      <div className="px-5 py-4 bg-slate-50/50 border-t border-slate-100 mt-auto">
+        <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 group-hover:text-amber-600 transition-colors">
+              <CheckCircle className="h-3.5 w-3.5" />
+              <span>{project.completed_tasks_count || 0}/{project.tasks_count || 0}</span>
+            </div>
+            <div className="flex items-center gap-1.5 group-hover:text-indigo-600 transition-colors">
+              <Users className="h-3.5 w-3.5" />
+              <span>{project.team_members_count || 0} Members</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-indigo-600 group-hover:translate-x-1 transition-transform">
+            <span className="font-bold">Enter</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }

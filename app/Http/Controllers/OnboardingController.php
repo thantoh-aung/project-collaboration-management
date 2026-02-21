@@ -172,10 +172,16 @@ class OnboardingController extends Controller
 
     private function redirectAfterOnboarding($user)
     {
-        if ($user->usage_type === 'team_member') {
-            return redirect()->route('pending-invitation');
+        // Check if user belongs to any workspace
+        $workspaceId = session('current_workspace_id') ?? $user->workspaces()->first()?->id;
+        
+        if ($workspaceId) {
+            session(['current_workspace_id' => $workspaceId]);
+            return redirect()->route('dashboard')
+                ->with('success', 'Profile setup complete! Welcome to your workspace.');
         }
 
+        // Default to marketplace
         return redirect()->route('marketplace.home')
             ->with('success', 'Profile setup complete! Welcome to the marketplace.');
     }

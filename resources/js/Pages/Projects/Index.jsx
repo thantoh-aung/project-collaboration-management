@@ -64,11 +64,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
     return (
       <MainLayout title="Projects">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-red-900/30 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-red-400" />
+          <div className="mx-auto w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-red-500" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Workspace Error</h3>
-          <p className="text-gray-400 mb-4">
+          <h3 className="text-lg font-medium text-[#0F172A] mb-2">Workspace Error</h3>
+          <p className="text-[#64748B] mb-4">
             {error.message || 'Failed to load workspace information.'}
           </p>
           <Button onClick={() => window.location.reload()}>
@@ -115,11 +115,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
     return (
       <MainLayout title="Projects">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-yellow-900/30 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-yellow-400" />
+          <div className="mx-auto w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-amber-500" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No Workspace Selected</h3>
-          <p className="text-gray-400 mb-4">Please select a workspace to view projects.</p>
+          <h3 className="text-lg font-medium text-[#0F172A] mb-2">No Workspace Selected</h3>
+          <p className="text-[#64748B] mb-4">Please select a workspace to view projects.</p>
           <Button onClick={() => router.visit('/dashboard')}>
             Go to Dashboard
           </Button>
@@ -134,11 +134,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
     return (
       <MainLayout title="Projects">
         <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-red-900/30 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-red-400" />
+          <div className="mx-auto w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-red-500" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Data Error</h3>
-          <p className="text-gray-400 mb-4">
+          <h3 className="text-lg font-medium text-[#0F172A] mb-2">Data Error</h3>
+          <p className="text-[#64748B] mb-4">
             Failed to load projects data. Please try again.
           </p>
           <Button onClick={() => window.location.reload()}>
@@ -151,11 +151,11 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
 
   const getStatusColor = (status) => {
     const colors = {
-      planning: 'bg-slate-700 text-slate-300 border-0',
-      active: 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-sm shadow-blue-600/30',
-      on_hold: 'bg-gradient-to-r from-yellow-600 to-amber-600 text-white border-0 shadow-sm shadow-yellow-600/30',
-      completed: 'bg-gradient-to-r from-emerald-600 to-green-600 text-white border-0 shadow-sm shadow-emerald-600/30',
-      archived: 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-0 shadow-sm shadow-red-600/30',
+      planning: 'bg-[#F1F5F9] text-[#64748B] border-0',
+      active: 'bg-[rgba(79,70,229,0.08)] text-[#4F46E5] border-0',
+      on_hold: 'bg-amber-50 text-amber-700 border-0',
+      completed: 'bg-emerald-50 text-emerald-700 border-0',
+      archived: 'bg-red-50 text-red-600 border-0',
     };
     return colors[status] || colors.planning;
   };
@@ -174,8 +174,8 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">Projects</h1>
-            <p className="text-sm text-gray-400 mt-1">
+            <h1 className="text-2xl font-bold text-[#0F172A]">Projects</h1>
+            <p className="text-sm text-[#64748B] mt-1">
               Manage and track all your team projects
             </p>
           </div>
@@ -186,7 +186,7 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
                 setTimeout(() => {
                   router.visit('/projects/create');
                 }, 0);
-              }} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 border-0 transition-all duration-300">
+              }} className="bg-[#4F46E5] text-white hover:bg-[#4338CA] border-0">
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
               </Button>
@@ -211,7 +211,7 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-md shadow-blue-600/30' : 'hover:border-blue-500 hover:bg-blue-900/30'}
+              className={viewMode === 'grid' ? 'bg-[#4F46E5] text-white border-0' : 'text-[#64748B] border-[#E2E8F0] hover:border-[#4F46E5] hover:bg-[rgba(79,70,229,0.04)]'}
             >
               <Grid3X3 className="h-4 w-4 mr-1.5" />
               Grid
@@ -220,7 +220,7 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-md shadow-blue-600/30' : 'hover:border-blue-500 hover:bg-blue-900/30'}
+              className={viewMode === 'list' ? 'bg-[#4F46E5] text-white border-0' : 'text-[#64748B] border-[#E2E8F0] hover:border-[#4F46E5] hover:bg-[rgba(79,70,229,0.04)]'}
             >
               <List className="h-4 w-4 mr-1.5" />
               List
@@ -244,10 +244,10 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
             </div>
           )
         ) : (
-          <div className="text-center py-16 bg-slate-800 rounded-lg border border-slate-700">
-            <div className="mx-auto w-16 w-16 bg-gradient-to-br from-purple-600/20 to-violet-600/20 rounded-full p-4 text-purple-400" />
-            <h3 className="text-lg font-semibold text-white mb-2">No Projects Found</h3>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+          <div className="text-center py-16 bg-white rounded-[10px] border border-[#E2E8F0]">
+            <FolderOpen className="mx-auto h-12 w-12 text-[#CBD5E1] mb-4" />
+            <h3 className="text-lg font-semibold text-[#0F172A] mb-2">No Projects Found</h3>
+            <p className="text-[#64748B] mb-6 max-w-md mx-auto">
               {searchTerm
                 ? 'Try adjusting your search terms'
                 : hasPermission('create_projects')
@@ -255,15 +255,15 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
                   : 'You haven\'t been assigned to any projects yet.'}
             </p>
             {hasPermission('create_projects') && !searchTerm && (
-              <Button onClick={() => router.visit('/projects/create')} className="shadow-sm">
+              <Button onClick={() => router.visit('/projects/create')} className="bg-[#4F46E5] text-white hover:bg-[#4338CA]">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Project
               </Button>
             )}
           </div>
         )}
-        </div>
-      </MainLayout>
+      </div>
+    </MainLayout>
   );
 }
 
@@ -271,136 +271,107 @@ function ProjectsIndexContent({ projects, searchTerm, setSearchTerm, viewMode, s
 function ProjectListItem({ project }) {
   const { hasPermission } = useWorkspace();
 
-  const getStatusColor = (status) => {
-    const colors = {
-      planning: 'bg-slate-700 text-slate-300',
-      active: 'bg-blue-600/20 text-blue-300',
-      on_hold: 'bg-yellow-600/20 text-yellow-300',
-      completed: 'bg-emerald-600/20 text-emerald-300',
-      archived: 'bg-red-600/20 text-red-300',
+  const getStatusConfig = (status) => {
+    const configs = {
+      planning: { color: 'bg-slate-100 text-slate-600', icon: <Target className="h-3 w-3" />, label: 'Planning' },
+      active: { color: 'bg-indigo-50 text-indigo-600', icon: <TrendingUp className="h-3 w-3" />, label: 'In Progress' },
+      on_hold: { color: 'bg-amber-50 text-amber-600', icon: <Clock className="h-3 w-3" />, label: 'On Hold' },
+      completed: { color: 'bg-emerald-50 text-emerald-600', icon: <CheckCircle className="h-3 w-3" />, label: 'Completed' },
+      archived: { color: 'bg-slate-100 text-slate-500', icon: <Archive className="h-3 w-3" />, label: 'Archived' },
     };
-    return colors[status] || colors.active;
+    return configs[status] || configs.active;
   };
+
+  const status = getStatusConfig(project.status);
+
   return (
     <Card
-      className="hover:shadow-lg hover:shadow-blue-600/20 transition-shadow cursor-pointer bg-slate-800 border-slate-700"
+      className="group hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 cursor-pointer bg-white border-slate-200/60 hover:border-indigo-200/60 rounded-xl overflow-hidden"
       onClick={() => router.visit(`/projects/${project.id}/tasks`)}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-              <FolderOpen className="h-5 w-5 text-blue-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg">{project.name}</CardTitle>
-              <CardDescription className="text-sm">
-                {project.description || 'No description'}
-              </CardDescription>
-            </div>
+      <div className="flex items-center p-4 sm:p-5 gap-4">
+        <div className="hidden sm:flex h-12 w-12 bg-indigo-50 rounded-xl items-center justify-center text-indigo-600 flex-shrink-0 group-hover:scale-105 transition-transform">
+          <FolderOpen className="h-6 w-6" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+              {project.name}
+            </h3>
+            <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider", status.color)}>
+              {status.label}
+            </span>
           </div>
+          <p className="text-sm text-slate-500 line-clamp-1 max-w-2xl">
+            {project.description || 'No description provided'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-6 flex-shrink-0">
+          {/* Progress / Stats */}
+          <div className="hidden md:flex flex-col items-end gap-1">
+            <div className="flex items-center gap-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {project.team_members_count || 0}</div>
+              <div className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> {project.completed_tasks_count || 0}/{project.tasks_count || 0}</div>
+            </div>
+            {project.due_date && (
+              <div className="flex items-center gap-1 text-xs text-slate-500 font-medium">
+                <Calendar className="h-3 w-3" />
+                <span>Due {new Date(project.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Members Avatars */}
+          <div className="flex -space-x-2">
+            {project.team_members?.slice(0, 3).map((member, index) => (
+              <Avatar key={index} className="h-8 w-8 border-2 border-white ring-1 ring-slate-100 shadow-sm">
+                <AvatarFallback className="text-[10px] bg-slate-500 text-white font-bold">
+                  {member.name?.charAt(0)?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            ))}
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-slate-600 bg-slate-50/50 hover:bg-slate-100 rounded-lg">
+                <MoreHorizontal className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => {
+            <DropdownMenuContent align="end" className="w-48 bg-white border-slate-200 rounded-xl shadow-xl py-1.5">
+              <DropdownMenuItem className="px-4 py-2.5 flex items-center gap-2.5 text-slate-700 font-medium cursor-pointer" onClick={(e) => {
                 e.stopPropagation();
                 router.visit(`/projects/${project.id}/tasks`);
               }}>
-                <Eye className="h-4 w-4 mr-2" />
-                Open Project
+                <Eye className="h-4 w-4 text-emerald-500" />
+                View Project
               </DropdownMenuItem>
               {hasPermission('edit_projects') && (
-                <DropdownMenuItem onClick={(e) => {
+                <DropdownMenuItem className="px-4 py-2.5 flex items-center gap-2.5 text-slate-700 font-medium cursor-pointer" onClick={(e) => {
                   e.stopPropagation();
                   router.visit(`/projects/${project.id}/edit`);
                 }}>
-                  <Edit className="h-4 w-4 mr-2" />
+                  <Edit className="h-4 w-4 text-indigo-500" />
                   Edit Project
                 </DropdownMenuItem>
               )}
               {hasPermission('delete_projects') && (
-                <DropdownMenuItem onClick={(e) => {
+                <DropdownMenuItem className="px-4 py-2.5 flex items-center gap-2.5 text-red-600 font-medium cursor-pointer" onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm('Are you sure you want to delete this project?')) {
+                  if (confirm('Delete this project?')) {
                     router.delete(`/projects/${project.id}`);
                   }
                 }}>
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="h-4 w-4" />
                   Delete Project
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div className="flex items-center gap-4">
-            {/* Team Members */}
-            {(project.team_members && project.team_members.length > 0) && (
-              <div className="flex items-center gap-1">
-                <div className="flex -space-x-1">
-                  {project.team_members.slice(0, 3).map((member, index) => (
-                    <div
-                      key={`team-${index}`}
-                      className="w-5 h-5 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-xs font-medium text-blue-700"
-                      title={`${member.name} (${member.pivot?.role || 'member'})`}
-                    >
-                      {member.name?.charAt(0).toUpperCase()}
-                    </div>
-                  ))}
-                  {project.team_members.length > 3 && (
-                    <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-medium text-blue-600">
-                      +{project.team_members.length - 3}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {/* Clients */}
-            {(project.clients && project.clients.length > 0) && (
-              <div className="flex items-center gap-1">
-                <div className="flex -space-x-1">
-                  {project.clients.slice(0, 2).map((client, index) => (
-                    <div
-                      key={`client-${index}`}
-                      className="w-5 h-5 rounded-full bg-green-100 border border-green-200 flex items-center justify-center text-xs font-medium text-green-700"
-                      title={`${client.name} (client)`}
-                    >
-                      {client.name?.charAt(0).toUpperCase()}
-                    </div>
-                  ))}
-                  {project.clients.length > 2 && (
-                    <div className="w-5 h-5 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-xs font-medium text-green-600">
-                      +{project.clients.length - 2}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {/* Task count */}
-            <div className="flex items-center gap-1">
-              <CheckCircle className="h-4 w-4" />
-              <span>{project.completed_tasks_count || 0}</span>
-            </div>
-          </div>
-          <Badge className={getStatusColor(project.status)}>
-            {project.status}
-          </Badge>
-        </div>
-        {project.due_date && (
-          <div className="flex items-center gap-1 text-sm text-gray-500 mt-2">
-            <Calendar className="h-4 w-4" />
-            Due: {new Date(project.due_date).toLocaleDateString()}
-          </div>
-        )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

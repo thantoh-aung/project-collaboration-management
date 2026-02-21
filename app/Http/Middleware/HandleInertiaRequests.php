@@ -123,21 +123,32 @@ class HandleInertiaRequests extends Middleware
     protected function getUnreadMessageCount($user): int
     {
         try {
-            // Check if pre_project_messages table exists
-            if (!DB::getSchemaBuilder()->hasTable('pre_project_messages')) {
-                return 0;
+            $totalUnread = 0;
+
+            // 1. Pre-project messages
+            if (DB::getSchemaBuilder()->hasTable('pre_project_messages')) {
+                $totalUnread += \App\Models\PreProjectMessage::whereHas('chat', function ($query) use ($user) {
+                    $query->where('client_id', $user->id)
+                          ->orWhere('freelancer_id', $user->id);
+                })
+                ->where('sender_id', '!=', $user->id)
+                ->whereNull('read_at')
+                ->count();
             }
 
-            // Count unread messages from all chats where user is participant
-            return \App\Models\PreProjectMessage::whereHas('chat', function ($query) use ($user) {
-                $query->where('client_id', $user->id)
-                      ->orWhere('freelancer_id', $user->id);
-            })
-            ->where('sender_id', '!=', $user->id)
-            ->whereNull('read_at')
-            ->count();
+            // 2. Collaboration messages
+            if (DB::getSchemaBuilder()->hasTable('collaboration_messages')) {
+                $totalUnread += \App\Models\CollaborationMessage::whereHas('collaboration', function ($query) use ($user) {
+                    $query->where('user_one_id', $user->id)
+                          ->orWhere('user_two_id', $user->id);
+                })
+                ->where('sender_id', '!=', $user->id)
+                ->whereNull('read_at')
+                ->count();
+            }
+
+            return $totalUnread;
         } catch (\Exception $e) {
-            // If there's any error (table doesn't exist, etc.), return 0
             return 0;
         }
     }

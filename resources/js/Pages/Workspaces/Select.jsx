@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MarketplaceLayout from '@/Layouts/MarketplaceLayout';
-import { 
-  Building, 
-  Users, 
-  ChevronRight, 
+import {
+  Building,
+  Users,
+  ChevronRight,
   Crown,
   User,
   Briefcase,
@@ -18,36 +18,22 @@ import {
 export default function WorkspaceSelect({ workspaces, current_workspace_id, auth }) {
   const [switching, setSwitching] = useState(false);
 
-  console.log('=== WorkspaceSelect Props Debug ===');
-  console.log('workspaces prop:', workspaces);
-  console.log('workspaces length:', workspaces?.length);
-  console.log('current_workspace_id prop:', current_workspace_id);
-  console.log('auth prop:', auth);
-  console.log('=====================================');
-
   const handleWorkspaceSelect = (workspace) => {
-    if (switching) return; // Prevent multiple clicks
-    
-    console.log('WorkspaceSelect: Selecting workspace', workspace.name, 'ID:', workspace.id);
-    
-    // If this is already the current workspace, just go to dashboard
+    if (switching) return;
+
     if (workspace.id === current_workspace_id) {
-      console.log('WorkspaceSelect: Already current workspace, going to dashboard');
       router.visit(route('dashboard'));
       return;
     }
-    
+
     setSwitching(true);
-    console.log('WorkspaceSelect: Switching to workspace', workspace.id);
-    
-    // Use direct router.post for switching
+
     router.post(route('workspaces.switch', workspace.id), {}, {
       onSuccess: (page) => {
-        console.log('WorkspaceSelect: Switch successful, going to dashboard');
         router.visit(route('dashboard'));
       },
       onError: (errors) => {
-        console.error('WorkspaceSelect: Switch failed', errors);
+        console.error('Switch failed', errors);
         setSwitching(false);
       }
     });
@@ -55,205 +41,190 @@ export default function WorkspaceSelect({ workspaces, current_workspace_id, auth
 
   const getRoleIcon = (role) => {
     switch (role) {
-      case 'admin':
-        return <Crown className="h-4 w-4 text-yellow-600" />;
-      case 'member':
-        return <Users className="h-4 w-4 text-blue-600" />;
-      case 'client':
-        return <Eye className="h-4 w-4 text-green-600" />;
-      default:
-        return <User className="h-4 w-4 text-gray-600" />;
+      case 'admin': return <Crown className="h-4 w-4 text-amber-600" />;
+      case 'member': return <Users className="h-4 w-4 text-[#4F46E5]" />;
+      case 'client': return <Eye className="h-4 w-4 text-emerald-600" />;
+      default: return <User className="h-4 w-4 text-[#64748B]" />;
     }
   };
 
   const getRoleColor = (role) => {
     switch (role) {
-      case 'admin':
-        return 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-md shadow-yellow-500/30';
-      case 'member':
-        return 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/30';
-      case 'client':
-        return 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/30';
-      default:
-        return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white shadow-md shadow-gray-500/30';
+      case 'admin': return 'bg-amber-50 text-amber-700';
+      case 'member': return 'bg-[rgba(79,70,229,0.08)] text-[#4F46E5]';
+      case 'client': return 'bg-emerald-50 text-emerald-700';
+      default: return 'bg-[#F1F5F9] text-[#64748B]';
     }
   };
 
   return (
     <MarketplaceLayout>
       <Head title="Select Workspace" />
-      
-      <div className="bg-slate-900 text-white flex-1">
-                
+
+      <div className="bg-[#F8FAFC] text-[#0F172A] flex-1">
+
         <div className="py-4 px-4 sm:px-6 lg:px-8 pb-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Select Your Workspace
-            </h2>
-            <p className="mt-2 text-base text-gray-400 max-w-xl mx-auto">
-              Choose your workspace to access your projects and collaborate with your team
-            </p>
-          </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-[#0F172A]">
+                Select Your Workspace
+              </h2>
+              <p className="mt-2 text-base text-[#64748B] max-w-xl mx-auto">
+                Choose your workspace to access your projects and collaborate with your team
+              </p>
+            </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-4">
-            {workspaces.map((workspace) => {
-              const userRole = workspace.user_role || workspace.pivot?.role || 'member';
-              const isOwner = workspace.owner?.id === auth.user.id;
-              const isCurrent = workspace.id === current_workspace_id;
-              
-              return (
-                <Card 
-                  key={workspace.id} 
-                  className={`group relative overflow-hidden transition-all duration-300 cursor-pointer ${
-                    isCurrent 
-                      ? 'border-2 border-blue-500 bg-slate-800 shadow-xl shadow-blue-500/20 scale-105' 
-                      : 'border border-slate-600 bg-slate-800 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1'
-                  } ${switching ? 'cursor-not-allowed opacity-60' : ''}`}
-                  onClick={() => !switching && handleWorkspaceSelect(workspace)}
-                >
-                  {/* Current workspace indicator */}
-                  {isCurrent && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-tr from-blue-500 to-purple-600 text-white text-xs px-3 py-1 rounded-bl-lg">
-                      Current
-                    </div>
-                  )}
-                  
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                          isCurrent 
-                            ? 'bg-gradient-to-tr from-blue-500 to-purple-600 shadow-lg' 
-                            : 'bg-gradient-to-tr from-slate-600 to-slate-700 group-hover:from-blue-600 group-hover:to-purple-600'
-                        }`}>
-                          <Building className={`h-6 w-6 transition-colors duration-300 ${
-                            isCurrent ? 'text-white' : 'text-gray-300 group-hover:text-white'
-                          }`} />
-                        </div>
-                        <div className="flex-1">
-                          <CardTitle className={`text-lg font-semibold transition-colors duration-300 ${
-                            isCurrent ? 'text-blue-300' : 'text-white group-hover:text-blue-300'
-                          }`}>
-                            {workspace.name}
-                          </CardTitle>
-                          {workspace.description && (
-                            <CardDescription className="text-sm text-gray-400 mt-1 line-clamp-2">
-                              {workspace.description}
-                            </CardDescription>
-                          )}
-                        </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-4">
+              {workspaces.map((workspace) => {
+                const userRole = workspace.user_role || workspace.pivot?.role || 'member';
+                const isOwner = workspace.owner?.id === auth.user.id;
+                const isCurrent = workspace.id === current_workspace_id;
+
+                return (
+                  <Card
+                    key={workspace.id}
+                    className={`group relative overflow-hidden transition-all duration-200 cursor-pointer ${isCurrent
+                        ? 'border-2 border-[#4F46E5] bg-white shadow-md'
+                        : 'border border-[#E2E8F0] bg-white hover:border-[rgba(79,70,229,0.3)] hover:shadow-md hover:-translate-y-0.5'
+                      } ${switching ? 'cursor-not-allowed opacity-60' : ''}`}
+                    onClick={() => !switching && handleWorkspaceSelect(workspace)}
+                  >
+                    {/* Current workspace indicator */}
+                    {isCurrent && (
+                      <div className="absolute top-0 right-0 bg-[#4F46E5] text-white text-xs px-3 py-1 rounded-bl-lg">
+                        Current
                       </div>
-                      <ChevronRight className={`h-5 w-5 transition-all duration-300 ${
-                        isCurrent ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-400 group-hover:translate-x-1'
-                      }`} />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-4">
-                      {/* Role Badge */}
-                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
-                        <span className="text-sm font-medium text-gray-300">Your Role:</span>
-                        <Badge className={`${getRoleColor(userRole)} border-0 px-2 py-1`}>
-                          <div className="flex items-center gap-1.5">
-                            {getRoleIcon(userRole)}
-                            <span className="capitalize font-medium">{userRole}</span>
+                    )}
+
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 ${isCurrent
+                              ? 'bg-[#4F46E5]'
+                              : 'bg-[rgba(79,70,229,0.08)] group-hover:bg-[#4F46E5]'
+                            }`}>
+                            <Building className={`h-6 w-6 transition-colors duration-200 ${isCurrent ? 'text-white' : 'text-[#4F46E5] group-hover:text-white'
+                              }`} />
                           </div>
-                        </Badge>
+                          <div className="flex-1">
+                            <CardTitle className={`text-lg font-semibold transition-colors duration-200 ${isCurrent ? 'text-[#4F46E5]' : 'text-[#0F172A] group-hover:text-[#4F46E5]'
+                              }`}>
+                              {workspace.name}
+                            </CardTitle>
+                            {workspace.description && (
+                              <CardDescription className="text-sm text-[#64748B] mt-1 line-clamp-2">
+                                {workspace.description}
+                              </CardDescription>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronRight className={`h-5 w-5 transition-all duration-200 ${isCurrent ? 'text-[#4F46E5]' : 'text-[#94A3B8] group-hover:text-[#4F46E5] group-hover:translate-x-1'
+                          }`} />
                       </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        {/* Role Badge */}
+                        <div className="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                          <span className="text-sm font-medium text-[#64748B]">Your Role:</span>
+                          <Badge className={`${getRoleColor(userRole)} border-0 px-2 py-1`}>
+                            <div className="flex items-center gap-1.5">
+                              {getRoleIcon(userRole)}
+                              <span className="capitalize font-medium">{userRole}</span>
+                            </div>
+                          </Badge>
+                        </div>
 
-                      {/* Owner Info */}
-                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
-                        <span className="text-sm font-medium text-gray-300">Owner:</span>
-                        <span className="text-sm font-semibold text-white">
-                          {isOwner ? 'You' : workspace.owner?.name}
-                        </span>
-                      </div>
-
-                      {/* Member Count */}
-                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
-                        <span className="text-sm font-medium text-gray-300">Members:</span>
-                        <div className="flex items-center gap-1.5">
-                          <Users className="h-4 w-4 text-blue-400" />
-                          <span className="text-sm font-semibold text-white">
-                            {workspace.member_count || 1}
+                        {/* Owner Info */}
+                        <div className="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                          <span className="text-sm font-medium text-[#64748B]">Owner:</span>
+                          <span className="text-sm font-semibold text-[#0F172A]">
+                            {isOwner ? 'You' : workspace.owner?.name}
                           </span>
                         </div>
-                      </div>
 
-                      {/* Status */}
-                      <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
-                        <span className="text-sm font-medium text-gray-300">Status:</span>
-                        <Badge className={`${
-                          workspace.is_active 
-                            ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md shadow-emerald-500/30 border-0 px-2 py-1' 
-                            : 'bg-gradient-to-r from-gray-500 to-gray-700 text-white shadow-md shadow-gray-500/30 border-0 px-2 py-1'
-                        }`}>
-                          {workspace.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </div>
-
-                      {/* Join Date */}
-                      {workspace.pivot?.joined_at && (
-                        <div className="flex items-center justify-between p-3 bg-slate-700 rounded-lg">
-                          <span className="text-sm font-medium text-gray-300">Joined:</span>
-                          <span className="text-sm font-semibold text-white">
-                            {new Date(workspace.pivot.joined_at).toLocaleDateString()}
-                          </span>
+                        {/* Member Count */}
+                        <div className="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                          <span className="text-sm font-medium text-[#64748B]">Members:</span>
+                          <div className="flex items-center gap-1.5">
+                            <Users className="h-4 w-4 text-[#4F46E5]" />
+                            <span className="text-sm font-semibold text-[#0F172A]">
+                              {workspace.member_count || 1}
+                            </span>
+                          </div>
                         </div>
-                      )}
-                    </div>
 
-                    <Button 
-                      className={`w-full mt-6 font-semibold transition-all duration-300 ${
-                        isCurrent 
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 border-0' 
-                          : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white hover:from-blue-600 hover:to-purple-600 hover:border-blue-500 border border-slate-600'
-                      }`}
-                      disabled={switching || isCurrent}
-                    >
-                      {switching ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                          Switching...
-                        </>
-                      ) : (
-                        <>
-                          <Briefcase className="h-4 w-4 mr-2" />
-                          {isCurrent ? 'Current Workspace' : 'Open Workspace'}
-                        </>
-                      )}
+                        {/* Status */}
+                        <div className="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                          <span className="text-sm font-medium text-[#64748B]">Status:</span>
+                          <Badge className={`${workspace.is_active
+                              ? 'bg-emerald-50 text-emerald-700 border-0 px-2 py-1'
+                              : 'bg-[#F1F5F9] text-[#94A3B8] border-0 px-2 py-1'
+                            }`}>
+                            {workspace.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </div>
+
+                        {/* Join Date */}
+                        {workspace.pivot?.joined_at && (
+                          <div className="flex items-center justify-between p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                            <span className="text-sm font-medium text-[#64748B]">Joined:</span>
+                            <span className="text-sm font-semibold text-[#0F172A]">
+                              {new Date(workspace.pivot.joined_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <Button
+                        className={`w-full mt-6 font-semibold transition-colors ${isCurrent
+                            ? 'bg-[#4F46E5] text-white border-0'
+                            : 'bg-[#F1F5F9] text-[#64748B] hover:bg-[#4F46E5] hover:text-white border border-[#E2E8F0]'
+                          }`}
+                        disabled={switching || isCurrent}
+                      >
+                        {switching ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                            Switching...
+                          </>
+                        ) : (
+                          <>
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            {isCurrent ? 'Current Workspace' : 'Open Workspace'}
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {workspaces.length === 0 && (
+              <Card className="text-center py-16 border-2 border-dashed border-[#E2E8F0] bg-white">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 bg-[rgba(79,70,229,0.08)] rounded-2xl flex items-center justify-center mb-6">
+                    <Building className="h-8 w-8 text-[#4F46E5]" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#0F172A] mb-3">
+                    No Workspaces Available
+                  </h3>
+                  <p className="text-lg text-[#64748B] mb-8 max-w-md mx-auto">
+                    You haven't joined any workspaces yet. Start by browsing the marketplace to find freelancers or clients, then create a workspace together through chat.
+                  </p>
+                  <div className="flex justify-center">
+                    <Button asChild className="bg-[#4F46E5] hover:bg-[#4338CA] text-white">
+                      <a href="/marketplace">
+                        <Store className="h-4 w-4 mr-2" />
+                        Browse Marketplace
+                      </a>
                     </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
-
-          {workspaces.length === 0 && (
-            <Card className="text-center py-16 border-2 border-dashed border-slate-600 bg-slate-800">
-              <CardContent>
-                <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-slate-600 to-slate-700 rounded-2xl flex items-center justify-center mb-6">
-                  <Building className="h-8 w-8 text-gray-400" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-3">
-                  No Workspaces Available
-                </h3>
-                <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
-                  You haven't joined any workspaces yet. Start by browsing the marketplace to find freelancers or clients, then create a workspace together through chat.
-                </p>
-                <div className="flex justify-center">
-                  <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 border-0">
-                    <a href="/marketplace">
-                      <Store className="h-4 w-4 mr-2" />
-                      Browse Marketplace
-                    </a>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
         </div>
       </div>
     </MarketplaceLayout>

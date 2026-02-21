@@ -8,6 +8,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ProjectPostController;
 use App\Http\Controllers\AiChatController;
+use App\Http\Controllers\FreelancerCollaborationController;
 use Illuminate\Support\Facades\Route;
 
 // Onboarding routes (auth + web for CSRF, no workspace required)
@@ -78,8 +79,18 @@ Route::middleware(['web', 'auth', 'marketplace.access'])->prefix('marketplace')-
     Route::post('/chats/{chat}/restore', [PreProjectChatController::class, 'restore'])->name('marketplace.chats.restore');
 
     // Convert chat to workspace (freelancer only)
+    Route::post('/chats/{chat}/request', [PreProjectChatController::class, 'requestProject'])->name('marketplace.chats.request');
+    Route::post('/chats/{chat}/approve', [PreProjectChatController::class, 'approveProject'])->name('marketplace.chats.approve');
+    Route::post('/chats/{chat}/reject', [PreProjectChatController::class, 'rejectProject'])->name('marketplace.chats.reject');
     Route::post('/chats/{chat}/convert', [PreProjectChatController::class, 'convert'])->name('marketplace.chats.convert');
 
     // Reviews
     Route::post('/reviews', [ReviewController::class, 'store'])->name('marketplace.reviews.store');
+
+    // Freelancer Collaborations (F2F Messaging)
+    Route::get('/collaborations', [FreelancerCollaborationController::class, 'index'])->name('marketplace.collaborations.index');
+    Route::post('/collaborations', [FreelancerCollaborationController::class, 'store'])->name('marketplace.collaborations.store');
+    Route::get('/collaborations/{collaboration}', [FreelancerCollaborationController::class, 'show'])->name('marketplace.collaborations.show');
+    Route::post('/collaborations/{collaboration}/messages', [FreelancerCollaborationController::class, 'sendMessage'])->name('marketplace.collaborations.message');
+    Route::post('/collaborations/{collaboration}/mark-read', [FreelancerCollaborationController::class, 'markRead'])->name('marketplace.collaborations.mark-read');
 });

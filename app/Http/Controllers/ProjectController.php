@@ -34,6 +34,30 @@ class ProjectController extends Controller
                        ->withCount(['teamMembers' => function($query) {
                            $query->where('project_user_access.role', '!=', 'client');
                        }])
+                       ->withCount(['tasks' => function($query) use ($user, $userRole) {
+                           $query->whereNull('archived_at');
+                           if ($userRole === 'member') {
+                               $query->where(function ($q) use ($user) {
+                                   $q->whereNull('assigned_to_user_id')
+                                     ->orWhere('assigned_to_user_id', $user->id)
+                                     ->orWhere('created_by_user_id', $user->id);
+                               });
+                           }
+                       }])
+                       ->withCount(['tasks as completed_tasks_count' => function($query) use ($user, $userRole) {
+                           $query->whereNull('archived_at')
+                                 ->where(function($q) {
+                                     $q->whereNotNull('completed_at')
+                                       ->orWhereIn('status', ['completed', 'done', 'deployed']);
+                                 });
+                           if ($userRole === 'member') {
+                               $query->where(function ($q) use ($user) {
+                                   $q->whereNull('assigned_to_user_id')
+                                     ->orWhere('assigned_to_user_id', $user->id)
+                                     ->orWhere('created_by_user_id', $user->id);
+                               });
+                           }
+                       }])
                        ->where('workspace_id', $workspace->id);
 
         // Apply role-based filtering within workspace
@@ -595,6 +619,30 @@ class ProjectController extends Controller
         $query = Project::with(['clientCompany', 'teamMembers'])
             ->withCount(['teamMembers' => function($query) {
                 $query->where('project_user_access.role', '!=', 'client');
+            }])
+            ->withCount(['tasks' => function($query) use ($user, $userRole) {
+                $query->whereNull('archived_at');
+                if ($userRole === 'member') {
+                    $query->where(function ($q) use ($user) {
+                        $q->whereNull('assigned_to_user_id')
+                          ->orWhere('assigned_to_user_id', $user->id)
+                          ->orWhere('created_by_user_id', $user->id);
+                    });
+                }
+            }])
+            ->withCount(['tasks as completed_tasks_count' => function($query) use ($user, $userRole) {
+                $query->whereNull('archived_at')
+                      ->where(function($q) {
+                          $q->whereNotNull('completed_at')
+                            ->orWhereIn('status', ['completed', 'done', 'deployed']);
+                      });
+                if ($userRole === 'member') {
+                    $query->where(function ($q) use ($user) {
+                        $q->whereNull('assigned_to_user_id')
+                          ->orWhere('assigned_to_user_id', $user->id)
+                          ->orWhere('created_by_user_id', $user->id);
+                    });
+                }
             }])
             ->where('workspace_id', $workspace->id);
 

@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { WorkspaceProvider } from '@/Context/WorkspaceContext';
+import { ProfileProvider } from '@/Context/ProfileContext';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -20,7 +21,9 @@ createInertiaApp({
         const root = createRoot(el);
         root.render(
             <WorkspaceProvider pageProps={props?.initialPage?.props}>
-                <App {...props} />
+                <ProfileProvider>
+                    <App {...props} />
+                </ProfileProvider>
             </WorkspaceProvider>
         );
     },

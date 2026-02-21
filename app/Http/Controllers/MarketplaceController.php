@@ -20,7 +20,8 @@ class MarketplaceController extends Controller
 
         // --- Freelancers query ---
         $freelancerQuery = FreelancerProfile::published()
-            ->with('user:id,name,avatar,email');
+            ->with('user:id,name,avatar,email')
+            ->withCount('workspaces');
 
         if ($search = $request->get('search')) {
             $freelancerQuery->where(function ($q) use ($search) {
@@ -101,8 +102,7 @@ class MarketplaceController extends Controller
             ->with('user:id,name,avatar,email,created_at')
             ->firstOrFail();
 
-        $profile->workspaces_count = \App\Models\Workspace::where('owner_id', $profile->user_id)->count()
-            + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $profile->user_id))->count();
+        $profile->workspaces_count = \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $profile->user_id))->count();
 
         $reviews = FreelancerReview::where('freelancer_id', $profile->user_id)
             ->with('client:id,name,avatar')
@@ -112,15 +112,31 @@ class MarketplaceController extends Controller
 
         $hasExistingChat = false;
         $existingChatId = null;
+        $hasExistingCollab = false;
+        $existingCollabId = null;
         $user = Auth::user();
 
-        if ($user && $user->usage_type === 'client') {
-            $chat = \App\Models\PreProjectChat::where('client_id', $user->id)
-                ->where('freelancer_id', $profile->user_id)
-                ->first();
-            if ($chat) {
-                $hasExistingChat = true;
-                $existingChatId = $chat->id;
+        if ($user) {
+            if ($user->usage_type === 'client') {
+                $chat = \App\Models\PreProjectChat::where('client_id', $user->id)
+                    ->where('freelancer_id', $profile->user_id)
+                    ->first();
+                if ($chat) {
+                    $hasExistingChat = true;
+                    $existingChatId = $chat->id;
+                }
+            }
+
+            if ($user->usage_type === 'freelancer' && $user->id !== $profile->user_id) {
+                $userOneId = min($user->id, $profile->user_id);
+                $userTwoId = max($user->id, $profile->user_id);
+                $collab = \App\Models\FreelancerCollaboration::where('user_one_id', $userOneId)
+                    ->where('user_two_id', $userTwoId)
+                    ->first();
+                if ($collab) {
+                    $hasExistingCollab = true;
+                    $existingCollabId = $collab->id;
+                }
             }
         }
 
@@ -129,6 +145,8 @@ class MarketplaceController extends Controller
             'reviews' => $reviews,
             'hasExistingChat' => $hasExistingChat,
             'existingChatId' => $existingChatId,
+            'hasExistingCollab' => $hasExistingCollab,
+            'existingCollabId' => $existingCollabId,
         ]);
     }
 
@@ -142,8 +160,7 @@ class MarketplaceController extends Controller
             ->with('user:id,name,avatar,email,created_at')
             ->firstOrFail();
 
-        $profile->workspaces_count = \App\Models\Workspace::where('owner_id', $profile->user_id)->count()
-            + \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $profile->user_id))->count();
+        $profile->workspaces_count = \App\Models\Workspace::whereHas('users', fn($q) => $q->where('users.id', $profile->user_id))->count();
 
         $reviews = FreelancerReview::where('freelancer_id', $profile->user_id)
             ->with('client:id,name,avatar')
@@ -153,6 +170,8 @@ class MarketplaceController extends Controller
 
         $hasExistingChat = false;
         $existingChatId = null;
+        $hasExistingCollab = false;
+        $existingCollabId = null;
         $user = Auth::user();
 
         if ($user) {
@@ -166,6 +185,18 @@ class MarketplaceController extends Controller
                 $hasExistingChat = true;
                 $existingChatId = $chat->id;
             }
+
+            if ($user->usage_type === 'freelancer' && $user->id !== $profile->user_id) {
+                $userOneId = min($user->id, $profile->user_id);
+                $userTwoId = max($user->id, $profile->user_id);
+                $collab = \App\Models\FreelancerCollaboration::where('user_one_id', $userOneId)
+                    ->where('user_two_id', $userTwoId)
+                    ->first();
+                if ($collab) {
+                    $hasExistingCollab = true;
+                    $existingCollabId = $collab->id;
+                }
+            }
         }
 
         return response()->json([
@@ -173,6 +204,8 @@ class MarketplaceController extends Controller
             'reviews' => $reviews,
             'hasExistingChat' => $hasExistingChat,
             'existingChatId' => $existingChatId,
+            'hasExistingCollab' => $hasExistingCollab,
+            'existingCollabId' => $existingCollabId,
             'stats' => [
                 'member_since' => $profile->user->created_at->format('M Y'),
                 'workspaces_count' => $profile->workspaces_count,

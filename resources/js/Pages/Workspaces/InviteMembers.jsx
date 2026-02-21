@@ -6,9 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { 
-  Users, 
-  Mail, 
+import {
+  Users,
+  Mail,
   UserPlus,
   Plus,
   X,
@@ -25,37 +25,25 @@ export default function InviteMembers() {
   const { props } = usePage();
   const { currentWorkspace } = useWorkspace();
   const { workspaceUsers } = props;
-  
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  
-  // Team invitations
+
   const [invitations, setInvitations] = useState([
     { email: '', role: 'member' }
   ]);
 
-  // Enhanced CSRF token handling to prevent 419 errors
   useEffect(() => {
     const refreshCSRF = async () => {
-      try {
-        await window.axios.get('/sanctum/csrf-cookie');
-      } catch (error) {
-        console.warn('CSRF refresh failed:', error);
-      }
+      try { await window.axios.get('/sanctum/csrf-cookie'); } catch (error) { console.warn('CSRF refresh failed:', error); }
     };
-
-    // Refresh immediately on mount
     refreshCSRF();
-    
-    // Refresh every 90 seconds
     const interval = setInterval(refreshCSRF, 90 * 1000);
-
     return () => clearInterval(interval);
   }, []);
 
   const validateInvitations = () => {
     const newErrors = {};
-    
     invitations.forEach((inv, index) => {
       if (inv.email.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,20 +52,12 @@ export default function InviteMembers() {
         }
       }
     });
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const addInvitation = () => {
-    setInvitations([...invitations, { email: '', role: 'member' }]);
-  };
-
-  const removeInvitation = (index) => {
-    const newInvitations = invitations.filter((_, i) => i !== index);
-    setInvitations(newInvitations);
-  };
-
+  const addInvitation = () => setInvitations([...invitations, { email: '', role: 'member' }]);
+  const removeInvitation = (index) => setInvitations(invitations.filter((_, i) => i !== index));
   const updateInvitation = (index, field, value) => {
     const newInvitations = [...invitations];
     newInvitations[index][field] = value;
@@ -85,98 +65,67 @@ export default function InviteMembers() {
   };
 
   const removeWorkspaceMember = async (userId) => {
-    if (!confirm('Are you sure you want to remove this team member from the workspace?')) {
-      return;
-    }
-    
+    if (!confirm('Are you sure you want to remove this team member from the workspace?')) return;
     try {
       await router.delete(route('workspaces.users.remove', [currentWorkspace.id, userId]), {
         onSuccess: () => {
-          // Show success message and reload the page to update member list
           setErrors({ general: 'Team member removed successfully.' });
-          setTimeout(() => {
-            setErrors({});
-            router.reload();
-          }, 2000);
+          setTimeout(() => { setErrors({}); router.reload(); }, 2000);
         },
-        onError: (errors) => {
-          console.error('Failed to remove team member:', errors);
-          setErrors({ general: 'Failed to remove team member. Please try again.' });
-        }
+        onError: (errors) => { setErrors({ general: 'Failed to remove team member. Please try again.' }); }
       });
-    } catch (error) {
-      console.error('Failed to remove team member:', error);
-      setErrors({ general: 'Failed to remove team member. Please try again.' });
-    }
+    } catch (error) { setErrors({ general: 'Failed to remove team member. Please try again.' }); }
   };
 
   const sendInvitations = async () => {
     if (!validateInvitations()) return;
-    
     setLoading(true);
     try {
-      // Filter out empty invitations
       const validInvitations = invitations.filter(inv => inv.email.trim());
-      
-      if (validInvitations.length === 0) {
-        setErrors({ general: 'Please add at least one email address' });
-        return;
-      }
+      if (validInvitations.length === 0) { setErrors({ general: 'Please add at least one email address' }); return; }
 
-      // Use the same approach as the old wizard - use Inertia router.post
       await router.post(`/workspaces/${currentWorkspace.id}/invite`, {
         invitations: validInvitations
       }, {
         onSuccess: () => {
-          console.log('Invitations sent successfully');
-          // Redirect to workspace settings with success message
           router.visit(route('workspaces.settings', currentWorkspace.id), {
-            method: 'get',
-            data: { success: 'Invitations sent successfully!' }
+            method: 'get', data: { success: 'Invitations sent successfully!' }
           });
         },
-        onError: (errors) => {
-          console.error('Invitation errors:', errors);
-          setErrors(errors);
-        }
+        onError: (errors) => { setErrors(errors); }
       });
-    } catch (error) {
-      console.error('Failed to send invitations:', error);
-      setErrors({ general: 'Failed to send invitations. Please try again.' });
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setErrors({ general: 'Failed to send invitations. Please try again.' }); }
+    finally { setLoading(false); }
   };
 
   return (
     <MainLayout>
       <Head title="Invite Team Members" />
-      
-      <div className="min-h-screen bg-slate-900 py-8">
+
+      <div className="py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="h-12 w-12 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+              <div className="h-12 w-12 bg-[#4F46E5] rounded-xl flex items-center justify-center">
                 <UserPlus className="h-6 w-6 text-white" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Invite Team Members</h1>
-            <p className="text-gray-400">Add team members to help you complete projects. Clients are automatically included when you create workspaces in the marketplace, so no need to invite them here.</p>
+            <h1 className="text-2xl font-bold text-[#0F172A] mb-2">Invite Team Members</h1>
+            <p className="text-[#64748B]">Add team members to help you complete projects. Clients are automatically included when you create workspaces in the marketplace, so no need to invite them here.</p>
           </div>
 
           {/* Main Content */}
-          <Card className="bg-slate-800 border-slate-700 shadow-lg shadow-blue-600/20">
+          <Card className="bg-white border border-[#E2E8F0]">
             <CardContent className="p-8">
               <div className="space-y-6">
                 {/* Error/Success Display */}
                 {errors.general && (
-                  <div className={`p-4 rounded-lg border ${
-                    errors.general.includes('successfully') 
-                      ? 'bg-emerald-900/30 border-emerald-700' 
-                      : 'bg-red-900/30 border-red-700'
-                  }`}>
-                    <p className={errors.general.includes('successfully') ? 'text-emerald-300' : 'text-red-300'}>
+                  <div className={`p-4 rounded-lg border ${errors.general.includes('successfully')
+                      ? 'bg-emerald-50 border-emerald-200'
+                      : 'bg-red-50 border-red-200'
+                    }`}>
+                    <p className={errors.general.includes('successfully') ? 'text-emerald-700' : 'text-red-600'}>
                       {errors.general}
                     </p>
                   </div>
@@ -185,20 +134,20 @@ export default function InviteMembers() {
                 {/* Current Workspace Members */}
                 {workspaceUsers && workspaceUsers.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="text-md font-medium text-white mb-3">Current Team Members (Admins & Members)</h4>
-                    <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+                    <h4 className="text-md font-medium text-[#0F172A] mb-3">Current Team Members (Admins & Members)</h4>
+                    <div className="bg-[#F8FAFC] rounded-lg p-4 border border-[#E2E8F0]">
                       <div className="space-y-2">
                         {workspaceUsers.map((member) => (
-                          <div key={member.id} className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-600">
+                          <div key={member.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-[#E2E8F0]">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-600/20 rounded-full flex items-center justify-center">
-                                <span className="text-blue-300 font-medium text-sm">
+                              <div className="w-8 h-8 bg-[rgba(79,70,229,0.08)] rounded-full flex items-center justify-center">
+                                <span className="text-[#4F46E5] font-medium text-sm">
                                   {member.name.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                               <div>
-                                <div className="font-medium text-white">{member.name}</div>
-                                <div className="text-sm text-gray-400">{member.email}</div>
+                                <div className="font-medium text-[#0F172A]">{member.name}</div>
+                                <div className="text-sm text-[#64748B]">{member.email}</div>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -222,17 +171,17 @@ export default function InviteMembers() {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Invitations Section */}
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Users className="h-5 w-5 text-blue-400" />
+                  <h3 className="text-lg font-semibold text-[#0F172A] mb-4 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-[#4F46E5]" />
                     Invite Team Members
                   </h3>
-                  
+
                   <div className="space-y-4">
                     {invitations.map((invitation, index) => (
-                      <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+                      <div key={index} className="bg-[#F8FAFC] rounded-lg p-4 border border-[#E2E8F0]">
                         <div className="flex gap-4">
                           <div className="flex-1">
                             <Input
@@ -240,9 +189,10 @@ export default function InviteMembers() {
                               value={invitation.email}
                               onChange={(e) => updateInvitation(index, 'email', e.target.value)}
                               placeholder="colleague@example.com"
+                              className="bg-white border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8]"
                             />
                             {errors[`invitations.${index}.email`] && (
-                              <p className="text-red-400 text-xs mt-1">{errors[`invitations.${index}.email`]}</p>
+                              <p className="text-red-500 text-xs mt-1">{errors[`invitations.${index}.email`]}</p>
                             )}
                           </div>
                           {invitations.length > 1 && (
@@ -251,7 +201,7 @@ export default function InviteMembers() {
                               variant="outline"
                               size="icon"
                               onClick={() => removeInvitation(index)}
-                              className="text-red-400 hover:bg-red-900/30"
+                              className="text-red-500 hover:bg-red-50 border-red-200"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -259,12 +209,12 @@ export default function InviteMembers() {
                         </div>
                       </div>
                     ))}
-                    
+
                     <Button
                       type="button"
                       variant="outline"
                       onClick={addInvitation}
-                      className="w-full"
+                      className="w-full border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Another Invitation
@@ -275,7 +225,7 @@ export default function InviteMembers() {
             </CardContent>
 
             {/* Footer */}
-            <div className="px-8 py-6 border-t border-slate-700 bg-slate-700/30 flex-shrink-0">
+            <div className="px-8 py-6 border-t border-[#E2E8F0] bg-[#F8FAFC] flex-shrink-0">
               <div className="flex justify-between items-center">
                 <div>
                   <Button
@@ -283,25 +233,21 @@ export default function InviteMembers() {
                     variant="outline"
                     onClick={() => window.history.back()}
                     disabled={loading}
+                    className="border-[#E2E8F0] text-[#64748B]"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back
                   </Button>
                 </div>
-                
+
                 <div className="flex gap-3">
                   <Button
                     onClick={sendInvitations}
                     disabled={loading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="bg-[#4F46E5] hover:bg-[#4338CA] text-white"
                   >
-                    {loading ? (
-                      'Sending...'
-                    ) : (
-                      <>
-                        Send Invitations
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </>
+                    {loading ? 'Sending...' : (
+                      <>Send Invitations<ArrowRight className="h-4 w-4 ml-2" /></>
                     )}
                   </Button>
                 </div>

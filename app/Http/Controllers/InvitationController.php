@@ -90,7 +90,13 @@ class InvitationController extends Controller
         session(['current_workspace_id' => $invitation->workspace_id]);
 
         if ($request->expectsJson()) {
-            return response()->json(['message' => 'Invitation accepted successfully.', 'redirect' => route('dashboard')]);
+            $redirect = $user->onboarding_completed ? route('dashboard') : route('onboarding.profile');
+            return response()->json(['message' => 'Invitation accepted successfully.', 'redirect' => $redirect]);
+        }
+
+        if (!$user->onboarding_completed) {
+            return redirect()->route('onboarding.profile')
+                ->with('success', "Welcome! Invitation accepted. Please complete your profile to get started.");
         }
 
         return redirect()->intended(route('dashboard'))
